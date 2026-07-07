@@ -1,0 +1,15 @@
+{
+  "appId": "com.rodcarvalho.artistway",
+  "appName": "The Artist's Way — Companheiro",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "backgroundColor": "#f3ead9",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "iconColor": "#a8752c"
+    }
+  }
+}

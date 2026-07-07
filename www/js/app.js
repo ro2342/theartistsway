@@ -1,0 +1,594 @@
+// app.js — roteador e telas do Companheiro do The Artist's Way
+const DB = window.ArtistWayDB;
+const NOTIF = window.ArtistWayNotifications;
+const GCAL = window.ArtistWayCalendar;
+
+const WEEKDAY_NAMES = ["", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+const appEl = document.getElementById("app");
+
+// ---------- utilidades de data ----------
+function todayStr() {
+  return dateToStr(new Date());
+}
+function dateToStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function addDays(d, n) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+function startOfWeek(d) {
+  // domingo como início da semana
+  const r = new Date(d);
+  r.setDate(r.getDate() - r.getDay());
+  r.setHours(0, 0, 0, 0);
+  return r;
+}
+
+async function getCurrentWeekId(settings) {
+  if (!settings.startDate) return 1;
+  const start = startOfWeek(new Date(settings.startDate + "T00:00:00"));
+  const now = startOfWeek(new Date());
+  const diffWeeks = Math.round((now - start) / (7 * 24 * 3600 * 1000));
+  return Math.min(12, Math.max(1, diffWeeks + 1));
+}
+
+function weekKeyForOffset(settings, weekId) {
+  const start = startOfWeek(new Date(settings.startDate + "T00:00:00"));
+  const weekStart = addDays(start, (weekId - 1) * 7);
+  return dateToStr(weekStart);
+}
+
+// ---------- toast ----------
+let toastTimer = null;
+function toast(msg) {
+  let el = document.getElementById("toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toast";
+    el.className = "toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+// ---------- router ----------
+const routes = {};
+function route(path, handler) {
+  routes[path] = handler;
+}
+function navigate(hash) {
+  window.location.hash = hash;
+}
+async function render() {
+  const hash = window.location.hash || "#/home";
+  const [path, ...rest] = hash.replace("#", "").split("/").filter(Boolean);
+  const routeKey = "/" + path;
+  const handler = routes[routeKey] || routes["/home"];
+  await handler(rest);
+  renderBottomNav(routeKey);
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", render);
+
+function renderBottomNav(activePath) {
+  let nav = document.getElementById("bottomNav");
+  const settingsPromise = DB.getSetting("profile", null);
+  settingsPromise.then((settings) => {
+    if (!settings || !settings.onboarded) {
+      if (nav) nav.remove();
+      return;
+    }
+    const items = [
+      { path: "/home", label: "Início", glyph: "🏡" },
+      { path: "/progress", label: "Jornada", glyph: "🗺️" },
+      { path: "/artist-date", label: "Date", glyph: "🎨" },
+      { path: "/settings", label: "Ajustes", glyph: "🕯️" },
+    ];
+    const html = items
+      .map(
+        (it) => `<button class="nav-btn ${it.path === activePath ? "active" : ""}" data-nav="${it.path}">
+          <span class="glyph">${it.glyph}</span>${it.label}
+        </button>`
+      )
+      .join("");
+    if (!nav) {
+      nav = document.createElement("div");
+      nav.id = "bottomNav";
+      nav.className = "bottom-nav";
+      document.body.appendChild(nav);
+    }
+    nav.innerHTML = html;
+    nav.querySelectorAll("[data-nav]").forEach((btn) => {
+      btn.addEventListener("click", () => navigate("#" + btn.dataset.nav));
+    });
+  });
+}
+
+// ================= ONBOARDING =================
+route("/onboarding", async () => {
+  let step = window.__onboardStep || 0;
+  const draft = window.__onboardDraft || {
+    name: "",
+    startDate: dateToStr(startOfWeek(addDays(new Date(), 7))),
+    morningPagesTime: "07:00",
+    artistDateDay: "7",
+    artistDateTime: "16:00",
+    checkinDay: "7",
+    checkinTime: "19:00",
+  };
+  window.__onboardDraft = draft;
+
+  const steps = [
+    // 0 — boas vindas
+    () => `
+      <div class="onboard-screen">
+        <div class="quote-banner">"A criatividade recuperada nunca é perdida de novo."</div>
+        <h1 class="onboard-title">The Artist's Way<br/>— Companheiro —</h1>
+        <p class="onboard-sub">Um espaço para transformar as tarefas do livro em passos claros, um dia de cada vez. Vamos organizar sua jornada de 12 semanas.</p>
+        <button class="btn brass block" id="next">Começar</button>
+        <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span></div>
+      </div>`,
+    // 1 — nome + data de início
+    () => `
+      <div class="onboard-screen">
+        <h2 class="onboard-title">Como posso te chamar?</h2>
+        <p class="onboard-sub">E quando você quer começar sua Semana 1 (domingo a sábado)?</p>
+        <label>Nome</label>
+        <input type="text" id="fname" value="${draft.name}" placeholder="Seu nome" />
+        <label>Início da Semana 1</label>
+        <input type="date" id="fstart" value="${draft.startDate}" />
+        <div class="spacer"></div>
+        <button class="btn brass block" id="next">Continuar</button>
+        <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span></div>
+      </div>`,
+    // 2 — morning pages + artist date
+    () => `
+      <div class="onboard-screen">
+        <h2 class="onboard-title">Seus rituais</h2>
+        <p class="onboard-sub">Escolha os horários. Dá pra mudar depois em Ajustes.</p>
+        <label>Horário das Morning Pages (todo dia)</label>
+        <input type="time" id="fmp" value="${draft.morningPagesTime}" />
+        <label>Dia do Artist Date</label>
+        <select id="fadday">
+          ${[1, 2, 3, 4, 5, 6, 7]
+            .map((d) => `<option value="${d}" ${String(d) === draft.artistDateDay ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+            .join("")}
+        </select>
+        <label>Horário do Artist Date</label>
+        <input type="time" id="fadtime" value="${draft.artistDateTime}" />
+        <div class="spacer"></div>
+        <button class="btn brass block" id="next">Continuar</button>
+        <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span></div>
+      </div>`,
+    // 3 — checkin + permissões
+    () => `
+      <div class="onboard-screen">
+        <h2 class="onboard-title">Check-in semanal</h2>
+        <p class="onboard-sub">Um momento pra revisar a semana — geralmente no fim de semana.</p>
+        <label>Dia do check-in</label>
+        <select id="fciday">
+          ${[1, 2, 3, 4, 5, 6, 7]
+            .map((d) => `<option value="${d}" ${String(d) === draft.checkinDay ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+            .join("")}
+        </select>
+        <label>Horário do check-in</label>
+        <input type="time" id="fcitime" value="${draft.checkinTime}" />
+        <div class="spacer"></div>
+        <button class="btn moss block" id="finish">Concluir e ativar lembretes</button>
+        <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span></div>
+      </div>`,
+  ];
+
+  appEl.innerHTML = steps[step]();
+
+  const next = document.getElementById("next");
+  if (next) {
+    next.addEventListener("click", () => {
+      if (step === 1) {
+        draft.name = document.getElementById("fname").value.trim();
+        draft.startDate = document.getElementById("fstart").value || draft.startDate;
+      }
+      if (step === 2) {
+        draft.morningPagesTime = document.getElementById("fmp").value || draft.morningPagesTime;
+        draft.artistDateDay = document.getElementById("fadday").value;
+        draft.artistDateTime = document.getElementById("fadtime").value || draft.artistDateTime;
+      }
+      window.__onboardStep = step + 1;
+      render();
+    });
+  }
+  const finish = document.getElementById("finish");
+  if (finish) {
+    finish.addEventListener("click", async () => {
+      draft.checkinDay = document.getElementById("fciday").value;
+      draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
+      draft.onboarded = true;
+      await DB.setSetting("profile", draft);
+      await NOTIF.applySettings(draft);
+      window.__onboardStep = 0;
+      window.__onboardDraft = null;
+      toast("Tudo pronto! Bem-vindo(a) 🌿");
+      navigate("#/home");
+    });
+  }
+});
+
+// ================= HOME =================
+route("/home", async () => {
+  const settings = await DB.getSetting("profile", null);
+  if (!settings || !settings.onboarded) {
+    navigate("#/onboarding");
+    return;
+  }
+  const weekId = await getCurrentWeekId(settings);
+  const week = WEEKS.find((w) => w.id === weekId);
+  const weekKey = weekKeyForOffset(settings, weekId);
+
+  // streak morning pages últimos 7 dias
+  const today = new Date();
+  const days = [];
+  for (let i = 6; i >= 0; i--) days.push(dateToStr(addDays(today, -i)));
+  const allMP = await DB.getAllMorningPages();
+  const mpMap = Object.fromEntries(allMP.map((r) => [r.date, r.done]));
+  const todayDone = !!mpMap[todayStr()];
+
+  const artistDate = (await DB.getArtistDate(weekKey)) || { done: false };
+  const checklist = await DB.getChecklistForWeek(weekId);
+  const doneCount = checklist.filter((c) => c.done).length;
+  const totalItems = week.checklist.length;
+  const pct = totalItems ? Math.round((doneCount / totalItems) * 100) : 0;
+
+  const greetName = settings.name ? `, ${settings.name}` : "";
+
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <div class="logo">The Artist's Way<span class="sub">seu companheiro de jornada</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-sub">Semana ${weekId} de 12</div>
+      <div class="card-title">${week.title}</div>
+      <p class="muted">${week.intro}</p>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${doneCount}/${totalItems} tarefas dessa semana concluídas</div>
+      <div class="spacer-sm"></div>
+      <a class="btn brass block" href="#/week/${weekId}">Ver tarefas da semana</a>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.1rem;">Morning Pages ✍️</div>
+      <p class="muted">Últimos 7 dias</p>
+      <div class="streak-row">
+        ${days
+          .map((d) => {
+            const dt = new Date(d + "T00:00:00");
+            const label = "DSTQQSS"[dt.getDay()];
+            const isToday = d === todayStr();
+            return `<div class="streak-dot ${mpMap[d] ? "done" : ""}" style="${isToday ? "box-shadow:0 0 0 2px var(--brass);" : ""}">${label}</div>`;
+          })
+          .join("")}
+      </div>
+      <div class="spacer-sm"></div>
+      <button class="btn ${todayDone ? "secondary" : "moss"} block" id="toggleMP">
+        ${todayDone ? "✓ Páginas de hoje feitas" : "Marcar páginas de hoje como feitas"}
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.1rem;">Artist Date dessa semana 🎨</div>
+      <p class="muted">${artistDate.done ? "Feito — " + (artistDate.idea || "") : "Ainda não rolou essa semana."}</p>
+      <a class="btn ${artistDate.done ? "secondary" : "brass"} block" href="#/artist-date">${artistDate.done ? "Ver / trocar" : "Planejar meu Artist Date"}</a>
+    </div>
+
+    <div class="card dotted text-center">
+      <p class="muted">Prefere revisar a semana agora?</p>
+      <a class="btn secondary block" href="#/checkin/${weekId}">Ir para o check-in da Semana ${weekId}</a>
+    </div>
+  `;
+
+  document.getElementById("toggleMP").addEventListener("click", async () => {
+    const done = await DB.toggleMorningPage(todayStr());
+    toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
+    render();
+  });
+});
+
+// ================= WEEK DETAIL =================
+route("/week", async (rest) => {
+  const weekId = Number(rest[0]) || 1;
+  const week = WEEKS.find((w) => w.id === weekId);
+  const checklist = await DB.getChecklistForWeek(weekId);
+  const doneSet = new Set(checklist.filter((c) => c.done).map((c) => c.itemIndex));
+
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <button class="icon-btn" id="back">←</button>
+      <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">${WEEKS.length} no total</span></div>
+    </div>
+    <h2>${week.title}</h2>
+    <p class="muted">${week.intro}</p>
+    <div class="card">
+      ${week.checklist
+        .map(
+          (item, idx) => `
+        <div class="checklist-item ${doneSet.has(idx) ? "done" : ""}" data-idx="${idx}">
+          <div class="box"></div>
+          <div class="text">${item}</div>
+        </div>`
+        )
+        .join("")}
+    </div>
+    <a class="btn brass block" href="#/checkin/${week.id}">Fazer o check-in dessa semana</a>
+    <div class="spacer"></div>
+  `;
+
+  document.getElementById("back").addEventListener("click", () => history.back());
+  appEl.querySelectorAll(".checklist-item").forEach((el) => {
+    el.addEventListener("click", async () => {
+      const idx = Number(el.dataset.idx);
+      const done = await DB.toggleChecklistItem(weekId, idx);
+      el.classList.toggle("done", done);
+    });
+  });
+});
+
+// ================= ARTIST DATE =================
+route("/artist-date", async () => {
+  const settings = await DB.getSetting("profile", null);
+  const weekId = await getCurrentWeekId(settings);
+  const weekKey = weekKeyForOffset(settings, weekId);
+  const current = (await DB.getArtistDate(weekKey)) || { done: false, idea: "" };
+
+  let usedIdeas = JSON.parse(localStorage.getItem("awUsedIdeas") || "[]");
+  window.__currentIdea = window.__currentIdea || current.idea || "";
+
+  function pickIdea() {
+    if (usedIdeas.length >= ARTIST_DATE_IDEAS.length) usedIdeas = [];
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * ARTIST_DATE_IDEAS.length);
+    } while (usedIdeas.includes(idx));
+    usedIdeas.push(idx);
+    localStorage.setItem("awUsedIdeas", JSON.stringify(usedIdeas));
+    window.__currentIdea = ARTIST_DATE_IDEAS[idx];
+    renderScreen();
+  }
+
+  function renderScreen() {
+    appEl.innerHTML = `
+      <div class="top-bar">
+        <button class="icon-btn" id="back">←</button>
+        <div class="logo" style="text-align:right">Artist Date<span class="sub">semana ${weekId}</span></div>
+      </div>
+      <p class="muted text-center">Um encontro solo, só por prazer — sem culpa, sem produtividade.</p>
+      <div class="idea-card">${window.__currentIdea || "Toque abaixo para sortear uma ideia"}</div>
+      <button class="btn secondary block" id="shuffle">🎲 Sortear outra ideia</button>
+      <div class="spacer"></div>
+      <button class="btn ${current.done ? "secondary" : "moss"} block" id="markDone">
+        ${current.done ? "✓ Artist Date dessa semana feito" : "Marcar como feito essa semana"}
+      </button>
+      <div class="spacer"></div>
+      <div class="card dotted text-center">
+        <p class="muted">Quer que apareça no seu Google Calendar toda semana?</p>
+        <button class="btn brass block" id="addCal">Adicionar lembrete recorrente</button>
+      </div>
+    `;
+    document.getElementById("back").addEventListener("click", () => history.back());
+    document.getElementById("shuffle").addEventListener("click", pickIdea);
+    document.getElementById("markDone").addEventListener("click", async () => {
+      const newDone = !current.done;
+      current.done = newDone;
+      current.idea = window.__currentIdea;
+      await DB.setArtistDate(weekKey, current);
+      toast(newDone ? "Aproveite seu Artist Date! 🎨" : "Desmarcado");
+      renderScreen();
+    });
+    document.getElementById("addCal").addEventListener("click", async () => {
+      const s = await DB.getSetting("profile", null);
+      const url = GCAL.artistDateUrl(Number(s.artistDateDay), s.artistDateTime);
+      GCAL.openUrl(url);
+    });
+  }
+  renderScreen();
+});
+
+// ================= CHECK-IN =================
+route("/checkin", async (rest) => {
+  const weekId = Number(rest[0]) || 1;
+  const week = WEEKS.find((w) => w.id === weekId);
+  const existing = (await DB.getCheckin(weekId)) || { answers: {} };
+
+  const questions = [...CHECKIN_CORE_QUESTIONS, week.checkinBonus];
+
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <button class="icon-btn" id="back">←</button>
+      <div class="logo" style="text-align:right">Check-in<span class="sub">semana ${weekId}</span></div>
+    </div>
+    <div class="card">
+      ${questions
+        .map(
+          (q, i) => `
+        <label>${q}</label>
+        <textarea data-q="${i}">${existing.answers[i] || ""}</textarea>`
+        )
+        .join("")}
+    </div>
+    <button class="btn moss block" id="save">Salvar check-in</button>
+    <div class="spacer"></div>
+  `;
+  document.getElementById("back").addEventListener("click", () => history.back());
+  document.getElementById("save").addEventListener("click", async () => {
+    const answers = {};
+    appEl.querySelectorAll("textarea[data-q]").forEach((ta) => {
+      answers[ta.dataset.q] = ta.value;
+    });
+    await DB.saveCheckin(weekId, answers);
+    toast("Check-in salvo 📓");
+    navigate("#/home");
+  });
+});
+
+// ================= PROGRESS (jornada) =================
+route("/progress", async () => {
+  const settings = await DB.getSetting("profile", null);
+  const currentWeekId = await getCurrentWeekId(settings);
+
+  const chips = await Promise.all(
+    WEEKS.map(async (w) => {
+      const checklist = await DB.getChecklistForWeek(w.id);
+      const doneCount = checklist.filter((c) => c.done).length;
+      const complete = doneCount === w.checklist.length;
+      return { id: w.id, complete, current: w.id === currentWeekId };
+    })
+  );
+
+  appEl.innerHTML = `
+    <div class="top-bar"><div class="logo">Sua Jornada<span class="sub">12 semanas</span></div></div>
+    <p class="muted">Toque em qualquer semana — você pode ir e voltar à vontade.</p>
+    <div class="week-grid">
+      ${chips
+        .map(
+          (c) => `<div class="week-chip ${c.current ? "current" : ""} ${c.complete ? "complete" : ""}" data-week="${c.id}">
+            ${c.id}<small>${c.complete ? "feito" : c.current ? "atual" : ""}</small>
+          </div>`
+        )
+        .join("")}
+    </div>
+    <div class="spacer"></div>
+  `;
+  appEl.querySelectorAll(".week-chip").forEach((el) => {
+    el.addEventListener("click", () => navigate("#/week/" + el.dataset.week));
+  });
+});
+
+// ================= SETTINGS =================
+route("/settings", async () => {
+  const settings = (await DB.getSetting("profile", null)) || {};
+
+  appEl.innerHTML = `
+    <div class="top-bar"><div class="logo">Ajustes<span class="sub">seus rituais</span></div></div>
+
+    <div class="card">
+      <label>Nome</label>
+      <input type="text" id="fname" value="${settings.name || ""}" />
+      <label>Início da Semana 1</label>
+      <input type="date" id="fstart" value="${settings.startDate || ""}" />
+      <label>Horário das Morning Pages</label>
+      <input type="time" id="fmp" value="${settings.morningPagesTime || "07:00"}" />
+      <label>Dia do Artist Date</label>
+      <select id="fadday">
+        ${[1, 2, 3, 4, 5, 6, 7]
+          .map((d) => `<option value="${d}" ${String(d) === String(settings.artistDateDay) ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+          .join("")}
+      </select>
+      <label>Horário do Artist Date</label>
+      <input type="time" id="fadtime" value="${settings.artistDateTime || "16:00"}" />
+      <label>Dia do check-in</label>
+      <select id="fciday">
+        ${[1, 2, 3, 4, 5, 6, 7]
+          .map((d) => `<option value="${d}" ${String(d) === String(settings.checkinDay) ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+          .join("")}
+      </select>
+      <label>Horário do check-in</label>
+      <input type="time" id="fcitime" value="${settings.checkinTime || "19:00"}" />
+      <div class="spacer"></div>
+      <button class="btn brass block" id="save">Salvar e reativar lembretes</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Google Calendar</div>
+      <p class="muted">Um toque adiciona o compromisso recorrente direto no seu calendário.</p>
+      <button class="btn secondary block" id="calMP">+ Morning Pages diário</button>
+      <div class="spacer-sm"></div>
+      <button class="btn secondary block" id="calAD">+ Artist Date semanal</button>
+      <div class="spacer-sm"></div>
+      <button class="btn secondary block" id="calCI">+ Check-in semanal</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Seus dados</div>
+      <p class="muted">Tudo fica só no seu aparelho. Faça backup de vez em quando.</p>
+      <button class="btn secondary block" id="exportData">Exportar backup (.json)</button>
+      <div class="spacer-sm"></div>
+      <label>Importar backup</label>
+      <input type="file" id="importFile" accept=".json" />
+    </div>
+
+    <div class="spacer"></div>
+  `;
+
+  document.getElementById("save").addEventListener("click", async () => {
+    const updated = {
+      ...settings,
+      name: document.getElementById("fname").value.trim(),
+      startDate: document.getElementById("fstart").value,
+      morningPagesTime: document.getElementById("fmp").value,
+      artistDateDay: document.getElementById("fadday").value,
+      artistDateTime: document.getElementById("fadtime").value,
+      checkinDay: document.getElementById("fciday").value,
+      checkinTime: document.getElementById("fcitime").value,
+      onboarded: true,
+    };
+    await DB.setSetting("profile", updated);
+    await NOTIF.applySettings(updated);
+    toast("Ajustes salvos e lembretes atualizados 🔔");
+    render();
+  });
+
+  document.getElementById("calMP").addEventListener("click", async () => {
+    const s = await DB.getSetting("profile", null);
+    GCAL.openUrl(GCAL.morningPagesUrl(s.morningPagesTime));
+  });
+  document.getElementById("calAD").addEventListener("click", async () => {
+    const s = await DB.getSetting("profile", null);
+    GCAL.openUrl(GCAL.artistDateUrl(Number(s.artistDateDay), s.artistDateTime));
+  });
+  document.getElementById("calCI").addEventListener("click", async () => {
+    const s = await DB.getSetting("profile", null);
+    GCAL.openUrl(GCAL.checkinUrl(Number(s.checkinDay), s.checkinTime));
+  });
+
+  document.getElementById("exportData").addEventListener("click", async () => {
+    const data = await DB.exportAllData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `artist-way-backup-${todayStr()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("importFile").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const payload = JSON.parse(text);
+      await DB.importAllData(payload);
+      toast("Backup importado ✓");
+      render();
+    } catch (err) {
+      toast("Arquivo inválido");
+    }
+  });
+});
+
+// ---------- boot ----------
+(async function boot() {
+  if ("serviceWorker" in navigator) {
+    try {
+      await navigator.serviceWorker.register("./service-worker.js");
+    } catch (e) {
+      console.warn("SW falhou", e);
+    }
+  }
+  render();
+})();
