@@ -1,4 +1,4 @@
-const CACHE_NAME = "artist-way-companion-v1";
+const CACHE_NAME = "artist-way-companion-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,14 +9,10 @@ const ASSETS = [
   "./js/notifications.js",
   "./js/calendar.js",
   "./js/app.js",
-  "./fonts/cormorant-500.woff2",
-  "./fonts/cormorant-600.woff2",
-  "./fonts/cormorant-700.woff2",
-  "./fonts/spectral-400.woff2",
-  "./fonts/spectral-500.woff2",
-  "./fonts/spectral-600.woff2",
-  "./fonts/caveat-600.woff2",
-  "./fonts/caveat-700.woff2",
+  "./fonts/figtree-400.woff2",
+  "./fonts/figtree-500.woff2",
+  "./fonts/figtree-600.woff2",
+  "./fonts/figtree-700.woff2",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
 ];

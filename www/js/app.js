@@ -319,7 +319,10 @@ route("/week", async (rest) => {
           (item, idx) => `
         <div class="checklist-item ${doneSet.has(idx) ? "done" : ""}" data-idx="${idx}">
           <div class="box"></div>
-          <div class="text">${item}</div>
+          <div class="text">
+            ${item.task}
+            <div class="item-note">${item.detail}</div>
+          </div>
         </div>`
         )
         .join("")}

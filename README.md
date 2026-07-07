@@ -141,7 +141,22 @@ isso depois, como uma v2.
 
 ## Customizando depois
 
-- **Conteúdo das semanas**: tudo em `www/js/data.js`, no array `WEEKS`.
+- **Conteúdo das semanas**: tudo em `www/js/data.js`, no array `WEEKS`. Cada item do
+  checklist agora tem `task` (a ação) e `detail` (a nota de margem explicando o porquê).
 - **Banco de ideias de Artist Date**: array `ARTIST_DATE_IDEAS` no mesmo arquivo.
 - **Cores/fontes**: variáveis CSS no topo de `www/css/style.css`.
 - **Ícone do app**: substitua os arquivos em `www/icons/` (mesmos nomes/tamanhos).
+
+## Identidade visual
+
+Visual "caderno de espiral": papel quadriculado kraft, espiral no topo, fitas
+washi coladas nos cantos dos cards, abas de caderno (ribbons) nos títulos.
+
+- **Yuyu Short** (títulos, ribbons, notas de margem) vem do Google Fonts via
+  `<link>` no `index.html` — carrega da internet na primeira abertura do app
+  e depois fica em cache pelo service worker (funciona offline dali em diante).
+  Se um dia quiser 100% offline desde a primeira abertura, dá pra baixar o
+  `.woff2` manualmente de `fonts.google.com/specimen/Yuyu+Short` e trocar o
+  `<link>` por um `@font-face` local, igual foi feito com a Figtree.
+- **Figtree** (texto do corpo, botões, formulários) já vem hospedada localmente
+  em `www/fonts/`, sem depender de internet.
