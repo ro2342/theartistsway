@@ -1,4 +1,4 @@
-const CACHE_NAME = "artist-way-companion-v2";
+const CACHE_NAME = "artist-way-companion-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -13,6 +13,7 @@ const ASSETS = [
   "./fonts/figtree-500.woff2",
   "./fonts/figtree-600.woff2",
   "./fonts/figtree-700.woff2",
+  "./fonts/special-elite-400.woff2",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
 ];

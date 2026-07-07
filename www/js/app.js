@@ -370,7 +370,9 @@ route("/artist-date", async () => {
         <div class="logo" style="text-align:right">Artist Date<span class="sub">semana ${weekId}</span></div>
       </div>
       <p class="muted text-center">Um encontro solo, só por prazer — sem culpa, sem produtividade.</p>
-      <div class="idea-card">${window.__currentIdea || "Toque abaixo para sortear uma ideia"}</div>
+      <div class="idea-card">
+        <textarea id="ideaText" placeholder="Toque em 'sortear' ou escreva aqui o seu próprio plano...">${window.__currentIdea || ""}</textarea>
+      </div>
       <button class="btn secondary block" id="shuffle">🎲 Sortear outra ideia</button>
       <div class="spacer"></div>
       <button class="btn ${current.done ? "secondary" : "moss"} block" id="markDone">
@@ -383,6 +385,9 @@ route("/artist-date", async () => {
       </div>
     `;
     document.getElementById("back").addEventListener("click", () => history.back());
+    document.getElementById("ideaText").addEventListener("input", (e) => {
+      window.__currentIdea = e.target.value;
+    });
     document.getElementById("shuffle").addEventListener("click", pickIdea);
     document.getElementById("markDone").addEventListener("click", async () => {
       const newDone = !current.done;
