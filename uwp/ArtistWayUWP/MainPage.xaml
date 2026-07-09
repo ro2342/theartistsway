@@ -9,20 +9,10 @@
     Background="#E9E2D0">
 
     <Grid>
-        <StackPanel VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Padding="20">
-            <TextBlock Text="Build de diagnóstico (sem WebView)"
-                       FontSize="24"
-                       Foreground="#35301F"
-                       TextWrapping="Wrap"
-                       HorizontalAlignment="Center" />
-            <TextBlock Text="Se você está vendo isso, o app abriu normalmente sem o WebView."
-                       FontSize="16"
-                       Foreground="#35301F"
-                       TextWrapping="Wrap"
-                       Margin="0,12,0,0" />
-        </StackPanel>
+        <WebView x:Name="MainWebView"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 ScriptNotify="MainWebView_ScriptNotify" />
         <Border x:Name="ErrorPanel"
                 Visibility="Collapsed"
                 Background="#E9E2D0"
