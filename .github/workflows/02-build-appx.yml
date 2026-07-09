@@ -41,7 +41,7 @@ jobs:
         run: |
           msbuild uwp\ArtistWayUWP\ArtistWayUWP.csproj ^
             /restore ^
-            /p:Configuration=Debug ^
+            /p:Configuration=Release ^
             /p:Platform=ARM ^
             /p:AppxBundlePlatforms=ARM ^
             /p:AppxBundle=Always ^
