@@ -31,6 +31,11 @@ jobs:
       - name: Configurar MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Instalar o Windows 10 SDK 17763 (metadados do UWP)
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
+        with:
+          sdk-version: 17763
+
       - name: Restaurar pacotes NuGet e compilar o appxbundle
         shell: cmd
         run: |

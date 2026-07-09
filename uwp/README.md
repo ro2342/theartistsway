@@ -73,6 +73,23 @@ uwp/ArtistWayUWP/
 └── Assets/                   ← ícones do app (gerados, pode trocar por outros)
 ```
 
-O `www/` usado aqui é o mesmo da raiz do repositório — qualquer mudança que
-você (ou eu) fizer no PWA/APK é refletida automaticamente aqui no próximo
-build, sem precisar copiar nada manualmente.
+## Erros já resolvidos (histórico, pra referência)
+
+- **`git push` com exit code 128`** no workflow 01: faltava permissão de escrita
+  pro token do Actions. Corrigido com `permissions: contents: write` no workflow.
+- **`The type or namespace name 'ApplicationModel' does not exist`** (e outros
+  erros parecidos de `Windows.*` não encontrado) no workflow 02: o runner
+  `windows-latest` do GitHub não vem mais com os metadados do UWP
+  (`Windows.winmd`) — a Microsoft removeu esse componente do catálogo padrão
+  do Visual Studio Build Tools em versões recentes. Corrigido adicionando um
+  passo que instala o Windows 10 SDK 17763 separadamente antes do build
+  (`GuillaumeFalourd/setup-windows10-sdk-action`), que traz esses metadados de
+  volta independente do Visual Studio.
+
+## O que fazer se aparecer outro erro parecido
+
+Se voltar a dar erro de `Windows.*` não encontrado, o próximo passo seria
+tentar uma versão diferente do SDK (`sdk-version: 18362` ou `19041` no
+workflow), já que nem toda versão do instalador standalone funciona 100% em
+todo runner. Me manda o log que ajustamos.
+
