@@ -13,5 +13,12 @@
                  HorizontalAlignment="Stretch"
                  VerticalAlignment="Stretch"
                  ScriptNotify="MainWebView_ScriptNotify" />
+        <TextBlock x:Name="ErrorText"
+                   Visibility="Collapsed"
+                   TextWrapping="Wrap"
+                   Foreground="#35301F"
+                   Background="#E9E2D0"
+                   FontSize="16"
+                   Padding="20" />
     </Grid>
 </Page>

@@ -86,6 +86,18 @@ uwp/ArtistWayUWP/
   (`GuillaumeFalourd/setup-windows10-sdk-action`), que traz esses metadados de
   volta independente do Visual Studio.
 
+- **App instala mas fecha na hora de abrir**: builds em modo Release usam o
+  compilador .NET Native, que às vezes falha silenciosamente em cenários que
+  funcionam bem em modo Debug (JIT normal). Mudei o workflow 02 pra compilar
+  em **Debug** — é o padrão usado pela comunidade de sideload caseiro (sem
+  loja) exatamente por evitar esse tipo de crash sem explicação. Também
+  adicionei um handler de exceção global e uma tela de erro de fallback no
+  app: se algo ainda falhar, agora deve aparecer uma mensagem na tela em vez
+  de fechar sem avisar — o que já ajuda demais a diagnosticar sem precisar de
+  Visual Studio.
+
+
+
 ## O que fazer se aparecer outro erro parecido
 
 Se voltar a dar erro de `Windows.*` não encontrado, o próximo passo seria

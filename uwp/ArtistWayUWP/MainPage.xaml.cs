@@ -17,13 +17,42 @@ namespace ArtistWayUWP
     {
         public MainPage()
         {
-            this.InitializeComponent();
-            this.Loaded += MainPage_Loaded;
+            try
+            {
+                this.InitializeComponent();
+                this.Loaded += MainPage_Loaded;
+            }
+            catch (Exception ex)
+            {
+                ShowFatalError("Erro ao iniciar a página: " + ex.Message);
+            }
         }
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            MainWebView.Navigate(new Uri("ms-appx-web:///www/index.html"));
+            try
+            {
+                MainWebView.NavigationFailed += MainWebView_NavigationFailed;
+                MainWebView.Navigate(new Uri("ms-appx-web:///www/index.html"));
+            }
+            catch (Exception ex)
+            {
+                ShowFatalError("Erro ao carregar o app: " + ex.Message);
+            }
+        }
+
+        private void MainWebView_NavigationFailed(object sender, Windows.UI.Xaml.Navigation.WebViewNavigationFailedEventArgs e)
+        {
+            ShowFatalError("Falha ao navegar para o conteúdo local: " + e.WebErrorStatus);
+        }
+
+        private void ShowFatalError(string message)
+        {
+            if (ErrorText != null)
+            {
+                ErrorText.Text = message;
+                ErrorText.Visibility = Visibility.Visible;
+            }
         }
 
         private void MainWebView_ScriptNotify(object sender, NotifyEventArgs e)

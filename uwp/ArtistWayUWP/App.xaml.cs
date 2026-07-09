@@ -17,6 +17,21 @@ namespace ArtistWayUWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            this.UnhandledException += App_UnhandledException;
+        }
+
+        private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            e.Handled = true;
+            try
+            {
+                var dialog = new Windows.UI.Popups.MessageDialog(e.Message ?? "Erro desconhecido", "Erro inesperado no app");
+                await dialog.ShowAsync();
+            }
+            catch
+            {
+                // Se nem o diálogo conseguir abrir, não há mais nada a fazer aqui.
+            }
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
