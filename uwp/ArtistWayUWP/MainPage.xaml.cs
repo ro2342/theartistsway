@@ -33,7 +33,7 @@ namespace ArtistWayUWP
             try
             {
                 MainWebView.NavigationFailed += MainWebView_NavigationFailed;
-                MainWebView.Navigate(new Uri("ms-appx-web:///www/_diag.html"));
+                MainWebView.Navigate(new Uri("ms-appx-web:///www/index.html"));
             }
             catch (Exception ex)
             {
