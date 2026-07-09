@@ -41,7 +41,7 @@ namespace ArtistWayUWP
             }
         }
 
-        private void MainWebView_NavigationFailed(object sender, Windows.UI.Xaml.Navigation.WebViewNavigationFailedEventArgs e)
+        private void MainWebView_NavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
         {
             ShowFatalError("Falha ao navegar para o conteúdo local: " + e.WebErrorStatus);
         }
