@@ -20,30 +20,11 @@ namespace ArtistWayUWP
             try
             {
                 this.InitializeComponent();
-                this.Loaded += MainPage_Loaded;
             }
             catch (Exception ex)
             {
                 ShowFatalError("Erro ao iniciar a página: " + ex.Message);
             }
-        }
-
-        private void MainPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                MainWebView.NavigationFailed += MainWebView_NavigationFailed;
-                MainWebView.Navigate(new Uri("ms-appx-web:///www/index.html"));
-            }
-            catch (Exception ex)
-            {
-                ShowFatalError("Erro ao carregar o app: " + ex.Message);
-            }
-        }
-
-        private void MainWebView_NavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
-        {
-            ShowFatalError("Falha ao navegar para o conteúdo local: " + e.WebErrorStatus);
         }
 
         private void ShowFatalError(string message)
