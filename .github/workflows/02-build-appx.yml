@@ -46,6 +46,7 @@ jobs:
             /p:AppxBundlePlatforms=ARM ^
             /p:AppxBundle=Always ^
             /p:UapAppxPackageBuildMode=SideloadOnly ^
+            /p:UseDotNetNativeToolchain=true ^
             /p:AppxPackageSigningEnabled=true ^
             /p:PackageCertificateKeyFile=ArtistWayUWP_TemporaryKey.pfx ^
             /p:PackageCertificatePassword=ArtistWay2026! ^
