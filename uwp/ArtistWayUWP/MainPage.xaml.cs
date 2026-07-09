@@ -48,10 +48,10 @@ namespace ArtistWayUWP
 
         private void ShowFatalError(string message)
         {
-            if (ErrorText != null)
+            if (ErrorText != null && ErrorPanel != null)
             {
                 ErrorText.Text = message;
-                ErrorText.Visibility = Visibility.Visible;
+                ErrorPanel.Visibility = Visibility.Visible;
             }
         }
 
