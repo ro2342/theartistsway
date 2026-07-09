@@ -9,15 +9,33 @@
       background-color: #2266cc;
       color: #ffffff;
       font-family: sans-serif;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-size: 20px;
+      padding: 24px;
     }
   </style>
 </head>
 <body>
-  Teste sem CSS variables
+  <div id="out">testando indexedDB...</div>
+  <script>
+    var out = document.getElementById("out");
+    try {
+      if (typeof indexedDB === "undefined") {
+        out.textContent = "indexedDB é undefined nesse WebView";
+      } else {
+        var req = indexedDB.open("diag-test-db", 1);
+        req.onupgradeneeded = function () {
+          out.textContent = "onupgradeneeded ok";
+        };
+        req.onsuccess = function () {
+          out.textContent = "indexedDB abriu com sucesso!";
+        };
+        req.onerror = function (e) {
+          out.textContent = "erro ao abrir indexedDB: " + (e.target.error ? e.target.error.message : "desconhecido");
+        };
+      }
+    } catch (err) {
+      out.textContent = "excecao sincrona: " + err.message;
+    }
+  </script>
 </body>
 </html>
