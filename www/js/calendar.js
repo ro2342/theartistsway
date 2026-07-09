@@ -103,7 +103,19 @@ function checkinUrl(weekdayIndex, time) {
   });
 }
 
+function isUwpHost() {
+  try {
+    return !!(window.external && typeof window.external.notify === "function");
+  } catch (e) {
+    return false;
+  }
+}
+
 function openUrl(url) {
+  if (isUwpHost()) {
+    window.external.notify(JSON.stringify({ type: "openUri", url }));
+    return;
+  }
   if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
     window.Capacitor.Plugins.Browser.open({ url });
   } else {

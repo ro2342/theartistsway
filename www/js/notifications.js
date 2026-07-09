@@ -1,8 +1,9 @@
 // notifications.js
-// Quando rodando como APK (Capacitor), usa o plugin nativo @capacitor/local-notifications,
-// que funciona de verdade em segundo plano. Quando rodando como PWA no navegador,
-// usa a Notification API como reforço visual enquanto o app está aberto — mas o
-// canal confiável nesse modo é o evento adicionado ao Google Calendar (ver calendar.js).
+// Quando rodando como APK (Capacitor), usa o plugin nativo @capacitor/local-notifications.
+// Quando rodando como app UWP (Windows 10 Mobile), envia uma mensagem em JSON para o
+// código C# via window.external.notify, que agenda notificações nativas do Windows.
+// Quando rodando como PWA no navegador, usa a Notification API como reforço visual
+// enquanto o app está aberto — o canal confiável nesse modo é o Google Calendar.
 
 const NOTIF_IDS = {
   morningPages: 1001,
@@ -14,12 +15,31 @@ function isNativeCapacitor() {
   return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 }
 
+// Detecta o host UWP (WebView de um app C#/UWP com ponte window.external.notify).
+// PWAs/navegadores comuns não implementam window.external.notify, então essa
+// checagem é segura e não dispara em nenhum outro ambiente.
+function isUwpHost() {
+  try {
+    return !!(window.external && typeof window.external.notify === "function");
+  } catch (e) {
+    return false;
+  }
+}
+
+function sendToUwp(payload) {
+  window.external.notify(JSON.stringify(payload));
+}
+
 async function requestPermission() {
   if (isNativeCapacitor() && window.Capacitor.Plugins.LocalNotifications) {
     const { display } = await window.Capacitor.Plugins.LocalNotifications.checkPermissions();
     if (display !== "granted") {
       await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
     }
+    return true;
+  }
+  if (isUwpHost()) {
+    // Toast notifications no UWP não exigem uma etapa de permissão em runtime.
     return true;
   }
   if ("Notification" in window) {
@@ -80,6 +100,21 @@ async function cancelAll() {
 async function applySettings(settings) {
   // settings: { morningPagesTime: 'HH:MM', artistDateDay, artistDateTime, checkinDay, checkinTime }
   await requestPermission();
+
+  if (isUwpHost()) {
+    // O C# do lado do app UWP cuida de cancelar as notificações antigas e
+    // agendar as novas (toasts nativos do Windows) a partir desse pacote.
+    sendToUwp({
+      type: "scheduleNotifications",
+      morningPagesTime: settings.morningPagesTime || null,
+      artistDateDay: settings.artistDateDay != null ? Number(settings.artistDateDay) : null,
+      artistDateTime: settings.artistDateTime || null,
+      checkinDay: settings.checkinDay != null ? Number(settings.checkinDay) : null,
+      checkinTime: settings.checkinTime || null,
+    });
+    return;
+  }
+
   await cancelAll();
 
   if (settings.morningPagesTime) {
