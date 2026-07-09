@@ -13,28 +13,39 @@
 <body>
   <div class="spiral-bar"></div>
   <div id="app"></div>
-  <div id="diagErr" style="display:none;position:fixed;inset:0;background:#fff;color:#c00;font:12px monospace;white-space:pre-wrap;padding:12px;overflow:auto;z-index:99999;"></div>
+  <div id="diagErr" style="display:block;position:fixed;inset:0;background:#fff;color:#111;font:11px monospace;white-space:pre-wrap;padding:12px;overflow:auto;z-index:99999;">diagnóstico:\n</div>
   <script>
     (function () {
       var box = document.getElementById("diagErr");
-      function show(msg) {
-        box.style.display = "block";
-        box.textContent += msg + "\n\n";
-      }
+      window.__diagLog = function (msg) {
+        box.textContent += msg + "\n";
+      };
       window.onerror = function (message, source, lineno, colno, error) {
-        show("ERRO: " + message + "\nem " + source + ":" + lineno + ":" + colno + (error && error.stack ? "\n" + error.stack : ""));
+        window.__diagLog("ERRO: " + message + " em " + source + ":" + lineno + ":" + colno + (error && error.stack ? "\n" + error.stack : ""));
       };
       window.addEventListener("unhandledrejection", function (e) {
         var r = e.reason;
-        show("PROMISE REJEITADA: " + (r && r.message ? r.message : r) + (r && r.stack ? "\n" + r.stack : ""));
+        window.__diagLog("PROMISE REJEITADA: " + (r && r.message ? r.message : r) + (r && r.stack ? "\n" + r.stack : ""));
       });
+      window.__diagLog(
+        "suporte: fromEntries=" + typeof Object.fromEntries +
+        " URLSearchParams=" + typeof URLSearchParams +
+        " Promise=" + typeof Promise +
+        " fetch=" + typeof fetch +
+        " Set=" + typeof Set
+      );
     })();
   </script>
 
-  <script src="./js/data.js"></script>
-  <script src="./js/db.js"></script>
-  <script src="./js/notifications.js"></script>
-  <script src="./js/calendar.js"></script>
-  <script src="./js/app.js"></script>
+  <script src="./js/data.js" onerror="window.__diagLog('FALHOU AO CARREGAR data.js')"></script>
+  <script>window.__diagLog("data.js carregado, WEEKS=" + typeof WEEKS);</script>
+  <script src="./js/db.js" onerror="window.__diagLog('FALHOU AO CARREGAR db.js')"></script>
+  <script>window.__diagLog("db.js carregado, ArtistWayDB=" + typeof window.ArtistWayDB);</script>
+  <script src="./js/notifications.js" onerror="window.__diagLog('FALHOU AO CARREGAR notifications.js')"></script>
+  <script>window.__diagLog("notifications.js carregado, ArtistWayNotifications=" + typeof window.ArtistWayNotifications);</script>
+  <script src="./js/calendar.js" onerror="window.__diagLog('FALHOU AO CARREGAR calendar.js')"></script>
+  <script>window.__diagLog("calendar.js carregado, ArtistWayCalendar=" + typeof window.ArtistWayCalendar);</script>
+  <script src="./js/app.js" onerror="window.__diagLog('FALHOU AO CARREGAR app.js')"></script>
+  <script>window.__diagLog("app.js terminou de executar (tag concluída)");</script>
 </body>
 </html>
