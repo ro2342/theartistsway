@@ -46,7 +46,11 @@ async function requestPermission() {
     return true;
   }
   if ("Notification" in window) {
-    const perm = await Notification.requestPermission();
+    // Em alguns WebViews antigos/incompletos, requestPermission() nunca
+    // resolve (não há UI de permissão pra mostrar) -- limita a espera pra
+    // nunca travar o fluxo do app.
+    const timeout = new Promise((resolve) => setTimeout(() => resolve("default"), 2000));
+    const perm = await Promise.race([Notification.requestPermission(), timeout]);
     return perm === "granted";
   }
   return false;
