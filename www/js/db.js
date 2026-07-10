@@ -117,7 +117,7 @@ async function getAllMorningPages() {
 }
 
 async function setArtistDate(weekStart, data) {
-  return dbPut(STORES.artistDates, { weekStart, ...data });
+  return dbPut(STORES.artistDates, Object.assign({ weekStart: weekStart }, data));
 }
 
 async function getArtistDate(weekStart) {

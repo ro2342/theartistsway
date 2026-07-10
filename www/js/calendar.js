@@ -47,14 +47,17 @@ function buildRenderUrl({ title, details, hour, minute, durationMinutes = 30, we
   const start = nextOccurrence(hour, minute, weekdayIndex);
   const end = new Date(start.getTime() + durationMinutes * 60000);
 
-  const params = new URLSearchParams({
+  const paramsObj = {
     action: "TEMPLATE",
     text: title,
     details: details || "",
     dates: `${formatGCalDate(start)}/${formatGCalDate(end)}`,
-  });
+  };
+  const paramsString = Object.keys(paramsObj)
+    .map((key) => encodeURIComponent(key) + "=" + encodeURIComponent(paramsObj[key]))
+    .join("&");
 
-  let url = `https://calendar.google.com/calendar/render?${params.toString()}`;
+  let url = `https://calendar.google.com/calendar/render?${paramsString}`;
 
   if (recur === "daily") {
     url += `&recur=RRULE:FREQ=DAILY`;
