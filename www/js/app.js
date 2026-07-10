@@ -7,6 +7,12 @@ const WEEKDAY_NAMES = ["", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "
 
 const appEl = document.getElementById("app");
 
+// NodeList.prototype.forEach não existe no WebView antigo do Windows 10
+// Mobile -- Array.prototype.forEach (via .call) funciona em qualquer engine.
+function forEachNode(nodeList, fn) {
+  Array.prototype.forEach.call(nodeList, fn);
+}
+
 // ---------- tamanho da letra ----------
 function applyFontSizePreference(size) {
   document.documentElement.classList.remove("fs-small", "fs-large");
@@ -111,7 +117,7 @@ function renderBottomNav(activePath) {
       document.body.appendChild(nav);
     }
     nav.innerHTML = html;
-    nav.querySelectorAll("[data-nav]").forEach((btn) => {
+    forEachNode(nav.querySelectorAll("[data-nav]"), (btn) => {
       btn.addEventListener("click", () => navigate("#" + btn.dataset.nav));
     });
   });
@@ -359,7 +365,7 @@ route("/week", async (rest) => {
   `;
 
   document.getElementById("back").addEventListener("click", () => history.back());
-  appEl.querySelectorAll(".checklist-item").forEach((el) => {
+  forEachNode(appEl.querySelectorAll(".checklist-item"), (el) => {
     el.addEventListener("click", async () => {
       const idx = Number(el.dataset.idx);
       const done = await DB.toggleChecklistItem(weekId, idx);
@@ -461,7 +467,7 @@ route("/checkin", async (rest) => {
   document.getElementById("back").addEventListener("click", () => history.back());
   document.getElementById("save").addEventListener("click", async () => {
     const answers = {};
-    appEl.querySelectorAll("textarea[data-q]").forEach((ta) => {
+    forEachNode(appEl.querySelectorAll("textarea[data-q]"), (ta) => {
       answers[ta.dataset.q] = ta.value;
     });
     await DB.saveCheckin(weekId, answers);
@@ -502,7 +508,7 @@ route("/progress", async () => {
     <div class="spacer"></div>
   `;
   document.getElementById("back").addEventListener("click", () => history.back());
-  appEl.querySelectorAll(".week-chip").forEach((el) => {
+  forEachNode(appEl.querySelectorAll(".week-chip"), (el) => {
     el.addEventListener("click", () => navigate("#/week/" + el.dataset.week));
   });
 });
@@ -579,7 +585,7 @@ route("/settings", async () => {
 
   document.getElementById("back").addEventListener("click", () => history.back());
 
-  appEl.querySelectorAll("[data-fontsize]").forEach((btn) => {
+  forEachNode(appEl.querySelectorAll("[data-fontsize]"), (btn) => {
     btn.addEventListener("click", async () => {
       const updated = Object.assign({}, settings, { fontSize: btn.dataset.fontsize });
       await DB.setSetting("profile", updated);
