@@ -108,7 +108,7 @@ function checkinUrl(weekdayIndex, time) {
 
 function isUwpHost() {
   try {
-    return !!(window.external && typeof window.external.notify === "function");
+    return !!(window.external && window.external.notify);
   } catch (e) {
     return false;
   }

@@ -20,7 +20,10 @@ function isNativeCapacitor() {
 // checagem é segura e não dispara em nenhum outro ambiente.
 function isUwpHost() {
   try {
-    return !!(window.external && typeof window.external.notify === "function");
+    // Em WebViews antigas, window.external.notify pode ser um método de
+    // objeto host (COM) e não reportar typeof "function" -- checa presença
+    // em vez de tipo estrito.
+    return !!(window.external && window.external.notify);
   } catch (e) {
     return false;
   }
