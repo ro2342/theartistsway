@@ -1,7 +1,10 @@
 using System;
 using Windows.Data.Json;
 using Windows.Data.Xml.Dom;
+using Windows.Foundation.Metadata;
+using Windows.UI;
 using Windows.UI.Notifications;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -21,10 +24,24 @@ namespace ArtistWayUWP
             {
                 this.InitializeComponent();
                 this.Loaded += MainPage_Loaded;
+                ApplyStatusBarColors();
             }
             catch (Exception ex)
             {
                 ShowFatalError("Erro ao iniciar a página: " + ex.Message);
+            }
+        }
+
+        // A StatusBar (hora, wifi, bateria) usa ícones claros por padrão (tema
+        // escuro do sistema), que ficam invisíveis no fundo claro do app.
+        private void ApplyStatusBarColors()
+        {
+            if (ApiInformation.IsTypePresent("Windows.UI.ViewManagement.StatusBar"))
+            {
+                StatusBar statusBar = StatusBar.GetForCurrentView();
+                statusBar.ForegroundColor = Color.FromArgb(255, 0x35, 0x30, 0x1F);
+                statusBar.BackgroundColor = Color.FromArgb(255, 0xE9, 0xE2, 0xD0);
+                statusBar.BackgroundOpacity = 1;
             }
         }
 
@@ -33,12 +50,7 @@ namespace ArtistWayUWP
             try
             {
                 MainWebView.NavigationFailed += MainWebView_NavigationFailed;
-                // TEMPORÁRIO (branch de diagnóstico): carrega do GitHub Pages em vez
-                // do conteúdo local, pra iterar em JS/CSS sem rebuild do appxbundle a
-                // cada mudança. Reverter pra ms-appx-web:///www/index.html antes do
-                // merge pra main.
-                string cacheBust = DateTime.UtcNow.Ticks.ToString();
-                MainWebView.Navigate(new Uri("https://ro2342.github.io/theartistsway/www/index.html?cb=" + cacheBust));
+                MainWebView.Navigate(new Uri("ms-appx-web:///www/index.html"));
             }
             catch (Exception ex)
             {
