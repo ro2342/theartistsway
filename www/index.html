@@ -13,6 +13,23 @@
 <body>
   <div class="spiral-bar"></div>
   <div id="app"></div>
+  <div id="diagErr" style="display:block;position:fixed;left:0;right:0;bottom:0;width:100%;max-height:35%;background:#ffffff;color:#111111;font-family:monospace;font-size:10px;white-space:pre-wrap;padding:8px;overflow:auto;z-index:99999;border-top:2px solid #c00;">diagnostico:
+</div>
+  <script>
+    (function () {
+      var box = document.getElementById("diagErr");
+      window.__diagLog = function (msg) {
+        box.textContent += msg + "\n";
+      };
+      window.onerror = function (message, source, lineno, colno, error) {
+        window.__diagLog("ERRO: " + message + " em " + source + ":" + lineno + ":" + colno + (error && error.stack ? "\n" + error.stack : ""));
+      };
+      window.addEventListener("unhandledrejection", function (e) {
+        var r = e.reason;
+        window.__diagLog("PROMISE REJEITADA: " + (r && r.message ? r.message : r) + (r && r.stack ? "\n" + r.stack : ""));
+      });
+    })();
+  </script>
 
   <script src="./js/data.js"></script>
   <script src="./js/db.js"></script>

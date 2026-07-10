@@ -206,15 +206,23 @@ route("/onboarding", async () => {
   const finish = document.getElementById("finish");
   if (finish) {
     finish.addEventListener("click", async () => {
+      if (window.__diagLog) window.__diagLog("finish: clique recebido");
       draft.checkinDay = document.getElementById("fciday").value;
       draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
       draft.onboarded = true;
-      await DB.setSetting("profile", draft);
-      await NOTIF.applySettings(draft);
-      window.__onboardStep = 0;
-      window.__onboardDraft = null;
-      toast("Tudo pronto! Bem-vindo(a) 🌿");
-      navigate("#/home");
+      try {
+        await DB.setSetting("profile", draft);
+        if (window.__diagLog) window.__diagLog("finish: setSetting ok");
+        await NOTIF.applySettings(draft);
+        if (window.__diagLog) window.__diagLog("finish: applySettings ok");
+        window.__onboardStep = 0;
+        window.__onboardDraft = null;
+        toast("Tudo pronto! Bem-vindo(a) 🌿");
+        navigate("#/home");
+        if (window.__diagLog) window.__diagLog("finish: navigate chamado");
+      } catch (err) {
+        if (window.__diagLog) window.__diagLog("finish: EXCECAO " + err.message + "\n" + (err.stack || ""));
+      }
     });
   }
 });

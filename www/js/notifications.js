@@ -99,7 +99,9 @@ async function cancelAll() {
 
 async function applySettings(settings) {
   // settings: { morningPagesTime: 'HH:MM', artistDateDay, artistDateTime, checkinDay, checkinTime }
+  if (window.__diagLog) window.__diagLog("applySettings: chamando requestPermission, isUwpHost=" + isUwpHost());
   await requestPermission();
+  if (window.__diagLog) window.__diagLog("applySettings: requestPermission ok");
 
   if (isUwpHost()) {
     // O C# do lado do app UWP cuida de cancelar as notificações antigas e
