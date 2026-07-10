@@ -28,6 +28,16 @@
         var r = e.reason;
         window.__diagLog("PROMISE REJEITADA: " + (r && r.message ? r.message : r) + (r && r.stack ? "\n" + r.stack : ""));
       });
+      try {
+        window.__diagLog(
+          "external: typeof=" + typeof window.external +
+          " str=" + String(window.external) +
+          " notify.typeof=" + (window.external ? typeof window.external.notify : "n/a") +
+          " notify.str=" + (window.external ? String(window.external.notify) : "n/a")
+        );
+      } catch (e) {
+        window.__diagLog("external: excecao ao inspecionar -> " + e.message);
+      }
     })();
   </script>
 
