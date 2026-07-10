@@ -29,11 +29,26 @@ function isUwpHost() {
   }
 }
 
+// Detecta se estamos rodando dentro do WebView empacotado (protocolo
+// ms-appx-web:), mesmo quando window.external.notify não está disponível
+// nesse aparelho específico. Nesse caso não existe UI de permissão de
+// notificação do navegador pra mostrar, então nem vale a pena chamar
+// Notification.requestPermission() -- em alguns WebViews antigos essa
+// chamada nunca resolve.
+function isPackagedWebViewHost() {
+  try {
+    return location.protocol.indexOf("ms-appx") === 0;
+  } catch (e) {
+    return false;
+  }
+}
+
 function sendToUwp(payload) {
   window.external.notify(JSON.stringify(payload));
 }
 
 async function requestPermission() {
+  if (window.__diagLog) window.__diagLog("requestPermission: iniciou, isPackagedWebViewHost=" + isPackagedWebViewHost() + " location=" + location.href);
   if (isNativeCapacitor() && window.Capacitor.Plugins.LocalNotifications) {
     const { display } = await window.Capacitor.Plugins.LocalNotifications.checkPermissions();
     if (display !== "granted") {
@@ -41,16 +56,21 @@ async function requestPermission() {
     }
     return true;
   }
-  if (isUwpHost()) {
-    // Toast notifications no UWP não exigem uma etapa de permissão em runtime.
+  if (isUwpHost() || isPackagedWebViewHost()) {
+    if (window.__diagLog) window.__diagLog("requestPermission: host empacotado, pulando Notification API");
+    // Toast notifications no UWP não exigem uma etapa de permissão em
+    // runtime, e dentro do WebView empacotado não há UI de permissão do
+    // navegador pra mostrar de qualquer forma.
     return true;
   }
   if ("Notification" in window) {
+    if (window.__diagLog) window.__diagLog("requestPermission: chamando Notification.requestPermission()");
     // Em alguns WebViews antigos/incompletos, requestPermission() nunca
     // resolve (não há UI de permissão pra mostrar) -- limita a espera pra
     // nunca travar o fluxo do app.
     const timeout = new Promise((resolve) => setTimeout(() => resolve("default"), 2000));
     const perm = await Promise.race([Notification.requestPermission(), timeout]);
+    if (window.__diagLog) window.__diagLog("requestPermission: Promise.race resolveu -> " + perm);
     return perm === "granted";
   }
   return false;
