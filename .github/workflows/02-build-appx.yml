@@ -12,6 +12,9 @@ on:
       - ".github/workflows/02-build-appx.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -59,3 +62,24 @@ jobs:
           name: artistway-appxbundle
           path: AppPackages/**
           if-no-files-found: error
+
+      - name: Publicar o appxbundle em app/ (link estável pro GitHub Pages)
+        shell: pwsh
+        run: |
+          $bundle = Get-ChildItem -Path AppPackages -Recurse -Filter *.appxbundle | Select-Object -First 1
+          if (-not $bundle) {
+            Write-Error "Nenhum .appxbundle encontrado em AppPackages."
+            exit 1
+          }
+          New-Item -ItemType Directory -Force -Path app | Out-Null
+          Copy-Item $bundle.FullName -Destination "app/app.appxbundle" -Force
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/app.appxbundle
+          git diff --cached --quiet -- app/app.appxbundle
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "app.appxbundle já está atualizado, nada para commitar."
+          } else {
+            git commit -m "chore: atualiza app/app.appxbundle (automático)"
+            git push
+          }
