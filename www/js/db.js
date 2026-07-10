@@ -62,9 +62,21 @@ async function dbGet(store, key) {
 async function dbGetAll(store) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
+    // objectStore.getAll() é IndexedDB 2.0 -- não existe no motor antigo do
+    // WebView do Windows 10 Mobile. Usa cursor manual (IndexedDB 1.0),
+    // suportado desde sempre.
     const tx = db.transaction(store, "readonly");
-    const req = tx.objectStore(store).getAll();
-    req.onsuccess = () => resolve(req.result || []);
+    const results = [];
+    const req = tx.objectStore(store).openCursor();
+    req.onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (cursor) {
+        results.push(cursor.value);
+        cursor.continue();
+      } else {
+        resolve(results);
+      }
+    };
     req.onerror = () => reject(req.error);
   });
 }
