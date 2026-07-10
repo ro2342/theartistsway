@@ -235,7 +235,10 @@ route("/home", async () => {
   const days = [];
   for (let i = 6; i >= 0; i--) days.push(dateToStr(addDays(today, -i)));
   const allMP = await DB.getAllMorningPages();
-  const mpMap = Object.fromEntries(allMP.map((r) => [r.date, r.done]));
+  const mpMap = allMP.reduce((acc, r) => {
+    acc[r.date] = r.done;
+    return acc;
+  }, {});
   const todayDone = !!mpMap[todayStr()];
 
   const artistDate = (await DB.getArtistDate(weekKey)) || { done: false };
@@ -533,8 +536,7 @@ route("/settings", async () => {
   `;
 
   document.getElementById("save").addEventListener("click", async () => {
-    const updated = {
-      ...settings,
+    const updated = Object.assign({}, settings, {
       name: document.getElementById("fname").value.trim(),
       startDate: document.getElementById("fstart").value,
       morningPagesTime: document.getElementById("fmp").value,
@@ -543,7 +545,7 @@ route("/settings", async () => {
       checkinDay: document.getElementById("fciday").value,
       checkinTime: document.getElementById("fcitime").value,
       onboarded: true,
-    };
+    });
     await DB.setSetting("profile", updated);
     await NOTIF.applySettings(updated);
     toast("Ajustes salvos e lembretes atualizados 🔔");
