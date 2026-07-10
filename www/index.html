@@ -8,7 +8,12 @@
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./icons/icon-192.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <script>
+    // TEMPORÁRIO (branch de diagnóstico, servido via GitHub Pages): força
+    // busca fresca de cada arquivo, sem cache -- o WebView do Lumia estava
+    // servindo JS/CSS antigos do cache mesmo com o app reinstalado.
+    document.write('<link rel="stylesheet" href="./css/style.css?v=' + Date.now() + '" />');
+  </script>
 </head>
 <body>
   <div class="spiral-bar"></div>
@@ -41,10 +46,13 @@
     })();
   </script>
 
-  <script src="./js/data.js"></script>
-  <script src="./js/db.js"></script>
-  <script src="./js/notifications.js"></script>
-  <script src="./js/calendar.js"></script>
-  <script src="./js/app.js"></script>
+  <script>
+    (function () {
+      var v = Date.now();
+      ["data", "db", "notifications", "calendar", "app"].forEach(function (name) {
+        document.write('<script src="./js/' + name + '.js?v=' + v + '"><\/script>');
+      });
+    })();
+  </script>
 </body>
 </html>
