@@ -96,7 +96,7 @@
   <ItemGroup>
     <!--
       StatusBar (Windows.UI.ViewManagement.StatusBar) só existe no SDK de
-      extensão Mobile -- mesmo com TargetDeviceFamily=Windows.Universal,
+      extensão Mobile, mesmo com TargetDeviceFamily=Windows.Universal,
       precisamos dessa referência pra compilar. O uso em código já é
       protegido por ApiInformation.IsTypePresent, então continua seguro em
       qualquer dispositivo.
