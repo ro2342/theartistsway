@@ -65,6 +65,13 @@ html, body {
   min-height: 100%;
 }
 
+html.fs-small {
+  font-size: 14px;
+}
+html.fs-large {
+  font-size: 19px;
+}
+
 body {
   font-family: "Figtree", -apple-system, sans-serif;
   color: var(--ink);

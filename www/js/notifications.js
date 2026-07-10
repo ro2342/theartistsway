@@ -48,7 +48,6 @@ function sendToUwp(payload) {
 }
 
 async function requestPermission() {
-  if (window.__diagLog) window.__diagLog("requestPermission: iniciou, isPackagedWebViewHost=" + isPackagedWebViewHost() + " location=" + location.href);
   if (isNativeCapacitor() && window.Capacitor.Plugins.LocalNotifications) {
     const { display } = await window.Capacitor.Plugins.LocalNotifications.checkPermissions();
     if (display !== "granted") {
@@ -57,14 +56,12 @@ async function requestPermission() {
     return true;
   }
   if (isUwpHost() || isPackagedWebViewHost()) {
-    if (window.__diagLog) window.__diagLog("requestPermission: host empacotado, pulando Notification API");
     // Toast notifications no UWP não exigem uma etapa de permissão em
     // runtime, e dentro do WebView empacotado não há UI de permissão do
     // navegador pra mostrar de qualquer forma.
     return true;
   }
   if ("Notification" in window) {
-    if (window.__diagLog) window.__diagLog("requestPermission: chamando Notification.requestPermission()");
     try {
       // Em alguns WebViews antigos/incompletos, requestPermission() nunca
       // resolve (não há UI de permissão pra mostrar) -- limita a espera pra
@@ -73,10 +70,8 @@ async function requestPermission() {
       // quebrados, ex.: window.external nesse mesmo aparelho).
       const timeout = new Promise((resolve) => setTimeout(() => resolve("default"), 2000));
       const perm = await Promise.race([Notification.requestPermission(), timeout]);
-      if (window.__diagLog) window.__diagLog("requestPermission: resolveu -> " + perm);
       return perm === "granted";
     } catch (err) {
-      if (window.__diagLog) window.__diagLog("requestPermission: excecao -> " + err.message);
       return false;
     }
   }
@@ -133,9 +128,7 @@ async function cancelAll() {
 
 async function applySettings(settings) {
   // settings: { morningPagesTime: 'HH:MM', artistDateDay, artistDateTime, checkinDay, checkinTime }
-  if (window.__diagLog) window.__diagLog("applySettings: chamando requestPermission, isUwpHost=" + isUwpHost());
   await requestPermission();
-  if (window.__diagLog) window.__diagLog("applySettings: requestPermission ok");
 
   if (isUwpHost()) {
     // O C# do lado do app UWP cuida de cancelar as notificações antigas e

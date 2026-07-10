@@ -7,6 +7,13 @@ const WEEKDAY_NAMES = ["", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "
 
 const appEl = document.getElementById("app");
 
+// ---------- tamanho da letra ----------
+function applyFontSizePreference(size) {
+  document.documentElement.classList.remove("fs-small", "fs-large");
+  if (size === "small") document.documentElement.classList.add("fs-small");
+  if (size === "large") document.documentElement.classList.add("fs-large");
+}
+
 // ---------- utilidades de data ----------
 function todayStr() {
   return dateToStr(new Date());
@@ -63,31 +70,18 @@ function route(path, handler) {
   routes[path] = handler;
 }
 function navigate(hash) {
-  if (window.__diagLog) window.__diagLog("navigate: hash antes=" + window.location.hash + " novo=" + hash);
   window.location.hash = hash;
-  if (window.__diagLog) window.__diagLog("navigate: hash depois=" + window.location.hash);
 }
 async function render() {
-  if (window.__diagLog) window.__diagLog("render: chamado, hash=" + window.location.hash);
-  try {
-    const hash = window.location.hash || "#/home";
-    const [path, ...rest] = hash.replace("#", "").split("/").filter(Boolean);
-    const routeKey = "/" + path;
-    const handler = routes[routeKey] || routes["/home"];
-    if (window.__diagLog) window.__diagLog("render: routeKey=" + routeKey + " temHandler=" + !!handler);
-    await handler(rest);
-    if (window.__diagLog) window.__diagLog("render: handler terminou, appEl.innerHTML.length=" + appEl.innerHTML.length);
-    renderBottomNav(routeKey);
-    window.scrollTo(0, 0);
-    if (window.__diagLog) window.__diagLog("render: concluido");
-  } catch (err) {
-    if (window.__diagLog) window.__diagLog("render: EXCECAO -> " + err.message + "\n" + (err.stack || ""));
-  }
+  const hash = window.location.hash || "#/home";
+  const [path, ...rest] = hash.replace("#", "").split("/").filter(Boolean);
+  const routeKey = "/" + path;
+  const handler = routes[routeKey] || routes["/home"];
+  await handler(rest);
+  renderBottomNav(routeKey);
+  window.scrollTo(0, 0);
 }
-window.addEventListener("hashchange", function () {
-  if (window.__diagLog) window.__diagLog("hashchange: evento disparado, hash=" + window.location.hash);
-  render();
-});
+window.addEventListener("hashchange", render);
 
 function renderBottomNav(activePath) {
   let nav = document.getElementById("bottomNav");
@@ -150,6 +144,7 @@ route("/onboarding", async () => {
     // 1 — nome + data de início
     () => `
       <div class="onboard-screen">
+        <button class="icon-btn" id="stepBack">←</button>
         <h2 class="onboard-title">Como posso te chamar?</h2>
         <p class="onboard-sub">E quando você quer começar sua Semana 1 (domingo a sábado)?</p>
         <label>Nome</label>
@@ -163,6 +158,7 @@ route("/onboarding", async () => {
     // 2 — morning pages + artist date
     () => `
       <div class="onboard-screen">
+        <button class="icon-btn" id="stepBack">←</button>
         <h2 class="onboard-title">Seus rituais</h2>
         <p class="onboard-sub">Escolha os horários. Dá pra mudar depois em Ajustes.</p>
         <label>Horário das Morning Pages (todo dia)</label>
@@ -182,6 +178,7 @@ route("/onboarding", async () => {
     // 3 — checkin + permissões
     () => `
       <div class="onboard-screen">
+        <button class="icon-btn" id="stepBack">←</button>
         <h2 class="onboard-title">Check-in semanal</h2>
         <p class="onboard-sub">Um momento pra revisar a semana — geralmente no fim de semana.</p>
         <label>Dia do check-in</label>
@@ -199,6 +196,14 @@ route("/onboarding", async () => {
   ];
 
   appEl.innerHTML = steps[step]();
+
+  const stepBack = document.getElementById("stepBack");
+  if (stepBack) {
+    stepBack.addEventListener("click", () => {
+      window.__onboardStep = step - 1;
+      render();
+    });
+  }
 
   const next = document.getElementById("next");
   if (next) {
@@ -219,22 +224,18 @@ route("/onboarding", async () => {
   const finish = document.getElementById("finish");
   if (finish) {
     finish.addEventListener("click", async () => {
-      if (window.__diagLog) window.__diagLog("finish: clique recebido");
       draft.checkinDay = document.getElementById("fciday").value;
       draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
       draft.onboarded = true;
       try {
         await DB.setSetting("profile", draft);
-        if (window.__diagLog) window.__diagLog("finish: setSetting ok");
         await NOTIF.applySettings(draft);
-        if (window.__diagLog) window.__diagLog("finish: applySettings ok");
         window.__onboardStep = 0;
         window.__onboardDraft = null;
         toast("Tudo pronto! Bem-vindo(a) 🌿");
         navigate("#/home");
-        if (window.__diagLog) window.__diagLog("finish: navigate chamado");
       } catch (err) {
-        if (window.__diagLog) window.__diagLog("finish: EXCECAO " + err.message + "\n" + (err.stack || ""));
+        toast("Erro ao concluir: " + err.message);
       }
     });
   }
@@ -242,17 +243,13 @@ route("/onboarding", async () => {
 
 // ================= HOME =================
 route("/home", async () => {
-  if (window.__diagLog) window.__diagLog("/home: handler iniciou");
   const settings = await DB.getSetting("profile", null);
-  if (window.__diagLog) window.__diagLog("/home: settings=" + JSON.stringify(settings));
   if (!settings || !settings.onboarded) {
     navigate("#/onboarding");
     return;
   }
   const weekId = await getCurrentWeekId(settings);
-  if (window.__diagLog) window.__diagLog("/home: weekId=" + weekId);
   const week = WEEKS.find((w) => w.id === weekId);
-  if (window.__diagLog) window.__diagLog("/home: week encontrado=" + !!week);
   const weekKey = weekKeyForOffset(settings, weekId);
 
   // streak morning pages últimos 7 dias
@@ -260,7 +257,6 @@ route("/home", async () => {
   const days = [];
   for (let i = 6; i >= 0; i--) days.push(dateToStr(addDays(today, -i)));
   const allMP = await DB.getAllMorningPages();
-  if (window.__diagLog) window.__diagLog("/home: allMP.length=" + allMP.length);
   const mpMap = allMP.reduce((acc, r) => {
     acc[r.date] = r.done;
     return acc;
@@ -274,11 +270,11 @@ route("/home", async () => {
   const pct = totalItems ? Math.round((doneCount / totalItems) * 100) : 0;
 
   const greetName = settings.name ? `, ${settings.name}` : "";
-  if (window.__diagLog) window.__diagLog("/home: prestes a montar HTML");
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo">The Artist's Way<span class="sub">seu companheiro de jornada</span></div>
+      <button class="icon-btn" id="back">←</button>
+      <div class="logo" style="text-align:right">The Artist's Way<span class="sub">seu companheiro de jornada</span></div>
     </div>
 
     <div class="card">
@@ -321,8 +317,8 @@ route("/home", async () => {
       <a class="btn secondary block" href="#/checkin/${weekId}">Ir para o check-in da Semana ${weekId}</a>
     </div>
   `;
-  if (window.__diagLog) window.__diagLog("/home: HTML montado, appEl.innerHTML.length=" + appEl.innerHTML.length);
 
+  document.getElementById("back").addEventListener("click", () => history.back());
   document.getElementById("toggleMP").addEventListener("click", async () => {
     const done = await DB.toggleMorningPage(todayStr());
     toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
@@ -489,7 +485,10 @@ route("/progress", async () => {
   );
 
   appEl.innerHTML = `
-    <div class="top-bar"><div class="logo">Sua Jornada<span class="sub">12 semanas</span></div></div>
+    <div class="top-bar">
+      <button class="icon-btn" id="back">←</button>
+      <div class="logo" style="text-align:right">Sua Jornada<span class="sub">12 semanas</span></div>
+    </div>
     <p class="muted">Toque em qualquer semana — você pode ir e voltar à vontade.</p>
     <div class="week-grid">
       ${chips
@@ -502,6 +501,7 @@ route("/progress", async () => {
     </div>
     <div class="spacer"></div>
   `;
+  document.getElementById("back").addEventListener("click", () => history.back());
   appEl.querySelectorAll(".week-chip").forEach((el) => {
     el.addEventListener("click", () => navigate("#/week/" + el.dataset.week));
   });
@@ -511,8 +511,22 @@ route("/progress", async () => {
 route("/settings", async () => {
   const settings = (await DB.getSetting("profile", null)) || {};
 
+  const fontSize = settings.fontSize || "medium";
+
   appEl.innerHTML = `
-    <div class="top-bar"><div class="logo">Ajustes<span class="sub">seus rituais</span></div></div>
+    <div class="top-bar">
+      <button class="icon-btn" id="back">←</button>
+      <div class="logo" style="text-align:right">Ajustes<span class="sub">seus rituais</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Tamanho da letra</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn ${fontSize === "small" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="small">Pequena</button>
+        <button class="btn ${fontSize === "medium" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="medium">Média</button>
+        <button class="btn ${fontSize === "large" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="large">Grande</button>
+      </div>
+    </div>
 
     <div class="card">
       <label>Nome</label>
@@ -562,6 +576,17 @@ route("/settings", async () => {
 
     <div class="spacer"></div>
   `;
+
+  document.getElementById("back").addEventListener("click", () => history.back());
+
+  appEl.querySelectorAll("[data-fontsize]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const updated = Object.assign({}, settings, { fontSize: btn.dataset.fontsize });
+      await DB.setSetting("profile", updated);
+      applyFontSizePreference(updated.fontSize);
+      render();
+    });
+  });
 
   document.getElementById("save").addEventListener("click", async () => {
     const updated = Object.assign({}, settings, {
@@ -621,6 +646,9 @@ route("/settings", async () => {
 
 // ---------- boot ----------
 (async function boot() {
+  const settings = await DB.getSetting("profile", null);
+  applyFontSizePreference(settings && settings.fontSize);
+
   if ("serviceWorker" in navigator) {
     try {
       await navigator.serviceWorker.register("./service-worker.js");
