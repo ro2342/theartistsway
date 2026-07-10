@@ -33,7 +33,12 @@ namespace ArtistWayUWP
             try
             {
                 MainWebView.NavigationFailed += MainWebView_NavigationFailed;
-                MainWebView.Navigate(new Uri("ms-appx-web:///www/index.html"));
+                // TEMPORÁRIO (branch de diagnóstico): carrega do GitHub Pages em vez
+                // do conteúdo local, pra iterar em JS/CSS sem rebuild do appxbundle a
+                // cada mudança. Reverter pra ms-appx-web:///www/index.html antes do
+                // merge pra main.
+                string cacheBust = DateTime.UtcNow.Ticks.ToString();
+                MainWebView.Navigate(new Uri("https://ro2342.github.io/theartistsway/www/index.html?cb=" + cacheBust));
             }
             catch (Exception ex)
             {
