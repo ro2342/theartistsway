@@ -63,18 +63,31 @@ function route(path, handler) {
   routes[path] = handler;
 }
 function navigate(hash) {
+  if (window.__diagLog) window.__diagLog("navigate: hash antes=" + window.location.hash + " novo=" + hash);
   window.location.hash = hash;
+  if (window.__diagLog) window.__diagLog("navigate: hash depois=" + window.location.hash);
 }
 async function render() {
-  const hash = window.location.hash || "#/home";
-  const [path, ...rest] = hash.replace("#", "").split("/").filter(Boolean);
-  const routeKey = "/" + path;
-  const handler = routes[routeKey] || routes["/home"];
-  await handler(rest);
-  renderBottomNav(routeKey);
-  window.scrollTo(0, 0);
+  if (window.__diagLog) window.__diagLog("render: chamado, hash=" + window.location.hash);
+  try {
+    const hash = window.location.hash || "#/home";
+    const [path, ...rest] = hash.replace("#", "").split("/").filter(Boolean);
+    const routeKey = "/" + path;
+    const handler = routes[routeKey] || routes["/home"];
+    if (window.__diagLog) window.__diagLog("render: routeKey=" + routeKey + " temHandler=" + !!handler);
+    await handler(rest);
+    if (window.__diagLog) window.__diagLog("render: handler terminou, appEl.innerHTML.length=" + appEl.innerHTML.length);
+    renderBottomNav(routeKey);
+    window.scrollTo(0, 0);
+    if (window.__diagLog) window.__diagLog("render: concluido");
+  } catch (err) {
+    if (window.__diagLog) window.__diagLog("render: EXCECAO -> " + err.message + "\n" + (err.stack || ""));
+  }
 }
-window.addEventListener("hashchange", render);
+window.addEventListener("hashchange", function () {
+  if (window.__diagLog) window.__diagLog("hashchange: evento disparado, hash=" + window.location.hash);
+  render();
+});
 
 function renderBottomNav(activePath) {
   let nav = document.getElementById("bottomNav");
@@ -229,13 +242,17 @@ route("/onboarding", async () => {
 
 // ================= HOME =================
 route("/home", async () => {
+  if (window.__diagLog) window.__diagLog("/home: handler iniciou");
   const settings = await DB.getSetting("profile", null);
+  if (window.__diagLog) window.__diagLog("/home: settings=" + JSON.stringify(settings));
   if (!settings || !settings.onboarded) {
     navigate("#/onboarding");
     return;
   }
   const weekId = await getCurrentWeekId(settings);
+  if (window.__diagLog) window.__diagLog("/home: weekId=" + weekId);
   const week = WEEKS.find((w) => w.id === weekId);
+  if (window.__diagLog) window.__diagLog("/home: week encontrado=" + !!week);
   const weekKey = weekKeyForOffset(settings, weekId);
 
   // streak morning pages últimos 7 dias
@@ -243,6 +260,7 @@ route("/home", async () => {
   const days = [];
   for (let i = 6; i >= 0; i--) days.push(dateToStr(addDays(today, -i)));
   const allMP = await DB.getAllMorningPages();
+  if (window.__diagLog) window.__diagLog("/home: allMP.length=" + allMP.length);
   const mpMap = allMP.reduce((acc, r) => {
     acc[r.date] = r.done;
     return acc;
@@ -256,6 +274,7 @@ route("/home", async () => {
   const pct = totalItems ? Math.round((doneCount / totalItems) * 100) : 0;
 
   const greetName = settings.name ? `, ${settings.name}` : "";
+  if (window.__diagLog) window.__diagLog("/home: prestes a montar HTML");
 
   appEl.innerHTML = `
     <div class="top-bar">
@@ -302,6 +321,7 @@ route("/home", async () => {
       <a class="btn secondary block" href="#/checkin/${weekId}">Ir para o check-in da Semana ${weekId}</a>
     </div>
   `;
+  if (window.__diagLog) window.__diagLog("/home: HTML montado, appEl.innerHTML.length=" + appEl.innerHTML.length);
 
   document.getElementById("toggleMP").addEventListener("click", async () => {
     const done = await DB.toggleMorningPage(todayStr());
