@@ -8,7 +8,7 @@
   <Identity
     Name="RodCarvalho.ArtistWayCompanion"
     Publisher="CN=RodCarvalho-ArtistWay-SelfSigned"
-    Version="2.0.0.7" />
+    Version="2.0.0.8" />
 
   <mp:PhoneIdentity PhoneProductId="a3d5c6d1-8b1a-4e0a-9a3f-3f2b6e0a7c11" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 

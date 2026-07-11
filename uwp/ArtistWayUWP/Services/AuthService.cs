@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Security.Authentication.Web.Core;
+using Windows.Security.Credentials;
 
 namespace ArtistWayUWP.Services
 {
