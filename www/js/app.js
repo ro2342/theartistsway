@@ -715,8 +715,19 @@ route("/settings", async () => {
     if (isUwpHost()) {
       // A WebView UWP legada não dispara o download via Blob + <a download>
       // -- pede pro app nativo salvar o arquivo com um seletor de verdade.
+      // O resultado (sucesso/cancelado/erro) volta via callback, nunca fica
+      // silencioso.
+      window.__onNativeExportResult = (result) => {
+        delete window.__onNativeExportResult;
+        if (result && result.success) {
+          toast("Backup salvo ✓");
+        } else if (result && result.canceled) {
+          // usuário cancelou o seletor -- não é erro, sem toast.
+        } else {
+          toast("Erro ao salvar backup: " + ((result && result.error) || "desconhecido"));
+        }
+      };
       window.external.notify(JSON.stringify({ type: "exportData", filename, content: json }));
-      toast("Escolha onde salvar o backup");
       return;
     }
     const blob = new Blob([json], { type: "application/json" });
@@ -748,11 +759,16 @@ route("/settings", async () => {
   const importDataUwpEl = document.getElementById("importDataUwp");
   if (importDataUwpEl) {
     importDataUwpEl.addEventListener("click", () => {
-      window.__onNativeImportResult = async (text) => {
+      window.__onNativeImportResult = async (result) => {
         delete window.__onNativeImportResult;
-        if (!text) return;
+        if (!result || !result.success) {
+          if (result && !result.canceled) {
+            toast("Erro ao importar backup: " + (result.error || "desconhecido"));
+          }
+          return;
+        }
         try {
-          const payload = JSON.parse(text);
+          const payload = JSON.parse(result.content);
           await DB.importAllData(payload);
           toast("Backup importado ✓");
           render();
@@ -774,7 +790,11 @@ route("/settings", async () => {
       window.ArtistWayUpdates.checkForUpdate().then((result) => {
         if (!updatesBodyEl.isConnected) return;
         if (!result) {
-          updatesBodyEl.textContent = `Versão instalada: ${installed}. Não foi possível checar agora (sem internet?).`;
+          updatesBodyEl.textContent = `Versão instalada: ${installed}. Não foi possível checar agora.`;
+          return;
+        }
+        if (result.error) {
+          updatesBodyEl.textContent = `Versão instalada: ${installed}. Não foi possível checar agora (${result.error}).`;
           return;
         }
         if (result.updateAvailable) {

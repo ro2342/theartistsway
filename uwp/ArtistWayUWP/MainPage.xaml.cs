@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Data.Json;
 using Windows.Data.Xml.Dom;
@@ -270,15 +271,22 @@ namespace ArtistWayUWP
 
         // ---------- Backup: exportar/importar (a WebView UWP legada não
         // dispara o download via Blob + <a download>, então isso usa os
-        // pickers nativos de arquivo em vez do fluxo padrão do navegador) ----------
+        // pickers nativos de arquivo em vez do fluxo padrão do navegador).
+        // Não deixamos nenhuma falha aqui silenciosa -- o resultado (sucesso,
+        // cancelamento ou erro com mensagem) sempre volta pro JS, pra nunca
+        // mais parecer que "não fez nada" sem explicação. ----------
 
         private async void ExportData(string filename, string content)
         {
+            JsonObject result = new JsonObject();
             try
             {
+                // Sem SuggestedStartLocation: no Windows 10 Mobile nem toda
+                // PickerLocationId (ex.: DocumentsLibrary) corresponde a uma
+                // pasta real, e isso pode derrubar o picker com uma exceção
+                // -- deixa o próprio seletor escolher o ponto de partida.
                 FileSavePicker savePicker = new FileSavePicker
                 {
-                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
                     SuggestedFileName = filename,
                 };
                 savePicker.FileTypeChoices.Add("Arquivo JSON", new List<string> { ".json" });
@@ -287,40 +295,60 @@ namespace ArtistWayUWP
                 if (file != null)
                 {
                     await FileIO.WriteTextAsync(file, content);
+                    result["success"] = JsonValue.CreateBooleanValue(true);
+                }
+                else
+                {
+                    result["success"] = JsonValue.CreateBooleanValue(false);
+                    result["canceled"] = JsonValue.CreateBooleanValue(true);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Usuário cancelou o seletor, ou falha de I/O -- nada crítico
-                // o bastante para travar a UI do app.
+                result["success"] = JsonValue.CreateBooleanValue(false);
+                result["error"] = JsonValue.CreateStringValue(ex.Message);
             }
+
+            await InvokeJsCallback("window.__onNativeExportResult", result);
         }
 
         private async void ImportData()
         {
-            string content = null;
+            JsonObject result = new JsonObject();
             try
             {
-                FileOpenPicker openPicker = new FileOpenPicker
-                {
-                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                };
+                FileOpenPicker openPicker = new FileOpenPicker();
                 openPicker.FileTypeFilter.Add(".json");
 
                 StorageFile file = await openPicker.PickSingleFileAsync();
                 if (file != null)
                 {
-                    content = await FileIO.ReadTextAsync(file);
+                    string content = await FileIO.ReadTextAsync(file);
+                    result["success"] = JsonValue.CreateBooleanValue(true);
+                    result["content"] = JsonValue.CreateStringValue(content);
+                }
+                else
+                {
+                    result["success"] = JsonValue.CreateBooleanValue(false);
+                    result["canceled"] = JsonValue.CreateBooleanValue(true);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Usuário cancelou o seletor, ou falha de I/O.
+                result["success"] = JsonValue.CreateBooleanValue(false);
+                result["error"] = JsonValue.CreateStringValue(ex.Message);
             }
 
-            string script = "window.__onNativeImportResult && window.__onNativeImportResult(" + EscapeJsString(content) + ");";
+            await InvokeJsCallback("window.__onNativeImportResult", result);
+        }
+
+        // JsonObject.Stringify() já produz um literal válido tanto em JSON
+        // quanto em JS, então não precisa de nenhuma escapada manual aqui.
+        private async Task InvokeJsCallback(string functionName, JsonObject payload)
+        {
             try
             {
+                string script = functionName + " && " + functionName + "(" + payload.Stringify() + ");";
                 await MainWebView.InvokeScriptAsync("eval", new[] { script });
             }
             catch (Exception)

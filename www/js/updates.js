@@ -36,9 +36,9 @@ async function checkForUpdate() {
   if (!current) return null;
   try {
     const res = await fetch(VERSION_URL, { cache: "no-store" });
-    if (!res.ok) return null;
+    if (!res.ok) return { current, error: "HTTP " + res.status };
     const data = await res.json();
-    if (!data || !data.version) return null;
+    if (!data || !data.version) return { current, error: "resposta sem versão" };
     return {
       current,
       latest: data.version,
@@ -46,7 +46,7 @@ async function checkForUpdate() {
       updateAvailable: compareVersions(data.version, current) > 0,
     };
   } catch (e) {
-    return null;
+    return { current, error: (e && e.message) || String(e) };
   }
 }
 

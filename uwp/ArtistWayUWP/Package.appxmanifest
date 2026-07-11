@@ -8,7 +8,7 @@
   <Identity
     Name="RodCarvalho.ArtistWayCompanion"
     Publisher="CN=RodCarvalho-ArtistWay-SelfSigned"
-    Version="1.0.0.4" />
+    Version="1.0.0.5" />
 
   <mp:PhoneIdentity PhoneProductId="a3d5c6d1-8b1a-4e0a-9a3f-3f2b6e0a7c11" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 
@@ -43,6 +43,20 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#e9e2d0" />
       </uap:VisualElements>
+      <!--
+        Conteúdo local (ms-appx-web:///www/index.html) roda em "contexto
+        local" e, por padrão, o WebView bloqueia silenciosamente qualquer
+        fetch()/XHR desse conteúdo para hosts remotos, mesmo com a
+        capability internetClient e mesmo com internet funcionando no
+        aparelho. É por isso que o checador de atualização (js/updates.js)
+        não conseguia buscar version.json: precisa declarar explicitamente
+        quais hosts remotos o conteúdo local tem permissão de acessar.
+        WindowsRuntimeAccess="none" porque só queremos permitir o fetch,
+        não dar acesso a APIs nativas pra esse conteúdo remoto.
+      -->
+      <uap:ApplicationContentUriRules>
+        <uap:Rule Type="include" Match="https://ro2342.github.io/*" WindowsRuntimeAccess="none" />
+      </uap:ApplicationContentUriRules>
     </Application>
   </Applications>
 
