@@ -112,10 +112,15 @@ async function setSetting(key, value) {
   return dbPut(STORES.settings, { key, value });
 }
 
+async function touchActivity() {
+  await dbPut(STORES.settings, { key: "lastActivityAt", value: new Date().toISOString() });
+}
+
 async function toggleMorningPage(dateStr) {
   const existing = await dbGet(STORES.morningPages, dateStr);
   const done = !(existing && existing.done);
   await dbPut(STORES.morningPages, { date: dateStr, done });
+  await touchActivity();
   return done;
 }
 
@@ -141,6 +146,7 @@ async function toggleChecklistItem(weekId, itemIndex) {
   const existing = await dbGet(STORES.checklist, id);
   const done = !(existing && existing.done);
   await dbPut(STORES.checklist, { id, weekId, itemIndex, done });
+  await touchActivity();
   return done;
 }
 
@@ -200,6 +206,7 @@ window.ArtistWayDB = {
   STORES,
   getSetting,
   setSetting,
+  touchActivity,
   toggleMorningPage,
   getMorningPagesInRange,
   getAllMorningPages,

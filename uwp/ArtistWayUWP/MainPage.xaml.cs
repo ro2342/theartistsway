@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using Windows.ApplicationModel;
 using Windows.Data.Json;
 using Windows.Data.Xml.Dom;
 using Windows.Foundation.Metadata;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
@@ -63,6 +67,25 @@ namespace ArtistWayUWP
             ShowFatalError("Falha ao navegar para o conteúdo local: " + e.WebErrorStatus);
         }
 
+        // Injeta a versão do pacote instalado no contexto JS, pra que
+        // www/js/updates.js consiga comparar com a última versão publicada
+        // no site (ver window.__ARTISTWAY_NATIVE_VERSION).
+        private async void MainWebView_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs e)
+        {
+            try
+            {
+                PackageVersion version = Package.Current.Id.Version;
+                string versionStr = $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+                string script = "window.__ARTISTWAY_NATIVE_VERSION = " + EscapeJsString(versionStr) + ";";
+                await MainWebView.InvokeScriptAsync("eval", new[] { script });
+            }
+            catch (Exception)
+            {
+                // Sem versão nativa disponível: o app continua funcionando
+                // normalmente, só sem o checador de atualização.
+            }
+        }
+
         private void ShowFatalError(string message)
         {
             if (ErrorText != null && ErrorPanel != null)
@@ -90,6 +113,14 @@ namespace ArtistWayUWP
                         {
                             OpenUri(url);
                         }
+                        break;
+                    case "exportData":
+                        string exportFilename = GetStringOrNull(data, "filename") ?? "artist-way-backup.json";
+                        string exportContent = GetStringOrNull(data, "content") ?? "";
+                        ExportData(exportFilename, exportContent);
+                        break;
+                    case "importRequest":
+                        ImportData();
                         break;
                 }
             }
@@ -235,6 +266,80 @@ namespace ArtistWayUWP
             {
                 await Windows.System.Launcher.LaunchUriAsync(uri);
             }
+        }
+
+        // ---------- Backup: exportar/importar (a WebView UWP legada não
+        // dispara o download via Blob + <a download>, então isso usa os
+        // pickers nativos de arquivo em vez do fluxo padrão do navegador) ----------
+
+        private async void ExportData(string filename, string content)
+        {
+            try
+            {
+                FileSavePicker savePicker = new FileSavePicker
+                {
+                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                    SuggestedFileName = filename,
+                };
+                savePicker.FileTypeChoices.Add("Arquivo JSON", new List<string> { ".json" });
+
+                StorageFile file = await savePicker.PickSaveFileAsync();
+                if (file != null)
+                {
+                    await FileIO.WriteTextAsync(file, content);
+                }
+            }
+            catch (Exception)
+            {
+                // Usuário cancelou o seletor, ou falha de I/O -- nada crítico
+                // o bastante para travar a UI do app.
+            }
+        }
+
+        private async void ImportData()
+        {
+            string content = null;
+            try
+            {
+                FileOpenPicker openPicker = new FileOpenPicker
+                {
+                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                };
+                openPicker.FileTypeFilter.Add(".json");
+
+                StorageFile file = await openPicker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    content = await FileIO.ReadTextAsync(file);
+                }
+            }
+            catch (Exception)
+            {
+                // Usuário cancelou o seletor, ou falha de I/O.
+            }
+
+            string script = "window.__onNativeImportResult && window.__onNativeImportResult(" + EscapeJsString(content) + ");";
+            try
+            {
+                await MainWebView.InvokeScriptAsync("eval", new[] { script });
+            }
+            catch (Exception)
+            {
+                // Sem callback registrado do lado JS -- ignora.
+            }
+        }
+
+        private static string EscapeJsString(string s)
+        {
+            if (s == null)
+            {
+                return "null";
+            }
+            return "'" + s
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\'")
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n") + "'";
         }
 
         // ---------- Helpers ----------

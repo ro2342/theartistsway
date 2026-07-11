@@ -554,6 +554,39 @@ textarea { min-height: 90px; resize: vertical; }
 .idea-card textarea:focus { outline: none; }
 .idea-card textarea::placeholder { color: var(--ink-soft); font-weight: 500; }
 
+/* ---------- Ensaio da semana ---------- */
+
+.essay-text p {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+.essay-text p:last-child { margin-bottom: 0; }
+.essay-text p:first-child::first-letter {
+  font-family: "Special Elite", "Courier New", monospace;
+  font-size: 1.6em;
+  color: var(--teal-deep);
+}
+
+/* ---------- Regras da Estrada / Princípios Básicos ---------- */
+
+.rule-list {
+  margin: 0;
+  padding-left: 22px;
+}
+.rule-item {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-weight: 500;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(53, 48, 31, 0.22);
+}
+.rule-item:last-child { border-bottom: none; }
+.rule-item::marker {
+  font-family: "Special Elite", "Courier New", monospace;
+  color: var(--teal-deep);
+}
+
 .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .tag {
   font-size: 0.75rem;

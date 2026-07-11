@@ -13,6 +13,16 @@ function forEachNode(nodeList, fn) {
   Array.prototype.forEach.call(nodeList, fn);
 }
 
+// Mesma detecção usada em calendar.js/notifications.js: presença do bridge
+// window.external.notify indica que estamos dentro do WebView UWP.
+function isUwpHost() {
+  try {
+    return !!(window.external && window.external.notify);
+  } catch (e) {
+    return false;
+  }
+}
+
 // ---------- tamanho da letra ----------
 function applyFontSizePreference(size) {
   document.documentElement.classList.remove("fs-small", "fs-large");
@@ -277,6 +287,12 @@ route("/home", async () => {
 
   const greetName = settings.name ? `, ${settings.name}` : "";
 
+  const lastActivityAt = await DB.getSetting("lastActivityAt", null);
+  const daysSinceActivity = lastActivityAt
+    ? Math.floor((Date.now() - new Date(lastActivityAt).getTime()) / (24 * 3600 * 1000))
+    : null;
+  const showRoadRulesNudge = daysSinceActivity !== null && daysSinceActivity >= 3;
+
   appEl.innerHTML = `
     <div class="top-bar">
       <button class="icon-btn" id="back">←</button>
@@ -322,6 +338,15 @@ route("/home", async () => {
       <p class="muted">Prefere revisar a semana agora?</p>
       <a class="btn secondary block" href="#/checkin/${weekId}">Ir para o check-in da Semana ${weekId}</a>
     </div>
+
+    ${
+      showRoadRulesNudge
+        ? `<div class="card dotted text-center">
+      <p class="muted">Faz uns dias que você não passa por aqui.</p>
+      <a class="btn secondary block" href="#/regras-da-estrada">📍 Já revisou as Regras da Estrada?</a>
+    </div>`
+        : ""
+    }
   `;
 
   document.getElementById("back").addEventListener("click", () => history.back());
@@ -336,6 +361,23 @@ route("/home", async () => {
 route("/week", async (rest) => {
   const weekId = Number(rest[0]) || 1;
   const week = WEEKS.find((w) => w.id === weekId);
+
+  if (rest[1] === "essay") {
+    appEl.innerHTML = `
+      <div class="top-bar">
+        <button class="icon-btn" id="back">←</button>
+        <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">o tema em detalhe</span></div>
+      </div>
+      <h2>${week.title}</h2>
+      <div class="card essay-text">
+        ${(week.essay || []).map((p) => `<p>${p}</p>`).join("")}
+      </div>
+      <div class="spacer"></div>
+    `;
+    document.getElementById("back").addEventListener("click", () => history.back());
+    return;
+  }
+
   const checklist = await DB.getChecklistForWeek(weekId);
   const doneSet = new Set(checklist.filter((c) => c.done).map((c) => c.itemIndex));
 
@@ -346,6 +388,8 @@ route("/week", async (rest) => {
     </div>
     <h2>${week.title}</h2>
     <p class="muted">${week.intro}</p>
+    <a class="btn secondary block" href="#/week/${week.id}/essay">📖 Entenda o tema da semana</a>
+    <div class="spacer-sm"></div>
     <div class="card">
       ${week.checklist
         .map(
@@ -372,6 +416,31 @@ route("/week", async (rest) => {
       el.classList.toggle("done", done);
     });
   });
+});
+
+// ================= REFERÊNCIA (Regras da Estrada / Princípios Básicos) =================
+function renderReferenceScreen(title, sub, items) {
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <button class="icon-btn" id="back">←</button>
+      <div class="logo" style="text-align:right">${title}<span class="sub">${sub}</span></div>
+    </div>
+    <div class="card">
+      <ol class="rule-list">
+        ${items.map((text) => `<li class="rule-item">${text}</li>`).join("")}
+      </ol>
+    </div>
+    <div class="spacer"></div>
+  `;
+  document.getElementById("back").addEventListener("click", () => history.back());
+}
+
+route("/regras-da-estrada", async () => {
+  renderReferenceScreen("Regras da Estrada", "sempre por perto", ROAD_RULES);
+});
+
+route("/principios-basicos", async () => {
+  renderReferenceScreen("Princípios Básicos", "a base de tudo", BASIC_PRINCIPLES);
 });
 
 // ================= ARTIST DATE =================
@@ -575,9 +644,24 @@ route("/settings", async () => {
       <div class="card-title" style="font-size:1.05rem;">Seus dados</div>
       <p class="muted">Tudo fica só no seu aparelho. Faça backup de vez em quando.</p>
       <button class="btn secondary block" id="exportData">Exportar backup (.json)</button>
+      ${
+        isUwpHost()
+          ? `<div class="spacer-sm"></div><button class="btn secondary block" id="importDataUwp">Importar backup (.json)</button>`
+          : `<div class="spacer-sm"></div><label>Importar backup</label><input type="file" id="importFile" accept=".json" />`
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Referência</div>
+      <p class="muted">Sempre à mão, pra reler quando bater a dúvida.</p>
+      <a class="btn secondary block" href="#/regras-da-estrada">📍 Regras da Estrada</a>
       <div class="spacer-sm"></div>
-      <label>Importar backup</label>
-      <input type="file" id="importFile" accept=".json" />
+      <a class="btn secondary block" href="#/principios-basicos">✳️ Princípios Básicos</a>
+    </div>
+
+    <div class="card" id="updatesCard">
+      <div class="card-title" style="font-size:1.05rem;">Atualizações</div>
+      <p class="muted" id="updatesBody">Verificando...</p>
     </div>
 
     <div class="spacer"></div>
@@ -626,28 +710,89 @@ route("/settings", async () => {
 
   document.getElementById("exportData").addEventListener("click", async () => {
     const data = await DB.exportAllData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const json = JSON.stringify(data, null, 2);
+    const filename = `artist-way-backup-${todayStr()}.json`;
+    if (isUwpHost()) {
+      // A WebView UWP legada não dispara o download via Blob + <a download>
+      // -- pede pro app nativo salvar o arquivo com um seletor de verdade.
+      window.external.notify(JSON.stringify({ type: "exportData", filename, content: json }));
+      toast("Escolha onde salvar o backup");
+      return;
+    }
+    const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `artist-way-backup-${todayStr()}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById("importFile").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const text = await file.text();
-    try {
-      const payload = JSON.parse(text);
-      await DB.importAllData(payload);
-      toast("Backup importado ✓");
-      render();
-    } catch (err) {
-      toast("Arquivo inválido");
+  const importFileEl = document.getElementById("importFile");
+  if (importFileEl) {
+    importFileEl.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const payload = JSON.parse(text);
+        await DB.importAllData(payload);
+        toast("Backup importado ✓");
+        render();
+      } catch (err) {
+        toast("Arquivo inválido");
+      }
+    });
+  }
+
+  const importDataUwpEl = document.getElementById("importDataUwp");
+  if (importDataUwpEl) {
+    importDataUwpEl.addEventListener("click", () => {
+      window.__onNativeImportResult = async (text) => {
+        delete window.__onNativeImportResult;
+        if (!text) return;
+        try {
+          const payload = JSON.parse(text);
+          await DB.importAllData(payload);
+          toast("Backup importado ✓");
+          render();
+        } catch (err) {
+          toast("Arquivo inválido");
+        }
+      };
+      window.external.notify(JSON.stringify({ type: "importRequest" }));
+    });
+  }
+
+  const updatesBodyEl = document.getElementById("updatesBody");
+  if (updatesBodyEl) {
+    if (!window.ArtistWayUpdates || !window.ArtistWayUpdates.isPackagedApp()) {
+      updatesBodyEl.textContent = "Você está usando a versão web — ela se atualiza sozinha, sem precisar checar nada aqui.";
+    } else {
+      const installed = window.ArtistWayUpdates.getInstalledVersion();
+      updatesBodyEl.textContent = `Versão instalada: ${installed}. Verificando se há atualização...`;
+      window.ArtistWayUpdates.checkForUpdate().then((result) => {
+        if (!updatesBodyEl.isConnected) return;
+        if (!result) {
+          updatesBodyEl.textContent = `Versão instalada: ${installed}. Não foi possível checar agora (sem internet?).`;
+          return;
+        }
+        if (result.updateAvailable) {
+          updatesBodyEl.innerHTML = `Versão instalada: ${result.current}. Nova versão disponível: <strong>${result.latest}</strong>.`;
+          const btn = document.createElement("button");
+          btn.className = "btn brass block";
+          btn.textContent = "Baixar atualização";
+          btn.style.marginTop = "10px";
+          btn.addEventListener("click", () => {
+            GCAL.openUrl("https://ro2342.github.io/theartistsway/app/");
+          });
+          updatesBodyEl.parentElement.appendChild(btn);
+        } else {
+          updatesBodyEl.textContent = `Versão instalada: ${result.current}. Atualizado ✓`;
+        }
+      });
     }
-  });
+  }
 });
 
 // ---------- boot ----------

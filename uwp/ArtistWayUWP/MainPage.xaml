@@ -12,7 +12,8 @@
         <WebView x:Name="MainWebView"
                  HorizontalAlignment="Stretch"
                  VerticalAlignment="Stretch"
-                 ScriptNotify="MainWebView_ScriptNotify" />
+                 ScriptNotify="MainWebView_ScriptNotify"
+                 NavigationCompleted="MainWebView_NavigationCompleted" />
         <Border x:Name="ErrorPanel"
                 Visibility="Collapsed"
                 Background="#E9E2D0"

@@ -37,5 +37,18 @@
   <p>Baixa o pacote mais recente pra instalar no Lumia.</p>
   <a class="download" href="./app.appxbundle" download="ArtistWayUWP.appxbundle">Baixar app.appxbundle</a>
   <p class="muted">Esse link sempre aponta pro arquivo mais recente enviado pra esse branch.</p>
+  <p class="muted" id="versionInfo">Carregando informações da versão...</p>
+  <script>
+    fetch("./version.json", { cache: "no-store" })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var el = document.getElementById("versionInfo");
+        var date = data.builtAt ? new Date(data.builtAt).toLocaleDateString("pt-BR") : "";
+        el.textContent = "Última versão publicada: " + data.version + (date ? " (" + date + ")" : "");
+      })
+      .catch(function () {
+        document.getElementById("versionInfo").textContent = "";
+      });
+  </script>
 </body>
 </html>

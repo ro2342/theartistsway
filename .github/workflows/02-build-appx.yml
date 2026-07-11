@@ -63,7 +63,7 @@ jobs:
           path: AppPackages/**
           if-no-files-found: error
 
-      - name: Publicar o appxbundle em app/ (link estável pro GitHub Pages)
+      - name: Publicar o appxbundle e o version.json em app/ (link estável pro GitHub Pages)
         shell: pwsh
         run: |
           $bundle = Get-ChildItem -Path AppPackages -Recurse -Filter *.appxbundle | Select-Object -First 1
@@ -73,13 +73,20 @@ jobs:
           }
           New-Item -ItemType Directory -Force -Path app | Out-Null
           Copy-Item $bundle.FullName -Destination "app/app.appxbundle" -Force
+
+          [xml]$manifest = Get-Content "uwp/ArtistWayUWP/Package.appxmanifest"
+          $version = $manifest.Package.Identity.Version
+          $builtAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+          $versionJson = @{ version = $version; builtAt = $builtAt } | ConvertTo-Json -Compress
+          Set-Content -Path "app/version.json" -Value $versionJson -NoNewline
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add app/app.appxbundle
-          git diff --cached --quiet -- app/app.appxbundle
+          git add app/app.appxbundle app/version.json
+          git diff --cached --quiet -- app/app.appxbundle app/version.json
           if ($LASTEXITCODE -eq 0) {
-            Write-Host "app.appxbundle já está atualizado, nada para commitar."
+            Write-Host "app.appxbundle e version.json já estão atualizados, nada para commitar."
           } else {
-            git commit -m "chore: atualiza app/app.appxbundle (automático)"
+            git commit -m "chore: atualiza app/app.appxbundle e app/version.json (automático)"
             git push
           }
