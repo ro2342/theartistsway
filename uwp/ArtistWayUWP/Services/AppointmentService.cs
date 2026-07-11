@@ -52,7 +52,6 @@ namespace ArtistWayUWP.Services
                 {
                     Unit = AppointmentRecurrenceUnit.Weekly,
                     Interval = 1,
-                    DaysOfWeek = ToDaysOfWeek(start.DayOfWeek),
                 },
             };
 
@@ -72,20 +71,6 @@ namespace ArtistWayUWP.Services
                 diff = 7;
             }
             return candidate.AddDays(diff);
-        }
-
-        private static DaysOfWeek ToDaysOfWeek(DayOfWeek day)
-        {
-            switch (day)
-            {
-                case DayOfWeek.Sunday: return DaysOfWeek.Sunday;
-                case DayOfWeek.Monday: return DaysOfWeek.Monday;
-                case DayOfWeek.Tuesday: return DaysOfWeek.Tuesday;
-                case DayOfWeek.Wednesday: return DaysOfWeek.Wednesday;
-                case DayOfWeek.Thursday: return DaysOfWeek.Thursday;
-                case DayOfWeek.Friday: return DaysOfWeek.Friday;
-                default: return DaysOfWeek.Saturday;
-            }
         }
     }
 }
