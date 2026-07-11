@@ -54,7 +54,7 @@
       learn.microsoft.com/uwp/api/windows.applicationmodel.appointments.appointmentmanager.showaddappointmentasync.
       Sem essa capability a chamada falha.
     -->
-    <Capability Name="appointmentsSystem" />
+    <uap:Capability Name="appointmentsSystem" />
   </Capabilities>
 
 </Package>
