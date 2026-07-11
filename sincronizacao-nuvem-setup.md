@@ -83,11 +83,11 @@ Microsoft.
      tem organização corporativa)
    - Redirect URI: deixe em branco por enquanto, vamos voltar aqui.
 3. Depois de criar, anote o **Application (client) ID** — é o primeiro valor
-   que vou pedir mais abaixo.
+   que vou pedir mais abaixo. bf179c88-8388-4ffb-a90a-d8676d4e9513
 4. Vá em **Certificados e segredos** (Certificates & secrets) → **Novo
    segredo do cliente** → crie um, copie o **valor** dele na hora (some
    depois de sair da tela). Guarde num lugar seguro por enquanto (não precisa
-   me mandar ainda).
+   me mandar ainda). 
 5. Volte no **console do Firebase** → Authentication → Sign-in method →
    **Adicionar novo provedor** → **Microsoft**.
 6. Cole ali o **Application (client) ID** e o **segredo do cliente** que você
@@ -96,7 +96,7 @@ Microsoft.
    `https://SEU-PROJETO.firebaseapp.com/__/auth/handler`) — copie esse valor.
 8. Volte pro registro do app na Microsoft → **Autenticação** (Authentication)
    → **Adicionar uma plataforma** → **Web** → cole o URI de redirecionamento
-   que o Firebase te deu → **Salvar**.
+   que o Firebase te deu → **Salvar**. 
 9. No Firebase, clique em **Salvar** pra confirmar o provedor Microsoft.
 
 A partir daqui, o segredo do cliente já está guardado só dentro do Firebase

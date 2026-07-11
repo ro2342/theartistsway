@@ -1,6 +1,7 @@
 using System;
 using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
+using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
@@ -234,6 +235,23 @@ namespace ArtistWayUWP.Views
                 };
                 _ = dialog.ShowAsync();
             }
+        }
+
+        // Etapa A da sincronização entre aparelhos: pra registrar o app
+        // como cliente nativo no Entra ID (login Microsoft via WAM), o
+        // Azure precisa do SID do pacote como redirect URI
+        // (ms-app://<SID>/). Não tem como descobrir esse valor sem rodar
+        // no aparelho de verdade -- este botão só existe pra mostrar isso.
+        private async void ShowPackageSid_Click(object sender, RoutedEventArgs e)
+        {
+            string sid = WebAuthenticationBroker.GetCurrentApplicationCallbackUri().ToString();
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = "Identificador do pacote",
+                Content = "Copie esse valor e registre como redirect URI (plataforma \"Mobile and desktop applications\") no app registrado no Entra ID:\n\n" + sid,
+                CloseButtonText = "OK",
+            };
+            await dialog.ShowAsync();
         }
 
         private async void Reset_Click(object sender, RoutedEventArgs e)

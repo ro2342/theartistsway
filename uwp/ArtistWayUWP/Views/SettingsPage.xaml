@@ -90,6 +90,15 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
+                    <TextBlock Text="Sincronização (experimental)" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Passo preparatório pra ligar o login com Microsoft/Google mais pra frente -- ainda não sincroniza nada."
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <Button Content="Mostrar identificador do pacote" Click="ShowPackageSid_Click" HorizontalAlignment="Stretch" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
                     <TextBlock Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Apaga todo o progresso salvo no aparelho (perfil, Morning Pages, Artist Dates, checklist, check-ins) e volta pro começo. Não tem como desfazer -- faça um backup antes se quiser guardar alguma coisa."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
