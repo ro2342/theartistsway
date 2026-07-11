@@ -50,11 +50,11 @@
     <Capability Name="internetClient" />
     <!--
       Exigida por AppointmentManager.ShowAddAppointmentAsync (o botão
-      "Calendário do Windows"), documentado em
-      learn.microsoft.com/uwp/api/windows.applicationmodel.appointments.appointmentmanager.showaddappointmentasync.
-      Sem essa capability a chamada falha.
+      "Calendário do Windows"). A doc da Microsoft cita "appointmentsSystem",
+      mas o schema real do manifesto só aceita "appointments" (conferido
+      pelo erro APPX0501 do primeiro build depois de declarar errado).
     -->
-    <uap:Capability Name="appointmentsSystem" />
+    <uap:Capability Name="appointments" />
   </Capabilities>
 
 </Package>
