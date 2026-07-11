@@ -34,8 +34,11 @@ namespace ArtistWayUWP.Services
         {
             try
             {
+                // O parâmetro authority precisa ser a URL completa (não só
+                // "common") -- WebProviderError 3399548933 no aparelho
+                // confirmou isso: "must be url of the format http(s)://hostname/subpath".
                 WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(
-                    "https://login.microsoft.com", "common");
+                    "https://login.microsoft.com", "https://login.microsoftonline.com/common");
 
                 if (provider == null)
                 {
