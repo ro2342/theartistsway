@@ -8,7 +8,7 @@
   <Identity
     Name="RodCarvalho.ArtistWayCompanion"
     Publisher="CN=RodCarvalho-ArtistWay-SelfSigned"
-    Version="2.0.0.5" />
+    Version="2.0.0.6" />
 
   <mp:PhoneIdentity PhoneProductId="a3d5c6d1-8b1a-4e0a-9a3f-3f2b6e0a7c11" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
 
@@ -37,11 +37,18 @@
       <uap:VisualElements
         DisplayName="Artist's Way"
         Description="Companheiro de leitura para The Artist's Way — checklist, Morning Pages e Artist Date."
-        BackgroundColor="#e9e2d0"
+        BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
-        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#e9e2d0" />
+        <uap:DefaultTile
+          Wide310x150Logo="Assets\Wide310x150Logo.png"
+          Square71x71Logo="Assets\Square71x71Logo.png">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo" />
+            <uap:ShowOn Tile="wide310x150Logo" />
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="transparent" />
       </uap:VisualElements>
     </Application>
   </Applications>
