@@ -8,12 +8,12 @@ namespace ArtistWayUWP.Services
     // Alternativa nativa ao link do Google Calendar: adiciona o compromisso
     // recorrente direto no app de Calendário do próprio Windows via
     // AppointmentManager.ShowAddAppointmentAsync -- é um fluxo de composição
-    // mediado pelo sistema (o usuário confirma antes de salvar), por isso
-    // não precisa declarar a capability "appointments" no manifesto (essa só
-    // é exigida pra leitura/escrita silenciosa via AppointmentStore).
+    // mediado pelo sistema (o usuário confirma antes de salvar). Precisa da
+    // capability "appointmentsSystem" declarada no manifesto (ver
+    // Package.appxmanifest) -- sem ela a chamada falha.
     public static class AppointmentService
     {
-        public static async Task<bool> AddDailyAsync(string subject, string details, TimeSpan time, int durationMinutes)
+        public static async Task<bool> AddDailyAsync(string subject, string details, TimeSpan time, int durationMinutes, Rect selection)
         {
             DateTime start = DateTime.Today.Add(time);
             if (start <= DateTime.Now)
@@ -34,11 +34,11 @@ namespace ArtistWayUWP.Services
                 },
             };
 
-            string id = await AppointmentManager.ShowAddAppointmentAsync(appointment, new Rect());
+            string id = await AppointmentManager.ShowAddAppointmentAsync(appointment, selection);
             return !string.IsNullOrEmpty(id);
         }
 
-        public static async Task<bool> AddWeeklyAsync(string subject, string details, int weekdayIndex, TimeSpan time, int durationMinutes)
+        public static async Task<bool> AddWeeklyAsync(string subject, string details, int weekdayIndex, TimeSpan time, int durationMinutes, Rect selection)
         {
             DateTime start = NextOccurrence(weekdayIndex, time);
 
@@ -52,10 +52,11 @@ namespace ArtistWayUWP.Services
                 {
                     Unit = AppointmentRecurrenceUnit.Weekly,
                     Interval = 1,
+                    DaysOfWeek = ToAppointmentDaysOfWeek(start.DayOfWeek),
                 },
             };
 
-            string id = await AppointmentManager.ShowAddAppointmentAsync(appointment, new Rect());
+            string id = await AppointmentManager.ShowAddAppointmentAsync(appointment, selection);
             return !string.IsNullOrEmpty(id);
         }
 
@@ -71,6 +72,20 @@ namespace ArtistWayUWP.Services
                 diff = 7;
             }
             return candidate.AddDays(diff);
+        }
+
+        private static AppointmentDaysOfWeek ToAppointmentDaysOfWeek(DayOfWeek day)
+        {
+            switch (day)
+            {
+                case DayOfWeek.Sunday: return AppointmentDaysOfWeek.Sunday;
+                case DayOfWeek.Monday: return AppointmentDaysOfWeek.Monday;
+                case DayOfWeek.Tuesday: return AppointmentDaysOfWeek.Tuesday;
+                case DayOfWeek.Wednesday: return AppointmentDaysOfWeek.Wednesday;
+                case DayOfWeek.Thursday: return AppointmentDaysOfWeek.Thursday;
+                case DayOfWeek.Friday: return AppointmentDaysOfWeek.Friday;
+                default: return AppointmentDaysOfWeek.Saturday;
+            }
         }
     }
 }

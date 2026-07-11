@@ -132,7 +132,8 @@ namespace ArtistWayUWP.Views
                     "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
                     weekday,
                     time,
-                    90);
+                    90,
+                    UiHelper.GetElementRect((FrameworkElement)sender));
             }
         }
 

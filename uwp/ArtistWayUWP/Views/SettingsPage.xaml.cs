@@ -140,7 +140,8 @@ namespace ArtistWayUWP.Views
                     "Morning Pages",
                     "3 páginas à mão, sem reler. Companheiro The Artist's Way.",
                     time,
-                    30);
+                    30,
+                    UiHelper.GetElementRect((FrameworkElement)sender));
             }
         }
 
@@ -154,7 +155,8 @@ namespace ArtistWayUWP.Views
                     "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
                     day == 0 ? 7 : day,
                     time,
-                    90);
+                    90,
+                    UiHelper.GetElementRect((FrameworkElement)sender));
             }
         }
 
@@ -168,7 +170,8 @@ namespace ArtistWayUWP.Views
                     "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
                     day == 0 ? 7 : day,
                     time,
-                    20);
+                    20,
+                    UiHelper.GetElementRect((FrameworkElement)sender));
             }
         }
 

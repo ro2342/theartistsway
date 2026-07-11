@@ -70,6 +70,7 @@
     <Compile Include="Services\ContentStore.cs" />
     <Compile Include="Services\LocalDataStore.cs" />
     <Compile Include="Services\ThemeHelper.cs" />
+    <Compile Include="Services\UiHelper.cs" />
     <Compile Include="Services\WeekCalculator.cs" />
     <Compile Include="Services\CalendarLinkService.cs" />
     <Compile Include="Services\UpdateCheckService.cs" />
