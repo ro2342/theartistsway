@@ -22,6 +22,11 @@ namespace ArtistWayUWP.Services
         private const string VersionUrl = "https://ro2342.github.io/theartistsway/app/version.json";
         public const string DownloadPageUrl = "https://ro2342.github.io/theartistsway/app/";
 
+        // Aponta direto pro arquivo .appxbundle -- o botão "Baixar
+        // atualização" usa esse link, pra ir direto no download em vez de
+        // abrir a página e precisar tocar de novo no link de lá.
+        public const string DownloadFileUrl = "https://ro2342.github.io/theartistsway/app/app.appxbundle";
+
         public static string GetInstalledVersion()
         {
             PackageVersion v = Package.Current.Id.Version;

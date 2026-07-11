@@ -105,7 +105,7 @@ namespace ArtistWayUWP.Views
 
         private async void DownloadUpdate_Click(object sender, RoutedEventArgs e)
         {
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(UpdateCheckService.DownloadPageUrl));
+            await Windows.System.Launcher.LaunchUriAsync(new Uri(UpdateCheckService.DownloadFileUrl));
         }
 
         private async void SaveProfile_Click(object sender, RoutedEventArgs e)
