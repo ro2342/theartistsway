@@ -1,0 +1,18 @@
+<Page
+    x:Class="ArtistWayUWP.Views.EssayPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ArtistWayUWP.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="16,16,16,24">
+        <StackPanel>
+            <TextBlock x:Name="HeaderText" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="Wrap" />
+            <TextBlock Text="o tema em detalhe" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
+            <StackPanel x:Name="ParagraphsPanel" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

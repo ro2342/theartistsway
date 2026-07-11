@@ -1,0 +1,25 @@
+<Page
+    x:Class="ArtistWayUWP.Views.ProgressPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ArtistWayUWP.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="16,16,16,24">
+        <StackPanel>
+            <TextBlock Text="Sua Jornada" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="12 semanas — toque em qualquer uma pra abrir." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.75" TextWrapping="Wrap" Margin="0,4,0,16" />
+            <Grid x:Name="WeekGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

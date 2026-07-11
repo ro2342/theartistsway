@@ -1,4 +1,5 @@
 using System;
+using ArtistWayUWP.Services;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -8,8 +9,8 @@ using Windows.UI.Xaml.Navigation;
 namespace ArtistWayUWP
 {
     /// <summary>
-    /// Ponto de entrada do app. Cria o Frame raiz e navega para a MainPage,
-    /// que hospeda a WebView com todo o conteúdo do Companheiro do Artist's Way.
+    /// Ponto de entrada do app. Carrega o conteúdo do livro (ContentStore) e
+    /// navega pro shell nativo (MainPage), que cuida do resto.
     /// </summary>
     sealed partial class App : Application
     {
@@ -34,7 +35,7 @@ namespace ArtistWayUWP
             }
         }
 
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
             Frame rootFrame = Window.Current.Content as Frame;
 
@@ -55,6 +56,7 @@ namespace ArtistWayUWP
             {
                 if (rootFrame.Content == null)
                 {
+                    await ContentStore.InitializeAsync();
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
                 Window.Current.Activate();

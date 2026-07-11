@@ -1,0 +1,84 @@
+<Page
+    x:Class="ArtistWayUWP.Views.OnboardingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ArtistWayUWP.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="24">
+        <StackPanel VerticalAlignment="Center" MaxWidth="480" HorizontalAlignment="Stretch">
+
+            <StackPanel x:Name="WelcomePanel">
+                <TextBlock Text="&quot;A criatividade recuperada nunca é perdida de novo.&quot;"
+                           Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap"
+                           HorizontalAlignment="Center" TextAlignment="Center" Opacity="0.85" />
+                <TextBlock Text="The Artist's Way — Companheiro" Style="{StaticResource HeaderTextBlockStyle}"
+                           TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,16,0,0" />
+                <TextBlock Text="Um espaço para transformar as tarefas do livro em passos claros, um dia de cada vez. Vamos organizar sua jornada de 12 semanas."
+                           Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" TextAlignment="Center"
+                           Opacity="0.85" Margin="0,16,0,0" />
+                <Button Content="Começar" Click="Next_Click" HorizontalAlignment="Stretch" Margin="0,24,0,0" />
+            </StackPanel>
+
+            <StackPanel x:Name="NameDatePanel" Visibility="Collapsed">
+                <TextBlock Text="Como posso te chamar?" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock Text="E quando você quer começar sua Semana 1?" Style="{StaticResource BodyTextBlockStyle}"
+                           Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,16" />
+                <TextBlock Text="Nome" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TextBox x:Name="NameBox" Margin="0,4,0,16" />
+                <TextBlock Text="Início da Semana 1" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <DatePicker x:Name="StartDatePicker" HorizontalAlignment="Stretch" Margin="0,4,0,0" />
+                <Grid Margin="0,24,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="← Voltar" Click="Back_Click" />
+                    <Button Grid.Column="1" Content="Continuar" Click="Next_Click" Margin="12,0,0,0" HorizontalAlignment="Stretch" />
+                </Grid>
+            </StackPanel>
+
+            <StackPanel x:Name="RitualsPanel" Visibility="Collapsed">
+                <TextBlock Text="Seus rituais" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock Text="Escolha os horários. Dá pra mudar depois em Ajustes." Style="{StaticResource BodyTextBlockStyle}"
+                           Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,16" />
+                <TextBlock Text="Horário das Morning Pages" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TimePicker x:Name="MorningPagesTimePicker" HorizontalAlignment="Stretch" Margin="0,4,0,16" />
+                <TextBlock Text="Dia do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <ComboBox x:Name="ArtistDateDayCombo" HorizontalAlignment="Stretch" Margin="0,4,0,16" />
+                <TextBlock Text="Horário do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TimePicker x:Name="ArtistDateTimePicker" HorizontalAlignment="Stretch" Margin="0,4,0,0" />
+                <Grid Margin="0,24,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="← Voltar" Click="Back_Click" />
+                    <Button Grid.Column="1" Content="Continuar" Click="Next_Click" Margin="12,0,0,0" HorizontalAlignment="Stretch" />
+                </Grid>
+            </StackPanel>
+
+            <StackPanel x:Name="FinishPanel" Visibility="Collapsed">
+                <TextBlock Text="Check-in semanal" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock Text="Um momento pra revisar a semana — geralmente no fim de semana." Style="{StaticResource BodyTextBlockStyle}"
+                           Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,16" />
+                <TextBlock Text="Dia do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <ComboBox x:Name="CheckinDayCombo" HorizontalAlignment="Stretch" Margin="0,4,0,16" />
+                <TextBlock Text="Horário do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TimePicker x:Name="CheckinTimePicker" HorizontalAlignment="Stretch" Margin="0,4,0,0" />
+                <Grid Margin="0,24,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="← Voltar" Click="Back_Click" />
+                    <Button Grid.Column="1" Content="Concluir e ativar lembretes" Click="Finish_Click" Margin="12,0,0,0" HorizontalAlignment="Stretch" />
+                </Grid>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

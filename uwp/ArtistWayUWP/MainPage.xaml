@@ -6,22 +6,68 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="#E9E2D0">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <WebView x:Name="MainWebView"
-                 HorizontalAlignment="Stretch"
-                 VerticalAlignment="Stretch"
-                 ScriptNotify="MainWebView_ScriptNotify"
-                 NavigationCompleted="MainWebView_NavigationCompleted" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Frame x:Name="ContentFrame" x:FieldModifier="public" Grid.Row="0" />
+
         <Border x:Name="ErrorPanel"
                 Visibility="Collapsed"
-                Background="#E9E2D0"
-                Padding="20">
+                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                Padding="20"
+                Grid.Row="0">
             <TextBlock x:Name="ErrorText"
                        TextWrapping="Wrap"
-                       Foreground="#35301F"
-                       FontSize="16" />
+                       Style="{StaticResource BodyTextBlockStyle}" />
         </Border>
+
+        <Grid x:Name="TabBar"
+              Grid.Row="1"
+              Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+              Padding="0,6,0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="TabHome" Grid.Column="0" Tag="Home" Click="TabButton_Click"
+                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🏡" FontSize="20" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="TabHomeLabel" Text="Início" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="TabProgress" Grid.Column="1" Tag="Progress" Click="TabButton_Click"
+                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🗺️" FontSize="20" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="TabProgressLabel" Text="Jornada" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="TabArtistDate" Grid.Column="2" Tag="ArtistDate" Click="TabButton_Click"
+                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🎨" FontSize="20" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="TabArtistDateLabel" Text="Date" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="TabSettings" Grid.Column="3" Tag="Settings" Click="TabButton_Click"
+                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🕯️" FontSize="20" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="TabSettingsLabel" Text="Ajustes" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </Grid>
     </Grid>
 </Page>
