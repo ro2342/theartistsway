@@ -94,6 +94,7 @@
                     <TextBlock Text="Passo preparatório pra ligar o login com Microsoft/Google mais pra frente -- ainda não sincroniza nada."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <Button Content="Mostrar identificador do pacote" Click="ShowPackageSid_Click" HorizontalAlignment="Stretch" />
+                    <Button Content="Testar login com Microsoft" Click="TestMicrosoftLogin_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 

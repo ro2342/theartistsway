@@ -257,6 +257,33 @@ namespace ArtistWayUWP.Views
             await dialog.ShowAsync();
         }
 
+        // Etapa B da sincronização entre aparelhos: login de teste (WAM +
+        // troca com o Firebase). Ainda não guarda o token nem sincroniza
+        // dado nenhum -- só confirma que o fluxo de ponta a ponta funciona
+        // nesse aparelho.
+        private async void TestMicrosoftLogin_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            string originalText = button.Content?.ToString();
+            button.IsEnabled = false;
+            button.Content = "Entrando...";
+
+            AuthResult result = await AuthService.SignInWithMicrosoftAsync();
+
+            button.IsEnabled = true;
+            button.Content = originalText;
+
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = result.Success ? "Login OK" : "Login falhou",
+                Content = result.Success
+                    ? $"UID do Firebase: {result.FirebaseUid}"
+                    : result.ErrorMessage,
+                CloseButtonText = "OK",
+            };
+            await dialog.ShowAsync();
+        }
+
         private async void Reset_Click(object sender, RoutedEventArgs e)
         {
             ContentDialog confirm = new ContentDialog

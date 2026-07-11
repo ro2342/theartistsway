@@ -67,6 +67,7 @@
     <Compile Include="Models\CheckinEntry.cs" />
 
     <Compile Include="Services\AppointmentService.cs" />
+    <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\ContentStore.cs" />
     <Compile Include="Services\LocalDataStore.cs" />
     <Compile Include="Services\ThemeHelper.cs" />
