@@ -281,6 +281,28 @@ namespace ArtistWayUWP.Services
             }
         }
 
+        // ---------- resetar ----------
+
+        // Apaga todos os dados do usuário do aparelho (perfil, Morning
+        // Pages, Artist Dates, checklist, check-ins). Não afeta
+        // Data/content.json (conteúdo do livro, empacotado no app).
+        public static async Task ResetAllAsync()
+        {
+            string[] files = { SettingsFile, MorningPagesFile, ArtistDatesFile, ChecklistFile, CheckinsFile };
+            foreach (string fileName in files)
+            {
+                try
+                {
+                    StorageFile file = await ApplicationData.Current.LocalFolder.GetFileAsync(fileName);
+                    await file.DeleteAsync();
+                }
+                catch (FileNotFoundException)
+                {
+                    // já não existia -- nada a apagar.
+                }
+            }
+        }
+
         // ---------- helpers ----------
 
         private static string GetStringOrDefault(JsonObject obj, string key, string fallback)

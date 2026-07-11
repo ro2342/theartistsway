@@ -116,10 +116,20 @@ namespace ArtistWayUWP
             }
 
             SolidColorBrush accent = ThemeHelper.AccentBrush();
-            TabHomeLabel.Foreground = pageType == typeof(HomePage) ? accent : _defaultTabBrush;
-            TabProgressLabel.Foreground = pageType == typeof(ProgressPage) ? accent : _defaultTabBrush;
-            TabArtistDateLabel.Foreground = pageType == typeof(ArtistDatePage) ? accent : _defaultTabBrush;
-            TabSettingsLabel.Foreground = pageType == typeof(SettingsPage) ? accent : _defaultTabBrush;
+
+            bool isHome = pageType == typeof(HomePage);
+            bool isProgress = pageType == typeof(ProgressPage);
+            bool isArtistDate = pageType == typeof(ArtistDatePage);
+            bool isSettings = pageType == typeof(SettingsPage);
+
+            TabHomeLabel.Foreground = isHome ? accent : _defaultTabBrush;
+            TabHomeIcon.Foreground = isHome ? accent : _defaultTabBrush;
+            TabProgressLabel.Foreground = isProgress ? accent : _defaultTabBrush;
+            TabProgressIcon.Foreground = isProgress ? accent : _defaultTabBrush;
+            TabArtistDateLabel.Foreground = isArtistDate ? accent : _defaultTabBrush;
+            TabArtistDateIcon.Foreground = isArtistDate ? accent : _defaultTabBrush;
+            TabSettingsLabel.Foreground = isSettings ? accent : _defaultTabBrush;
+            TabSettingsIcon.Foreground = isSettings ? accent : _defaultTabBrush;
         }
 
         // ---------- navegação/voltar ----------

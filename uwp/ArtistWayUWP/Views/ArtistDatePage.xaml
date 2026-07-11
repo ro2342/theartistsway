@@ -15,9 +15,15 @@
             <TextBlock Text="Um encontro solo, só por prazer — sem culpa, sem produtividade." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Opacity="0.85" Margin="0,0,0,16" />
             <TextBox x:Name="IdeaBox" AcceptsReturn="True" TextWrapping="Wrap" Height="110"
                      PlaceholderText="Toque em 'sortear' ou escreva aqui o seu próprio plano..." />
-            <Button Content="🎲 Sortear outra ideia" Click="Shuffle_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
+            <Button Click="Shuffle_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <SymbolIcon Symbol="Refresh" />
+                    <TextBlock Text="Sortear outra ideia" Margin="8,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
             <Button x:Name="MarkDoneButton" Click="MarkDone_Click" HorizontalAlignment="Stretch" Margin="0,20,0,0" />
-            <Button Content="+ Adicionar lembrete recorrente no Google Calendar" Click="AddCalendar_Click" HorizontalAlignment="Stretch" Margin="0,20,0,0" />
+            <Button Content="+ Adicionar lembrete recorrente no Calendário do Windows" Click="AddNativeCalendar_Click" HorizontalAlignment="Stretch" Margin="0,20,0,0" />
+            <Button Content="+ Adicionar lembrete recorrente no Google Calendar" Click="AddCalendar_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
         </StackPanel>
     </ScrollViewer>
 </Page>

@@ -40,7 +40,7 @@
             <Button x:Name="TabHome" Grid.Column="0" Tag="Home" Click="TabButton_Click"
                     Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="🏡" FontSize="20" HorizontalAlignment="Center" />
+                    <SymbolIcon x:Name="TabHomeIcon" Symbol="Home" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabHomeLabel" Text="Início" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
@@ -48,7 +48,7 @@
             <Button x:Name="TabProgress" Grid.Column="1" Tag="Progress" Click="TabButton_Click"
                     Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="🗺️" FontSize="20" HorizontalAlignment="Center" />
+                    <SymbolIcon x:Name="TabProgressIcon" Symbol="List" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabProgressLabel" Text="Jornada" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
@@ -56,7 +56,7 @@
             <Button x:Name="TabArtistDate" Grid.Column="2" Tag="ArtistDate" Click="TabButton_Click"
                     Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="🎨" FontSize="20" HorizontalAlignment="Center" />
+                    <SymbolIcon x:Name="TabArtistDateIcon" Symbol="Favorite" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabArtistDateLabel" Text="Date" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
@@ -64,7 +64,7 @@
             <Button x:Name="TabSettings" Grid.Column="3" Tag="Settings" Click="TabButton_Click"
                     Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="🕯️" FontSize="20" HorizontalAlignment="Center" />
+                    <SymbolIcon x:Name="TabSettingsIcon" Symbol="Setting" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabSettingsLabel" Text="Ajustes" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>

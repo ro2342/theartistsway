@@ -131,6 +131,46 @@ namespace ArtistWayUWP.Views
             _ = dialog.ShowAsync();
         }
 
+        private async void NativeCalMp_Click(object sender, RoutedEventArgs e)
+        {
+            if (TimeSpan.TryParse(_profile.MorningPagesTime, out TimeSpan time))
+            {
+                await AppointmentService.AddDailyAsync(
+                    "Morning Pages",
+                    "3 páginas à mão, sem reler. Companheiro The Artist's Way.",
+                    time,
+                    30);
+            }
+        }
+
+        private async void NativeCalAd_Click(object sender, RoutedEventArgs e)
+        {
+            int.TryParse(_profile.ArtistDateDay, out int day);
+            if (TimeSpan.TryParse(_profile.ArtistDateTime, out TimeSpan time))
+            {
+                await AppointmentService.AddWeeklyAsync(
+                    "Artist Date",
+                    "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
+                    day == 0 ? 7 : day,
+                    time,
+                    90);
+            }
+        }
+
+        private async void NativeCalCi_Click(object sender, RoutedEventArgs e)
+        {
+            int.TryParse(_profile.CheckinDay, out int day);
+            if (TimeSpan.TryParse(_profile.CheckinTime, out TimeSpan time))
+            {
+                await AppointmentService.AddWeeklyAsync(
+                    "Check-in semanal",
+                    "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
+                    day == 0 ? 7 : day,
+                    time,
+                    20);
+            }
+        }
+
         private async void CalMp_Click(object sender, RoutedEventArgs e)
         {
             string url = CalendarLinkService.MorningPagesUrl(_profile.MorningPagesTime);
@@ -194,6 +234,26 @@ namespace ArtistWayUWP.Views
                 };
                 _ = dialog.ShowAsync();
             }
+        }
+
+        private async void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            ContentDialog confirm = new ContentDialog
+            {
+                Title = "Resetar o app?",
+                Content = "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?",
+                PrimaryButtonText = "Resetar",
+                CloseButtonText = "Cancelar",
+                DefaultButton = ContentDialogButton.Close,
+            };
+            ContentDialogResult result = await confirm.ShowAsync();
+            if (result != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            await LocalDataStore.ResetAllAsync();
+            MainPage.Current.BeginOnboarding();
         }
 
         private void OpenRoadRules_Click(object sender, RoutedEventArgs e)

@@ -47,7 +47,7 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Morning Pages ✍️" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Morning Pages" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Últimos 7 dias" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,0" />
                     <StackPanel x:Name="StreakPanel" Orientation="Horizontal" Margin="0,8,0,0" />
                     <Button x:Name="ToggleMpButton" Click="ToggleMp_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
@@ -56,7 +56,7 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Artist Date dessa semana 🎨" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Artist Date dessa semana" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock x:Name="ArtistDateStatusText" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Opacity="0.85" Margin="0,4,0,0" />
                     <Button x:Name="OpenArtistDateButton" Click="OpenArtistDate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
                 </StackPanel>
@@ -72,7 +72,7 @@
             <Border x:Name="RoadRulesNudgeCard" Visibility="Collapsed" Style="{StaticResource NudgeBorderStyle}">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="Faz uns dias que você não passa por aqui." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" HorizontalAlignment="Center" />
-                    <Button Content="📍 Já revisou as Regras da Estrada?" Click="OpenRoadRules_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Já revisou as Regras da Estrada?" Click="OpenRoadRules_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
         </StackPanel>
