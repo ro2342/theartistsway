@@ -79,6 +79,24 @@ namespace ArtistWayUWP.Views
             SelectWeekday(CheckinDayCombo, _profile.CheckinDay);
 
             _ = LoadUpdateStatusAsync();
+            RefreshSyncStatus();
+        }
+
+        private void RefreshSyncStatus()
+        {
+            FirebaseSession session = SessionService.GetSession();
+            if (session == null)
+            {
+                SyncStatusText.Text = "Não logado.";
+                GoogleLoginButton.Visibility = Visibility.Visible;
+                SignOutButton.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            string who = !string.IsNullOrEmpty(session.Email) ? session.Email : session.Uid;
+            SyncStatusText.Text = $"Logado como {who} ({session.Provider}).";
+            GoogleLoginButton.Visibility = Visibility.Collapsed;
+            SignOutButton.Visibility = Visibility.Visible;
         }
 
         private async System.Threading.Tasks.Task LoadUpdateStatusAsync()
@@ -284,48 +302,44 @@ namespace ArtistWayUWP.Views
             await dialog.ShowAsync();
         }
 
-        private async void TestGoogleLogin_Click(object sender, RoutedEventArgs e)
+        // Login com a tela de consentimento normal do Google ("ArtistWay quer
+        // acessar sua Conta Google -- Permitir?"). Ao ter sucesso, guarda a
+        // sessão no PasswordVault (SessionService) e atualiza o card -- é
+        // essa persistência que faltava no teste anterior (fluxo de
+        // dispositivo): antes o login funcionava mas nada ficava salvo.
+        private async void GoogleLogin_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
             string originalText = button.Content?.ToString();
             button.IsEnabled = false;
-            button.Content = "Aguardando...";
+            button.Content = "Entrando...";
 
-            ContentDialog codeDialog = null;
+            AuthResult result = await AuthService.SignInWithGoogleConsentAsync();
 
-            AuthResult result = await AuthService.SignInWithGoogleAsync((verificationUrl, userCode, completeUrl) =>
-            {
-                // Abre o navegador do próprio aparelho sozinho -- se o Google
-                // mandou a URL com o código já embutido, a pessoa só confirma;
-                // senão, abre a página base e ela digita o código mostrado no
-                // diálogo abaixo (que fica sempre visível, como reforço --
-                // útil também se ela preferir confirmar em outro aparelho).
-                _ = Windows.System.Launcher.LaunchUriAsync(new Uri(completeUrl ?? verificationUrl));
-
-                codeDialog = new ContentDialog
-                {
-                    Title = "Confirme o login com Google",
-                    Content = completeUrl != null
-                        ? "Abri o navegador com o código já preenchido -- só confirmar lá. Se preferir usar outro aparelho, o link é:\n\n" + verificationUrl + $"\n\nCódigo: {userCode}"
-                        : $"Abri o navegador -- digite este código lá (ou confirme em qualquer outro aparelho, no link {verificationUrl}):\n\nCódigo: {userCode}",
-                    CloseButtonText = "Cancelar",
-                };
-                _ = codeDialog.ShowAsync();
-            });
-
-            codeDialog?.Hide();
             button.IsEnabled = true;
             button.Content = originalText;
+
+            if (result.Success)
+            {
+                SessionService.SaveSession(result);
+                RefreshSyncStatus();
+            }
 
             ContentDialog resultDialog = new ContentDialog
             {
                 Title = result.Success ? "Login OK" : "Login falhou",
                 Content = result.Success
-                    ? $"UID do Firebase: {result.FirebaseUid}"
+                    ? $"Logado como {(!string.IsNullOrEmpty(result.FirebaseEmail) ? result.FirebaseEmail : result.FirebaseUid)}."
                     : result.ErrorMessage,
                 CloseButtonText = "OK",
             };
             await resultDialog.ShowAsync();
+        }
+
+        private void SignOut_Click(object sender, RoutedEventArgs e)
+        {
+            SessionService.ClearSession();
+            RefreshSyncStatus();
         }
 
         private async void Reset_Click(object sender, RoutedEventArgs e)

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using Windows.Security.Authentication.Web;
 using Windows.Security.Authentication.Web.Core;
 using Windows.Security.Credentials;
 
@@ -16,6 +17,9 @@ namespace ArtistWayUWP.Services
         public string FirebaseUid { get; set; }
         public string FirebaseIdToken { get; set; }
         public string FirebaseRefreshToken { get; set; }
+        public string FirebaseEmail { get; set; }
+        public string FirebaseDisplayName { get; set; }
+        public string Provider { get; set; }
     }
 
     // Login com Microsoft via WAM (WebAuthenticationCoreManager) -- reaproveita
@@ -40,6 +44,14 @@ namespace ArtistWayUWP.Services
         // então nunca aparece no histórico do git deste repositório público.
         private const string GoogleClientId = "431486750791-e914tsjikjlp9e3vlaehlr8a86dj69lg.apps.googleusercontent.com";
         private const string GoogleClientSecret = "__GOOGLE_OAUTH_CLIENT_SECRET__";
+
+        // Cliente OAuth "Desktop app" -- dá a tela de consentimento normal do
+        // Google (nome do app, botão Permitir), via WebAuthenticationBroker +
+        // redirecionamento loopback. Mesmo esquema de segredo: placeholder
+        // substituído só no build (ver sincronizacao-nuvem-setup.md, Parte 7).
+        private const string GoogleDesktopClientId = "431486750791-cm92iio4veer7ob4or7eqeg6qbb4t8af.apps.googleusercontent.com";
+        private const string GoogleDesktopClientSecret = "__GOOGLE_OAUTH_DESKTOP_CLIENT_SECRET__";
+        private const string GoogleDesktopRedirectUri = "http://127.0.0.1";
 
         public static async Task<AuthResult> SignInWithMicrosoftAsync()
         {
@@ -209,6 +221,94 @@ namespace ArtistWayUWP.Services
             }
         }
 
+        // Tela de consentimento normal do Google ("ArtistWay quer acessar sua
+        // Conta Google -- Permitir?"), via WebAuthenticationBroker + redirect
+        // loopback (127.0.0.1). O broker do Windows intercepta essa URL de
+        // volta sozinho, sem precisar de nenhum servidor local de verdade.
+        public static async Task<AuthResult> SignInWithGoogleConsentAsync()
+        {
+            try
+            {
+                string authUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
+                    "?client_id=" + Uri.EscapeDataString(GoogleDesktopClientId) +
+                    "&redirect_uri=" + Uri.EscapeDataString(GoogleDesktopRedirectUri) +
+                    "&response_type=code" +
+                    "&scope=" + Uri.EscapeDataString("openid email profile");
+
+                WebAuthenticationResult result = await WebAuthenticationBroker.AuthenticateAsync(
+                    WebAuthenticationOptions.None, new Uri(authUrl), new Uri(GoogleDesktopRedirectUri));
+
+                if (result.ResponseStatus != WebAuthenticationStatus.Success)
+                {
+                    return new AuthResult { Success = false, ErrorMessage = $"Navegador: {result.ResponseStatus} ({result.ResponseErrorDetail})" };
+                }
+
+                Uri responseUri = new Uri(result.ResponseData);
+                Dictionary<string, string> parsed = ParseQueryString(responseUri.Query.TrimStart('?'));
+
+                if (parsed.ContainsKey("error"))
+                {
+                    return new AuthResult { Success = false, ErrorMessage = "Google: " + parsed["error"] };
+                }
+                if (!parsed.ContainsKey("code"))
+                {
+                    return new AuthResult { Success = false, ErrorMessage = "Resposta do Google sem código de autorização." };
+                }
+
+                using (HttpClient client = new HttpClient())
+                {
+                    FormUrlEncodedContent tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
+                    {
+                        ["code"] = parsed["code"],
+                        ["client_id"] = GoogleDesktopClientId,
+                        ["client_secret"] = GoogleDesktopClientSecret,
+                        ["redirect_uri"] = GoogleDesktopRedirectUri,
+                        ["grant_type"] = "authorization_code",
+                    });
+
+                    HttpResponseMessage tokenResponse = await client.PostAsync("https://oauth2.googleapis.com/token", tokenRequest);
+                    string tokenResponseText = await tokenResponse.Content.ReadAsStringAsync();
+                    if (!tokenResponse.IsSuccessStatusCode)
+                    {
+                        return new AuthResult { Success = false, ErrorMessage = $"Google token {(int)tokenResponse.StatusCode}: {tokenResponseText}" };
+                    }
+
+                    JsonObject tokenJson = JsonObject.Parse(tokenResponseText);
+                    string idToken = tokenJson.ContainsKey("id_token") ? tokenJson["id_token"].GetString() : null;
+                    string accessToken = tokenJson.ContainsKey("access_token") ? tokenJson["access_token"].GetString() : null;
+
+                    if (!string.IsNullOrEmpty(idToken))
+                    {
+                        return await ExchangeWithFirebaseAsync(idToken, "google.com", "id_token");
+                    }
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        return await ExchangeWithFirebaseAsync(accessToken, "google.com", "access_token");
+                    }
+                    return new AuthResult { Success = false, ErrorMessage = "Google não devolveu id_token nem access_token." };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new AuthResult { Success = false, ErrorMessage = ex.Message };
+            }
+        }
+
+        private static Dictionary<string, string> ParseQueryString(string query)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            foreach (string pair in query.Split('&'))
+            {
+                if (string.IsNullOrEmpty(pair))
+                {
+                    continue;
+                }
+                string[] kv = pair.Split(new[] { '=' }, 2);
+                result[Uri.UnescapeDataString(kv[0])] = kv.Length > 1 ? Uri.UnescapeDataString(kv[1]) : "";
+            }
+            return result;
+        }
+
         private static async Task<AuthResult> ExchangeWithFirebaseAsync(string token, string providerId, string tokenParamName)
         {
             try
@@ -242,6 +342,9 @@ namespace ArtistWayUWP.Services
                         FirebaseUid = json.ContainsKey("localId") ? json["localId"].GetString() : null,
                         FirebaseIdToken = json.ContainsKey("idToken") ? json["idToken"].GetString() : null,
                         FirebaseRefreshToken = json.ContainsKey("refreshToken") ? json["refreshToken"].GetString() : null,
+                        FirebaseEmail = json.ContainsKey("email") ? json["email"].GetString() : null,
+                        FirebaseDisplayName = json.ContainsKey("displayName") ? json["displayName"].GetString() : null,
+                        Provider = providerId == "google.com" ? "Google" : providerId == "microsoft.com" ? "Microsoft" : providerId,
                     };
                 }
             }

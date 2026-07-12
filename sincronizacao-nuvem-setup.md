@@ -185,3 +185,23 @@ intercepta antes de precisar de servidor nenhum de verdade.
 
 Assim que eu tiver o Client ID/Secret da Parte 7, troco o login Google pra
 essa experiência.
+
+## Atualização — tela de consentimento + sessão persistida (v2.0.0.15)
+
+Já implementado:
+
+- O botão "Entrar com Google" em Ajustes agora usa a Parte 7 (tela de
+  consentimento normal, sem digitar código).
+- Depois de logar com sucesso, o app guarda uid/idToken/refreshToken/e-mail
+  no **PasswordVault** do Windows (cofre de credenciais criptografado pelo
+  sistema — `Services/SessionService.cs`), e o card de Ajustes passa a
+  mostrar "Logado como fulano@gmail.com (Google)" com um botão "Sair".
+
+Ainda **não** implementado (é o próximo passo, mais trabalhoso): a
+sincronização de dados em si — pegar o conteúdo do `LocalDataStore` (Morning
+Pages, Artist Dates, checklist, check-ins) e espelhar num documento do
+Firestore por usuário (`users/{uid}/...`), com alguma resolução de conflito
+quando o mesmo dado muda em dois aparelhos antes de sincronizar. O login
+guardado agora é a base pra isso (já temos o `uid` e o `idToken` pra
+autenticar as chamadas ao Firestore), mas o mecanismo de push/pull ainda
+precisa ser desenhado e construído.

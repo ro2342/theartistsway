@@ -91,11 +91,13 @@
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="Sincronização (experimental)" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Passo preparatório pra ligar o login com Microsoft/Google mais pra frente -- ainda não sincroniza nada."
+                    <TextBlock Text="Login com Google guarda seu progresso na nuvem (Firebase). A sincronização de dados em si ainda está sendo construída -- por enquanto isso mantém você logado nesse aparelho."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="Mostrar identificador do pacote" Click="ShowPackageSid_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="Testar login com Microsoft" Click="TestMicrosoftLogin_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="Testar login com Google" Click="TestGoogleLogin_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <TextBlock x:Name="SyncStatusText" Text="Não logado." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <Button x:Name="GoogleLoginButton" Content="Entrar com Google" Click="GoogleLogin_Click" HorizontalAlignment="Stretch" />
+                    <Button x:Name="SignOutButton" Content="Sair" Click="SignOut_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" Visibility="Collapsed" />
+                    <Button Content="Mostrar identificador do pacote" Click="ShowPackageSid_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Testar login com Microsoft (pausado)" Click="TestMicrosoftLogin_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
