@@ -34,16 +34,14 @@ namespace ArtistWayUWP.Services
         {
             try
             {
-                // "consumers" (mesmo como URL) deu erro nesse aparelho
-                // ("consumers is neither a valid dns name nor a valid
-                // external domain") -- o broker desse Windows 10 Mobile
-                // parece só reconhecer "common" como palavra-chave especial
-                // (não "consumers"/"organizations", que são mais recentes).
-                // Volta pra "common" (confirmado que não dá erro nesse
-                // aparelho) até investigarmos por que ele foi pra conta
-                // corporativa/estudante em vez da pessoal.
+                // Nem "common" nem "consumers" se comportaram direito nesse
+                // Windows 10 Mobile (um foi pra conta errada, o outro nem
+                // validou). O usuário confirmou que só existe UMA conta
+                // Microsoft no aparelho (pessoal) -- sem ambiguidade nenhuma
+                // pra resolver, então usa a sobrecarga sem authority e deixa
+                // o próprio broker escolher a única conta disponível.
                 WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(
-                    "https://login.microsoft.com", "https://login.microsoftonline.com/common");
+                    "https://login.microsoft.com");
 
                 if (provider == null)
                 {
