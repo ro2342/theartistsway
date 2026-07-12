@@ -68,6 +68,21 @@ async function getCurrentWeekId(settings) {
   return Math.min(12, Math.max(1, diffWeeks + 1));
 }
 
+const PROGRAM_LENGTH_DAYS = 84; // 12 semanas x 7 dias
+
+// Contador de dias (Home) e detecção de fim de programa (Modo manutenção)
+// -- mesmo cálculo simples nas duas plataformas, sem guardar nada novo.
+function dayCountSinceStart(settings) {
+  if (!settings.startDate) return null;
+  const start = new Date(settings.startDate + "T00:00:00");
+  return Math.floor((new Date() - start) / (24 * 3600 * 1000)) + 1;
+}
+
+function isProgramFinished(settings) {
+  const dayCount = dayCountSinceStart(settings);
+  return dayCount !== null && dayCount > PROGRAM_LENGTH_DAYS;
+}
+
 function weekKeyForOffset(settings, weekId) {
   const start = startOfWeek(new Date(settings.startDate + "T00:00:00"));
   const weekStart = addDays(start, (weekId - 1) * 7);
@@ -161,11 +176,11 @@ function renderBottomNav(activePath) {
     }
     const ICONS = window.ArtistWayIcons;
     const items = [
-      { path: "/home", label: "Início", regular: ICONS.homeRegular, filled: ICONS.homeFilled },
-      { path: "/progress", label: "Jornada", regular: ICONS.bookRegular, filled: ICONS.bookFilled },
-      { path: "/artist-date", label: "Date", regular: ICONS.heartRegular, filled: ICONS.heartFilled },
-      { path: "/ferramentas", label: "Recursos", regular: ICONS.toolsRegular, filled: ICONS.toolsFilled },
-      { path: "/settings", label: "Ajustes", regular: ICONS.settingsRegular, filled: ICONS.settingsFilled },
+      { path: "/home", label: UI_STRINGS["nav.home"], regular: ICONS.homeRegular, filled: ICONS.homeFilled },
+      { path: "/progress", label: UI_STRINGS["nav.progress"], regular: ICONS.bookRegular, filled: ICONS.bookFilled },
+      { path: "/artist-date", label: UI_STRINGS["nav.artistDate"], regular: ICONS.heartRegular, filled: ICONS.heartFilled },
+      { path: "/ferramentas", label: UI_STRINGS["nav.recursos"], regular: ICONS.toolsRegular, filled: ICONS.toolsFilled },
+      { path: "/settings", label: UI_STRINGS["nav.settings"], regular: ICONS.settingsRegular, filled: ICONS.settingsFilled },
     ];
     const html = items
       .map((it) => {
@@ -183,8 +198,8 @@ function renderBottomNav(activePath) {
     }
     nav.innerHTML =
       html +
-      `<button class="nav-btn nav-sync" id="navSyncBtn" title="Sincronizar agora">
-          <span class="icon">${ICONS.sync}</span>Sincronizar
+      `<button class="nav-btn nav-sync" id="navSyncBtn" title="${UI_STRINGS["nav.sync"]}">
+          <span class="icon">${ICONS.sync}</span>${UI_STRINGS["nav.sync"]}
         </button>` +
       `<div class="nav-version" id="navVersion"></div>`;
     forEachNode(nav.querySelectorAll("[data-nav]"), (btn) => {
@@ -216,6 +231,7 @@ route("/onboarding", async () => {
     artistDateTime: "16:00",
     checkinDay: "7",
     checkinTime: "19:00",
+    contractSignedName: "",
   };
   window.__onboardDraft = draft;
 
@@ -227,7 +243,7 @@ route("/onboarding", async () => {
         <h1 class="onboard-title">The Artist's Way<br/>— Companheiro —</h1>
         <p class="onboard-sub">Um espaço para transformar as tarefas do livro em passos claros, um dia de cada vez. Vamos organizar sua jornada de 12 semanas.</p>
         <button class="btn brass block" id="next">Começar</button>
-        <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span></div>
+        <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span><span></span></div>
       </div>`,
     // 1 — nome + data de início
     () => `
@@ -241,7 +257,7 @@ route("/onboarding", async () => {
         <input type="date" id="fstart" value="${draft.startDate}" />
         <div class="spacer"></div>
         <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span></div>
+        <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span><span></span></div>
       </div>`,
     // 2 — morning pages + artist date
     () => `
@@ -261,7 +277,7 @@ route("/onboarding", async () => {
         <input type="time" id="fadtime" value="${draft.artistDateTime}" />
         <div class="spacer"></div>
         <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span></div>
+        <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span><span></span></div>
       </div>`,
     // 3 — checkin + permissões
     () => `
@@ -278,8 +294,23 @@ route("/onboarding", async () => {
         <label>Horário do check-in</label>
         <input type="time" id="fcitime" value="${draft.checkinTime}" />
         <div class="spacer"></div>
-        <button class="btn moss block" id="finish">Concluir e ativar lembretes</button>
-        <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span></div>
+        <button class="btn brass block" id="next">Continuar</button>
+        <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span><span></span></div>
+      </div>`,
+    // 4 — contrato inicial assinável
+    () => `
+      <div class="onboard-screen">
+        <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
+        <h2 class="onboard-title">Seu contrato inicial</h2>
+        <p class="onboard-sub">O livro abre com um compromisso de 12 semanas: Morning Pages todo dia, Artist Date semanal, e cuidado consigo mesmo(a) ao longo do processo. Assine com seu nome pra começar.</p>
+        <div class="card">
+          <p class="muted">Eu, <strong>${draft.name || "___"}</strong>, me comprometo com 12 semanas de recuperação criativa: escrever minhas Morning Pages todos os dias, fazer meu Artist Date toda semana, e ser gentil comigo mesmo(a) no caminho.</p>
+        </div>
+        <label>Assinatura (seu nome)</label>
+        <input type="text" id="fsignature" value="${draft.contractSignedName || draft.name || ""}" placeholder="Seu nome" />
+        <div class="spacer"></div>
+        <button class="btn moss block" id="finish">Assinar e começar</button>
+        <div class="dots-progress"><span></span><span></span><span></span><span></span><span class="active"></span></div>
       </div>`,
   ];
 
@@ -305,6 +336,10 @@ route("/onboarding", async () => {
         draft.artistDateDay = document.getElementById("fadday").value;
         draft.artistDateTime = document.getElementById("fadtime").value || draft.artistDateTime;
       }
+      if (step === 3) {
+        draft.checkinDay = document.getElementById("fciday").value;
+        draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
+      }
       window.__onboardStep = step + 1;
       render();
     });
@@ -312,8 +347,8 @@ route("/onboarding", async () => {
   const finish = document.getElementById("finish");
   if (finish) {
     finish.addEventListener("click", async () => {
-      draft.checkinDay = document.getElementById("fciday").value;
-      draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
+      draft.contractSignedName = document.getElementById("fsignature").value.trim() || draft.name;
+      draft.contractSignedAt = new Date().toISOString();
       draft.onboarded = true;
       try {
         await DB.setProfile(draft);
@@ -365,21 +400,11 @@ route("/home", async () => {
     : null;
   const showRoadRulesNudge = daysSinceActivity !== null && daysSinceActivity >= 3;
 
-  appEl.innerHTML = `
-    <div class="top-bar">
-      <div class="logo" style="text-align:right">The Artist's Way<span class="sub">seu companheiro de jornada</span></div>
-    </div>
+  const dayCount = dayCountSinceStart(settings);
+  const dayCountLabel = dayCount !== null ? `Dia ${Math.max(1, dayCount)} de ${PROGRAM_LENGTH_DAYS}` : "";
+  const maintenanceMode = !!settings.maintenanceMode || isProgramFinished(settings);
 
-    <div class="card">
-      <div class="card-sub">Semana ${weekId} de 12</div>
-      <div class="card-title">${week.title}</div>
-      <p class="muted">${week.intro}</p>
-      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="progress-label">${doneCount}/${totalItems} tarefas dessa semana concluídas</div>
-      <div class="spacer-sm"></div>
-      <a class="btn brass block" href="#/week/${weekId}">Ver tarefas da semana</a>
-    </div>
-
+  const morningPagesCard = `
     <div class="card">
       <div class="card-title" style="font-size:1.1rem;">Morning Pages</div>
       <p class="muted">Últimos 7 dias</p>
@@ -397,18 +422,62 @@ route("/home", async () => {
       <button class="btn ${todayDone ? "secondary" : "moss"} block" id="toggleMP">
         ${todayDone ? "✓ Páginas de hoje feitas" : "Marcar páginas de hoje como feitas"}
       </button>
-    </div>
+    </div>`;
 
+  const affirmationCard = `
     <div class="card dotted text-center">
       <p class="muted">Afirmação de hoje</p>
       <p style="font-weight:var(--fontWeightSemibold,600);">${AFFIRMATIONS[dayOfYear(new Date()) % AFFIRMATIONS.length]}</p>
-    </div>
+    </div>`;
 
+  const artistDateCard = `
     <div class="card">
       <div class="card-title" style="font-size:1.1rem;">Artist Date dessa semana <span class="icon" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;">${window.ArtistWayIcons.heartRegular}</span></div>
       <p class="muted">${artistDate.done ? "Feito — " + (artistDate.idea || "") : "Ainda não rolou essa semana."}</p>
       <a class="btn ${artistDate.done ? "secondary" : "brass"} block" href="#/artist-date">${artistDate.done ? "Ver / trocar" : "Planejar meu Artist Date"}</a>
+    </div>`;
+
+  if (maintenanceMode) {
+    appEl.innerHTML = `
+      <div class="top-bar">
+        <div class="logo" style="text-align:right">The Artist's Way<span class="sub">${dayCountLabel || "seu companheiro de jornada"}</span></div>
+      </div>
+
+      <div class="card dotted text-center">
+        <p class="muted">Modo manutenção</p>
+        <p style="font-weight:var(--fontWeightSemibold,600);">As 12 semanas terminaram — agora é só manter Morning Pages e Artist Date no seu ritmo.</p>
+      </div>
+
+      ${morningPagesCard}
+      ${affirmationCard}
+      ${artistDateCard}
+    `;
+    document.getElementById("toggleMP").addEventListener("click", async () => {
+      const done = await DB.toggleMorningPage(todayStr());
+      toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
+      render();
+    });
+    return;
+  }
+
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <div class="logo" style="text-align:right">The Artist's Way<span class="sub">${dayCountLabel || "seu companheiro de jornada"}</span></div>
     </div>
+
+    <div class="card">
+      <div class="card-sub">Semana ${weekId} de 12</div>
+      <div class="card-title">${week.title}</div>
+      <p class="muted">${week.intro}</p>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${doneCount}/${totalItems} tarefas dessa semana concluídas</div>
+      <div class="spacer-sm"></div>
+      <a class="btn brass block" href="#/week/${weekId}">Ver tarefas da semana</a>
+    </div>
+
+    ${morningPagesCard}
+    ${affirmationCard}
+    ${artistDateCard}
 
     <div class="card dotted text-center">
       <p class="muted">Prefere revisar a semana agora?</p>
@@ -534,44 +603,24 @@ route("/tabela-crencas", async () => {
 // do Ciúme) -- uma tela genérica reaproveitada pelas 3, espelhando
 // NamedListPage.xaml.cs no app do Windows. Círculo de Segurança tem tela
 // própria (duas colunas + alternar lado, não um formulário de adicionar).
-const LIST_CONFIGS = {
-  imaginaryLives: {
-    listName: "imaginaryLives",
-    title: "Vidas Imaginárias",
-    subtitle: "Vidas que você gostaria de ter vivido — a lista cresce a cada semana, não precisa reescrever do zero.",
-    fields: [{ key: "text", label: "Uma vida imaginária", multiline: true }],
-  },
-  thingsILike: {
-    listName: "thingsILike",
-    title: "20 Coisas que Gosto de Fazer",
-    subtitle: "Uma lista viva — reaparece em vários exercícios do livro, inclusive como banco de ideias pra Artist Date.",
-    fields: [{ key: "text", label: "Uma coisa que eu gosto de fazer", multiline: false }],
-  },
-  jealousyMap: {
-    listName: "jealousyMap",
-    title: "Mapa do Ciúme",
-    subtitle: "Quem você sente inveja, por quê, e uma ação-antídoto pra cada um.",
-    fields: [
-      { key: "who", label: "Quem", multiline: false },
-      { key: "why", label: "Por quê", multiline: true },
-      { key: "antidote", label: "Ação-antídoto", multiline: true },
-    ],
-  },
-};
+// TOOL_CONFIGS vem de data.js (fonte única, gerada também em
+// Data/content.json pro lado UWP) -- ver ContentStore.Content.ToolConfigs.
 
 route("/list", async (rest) => {
-  const config = LIST_CONFIGS[rest[0]];
+  const config = TOOL_CONFIGS[rest[0]];
   if (!config) {
     navigate("#/settings");
     return;
   }
+  const singletonId = `${config.listName}/singleton`;
 
   async function renderScreen() {
     const items = (await DB.getListItems(config.listName)).sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
+    const existingSingleton = config.singleton ? items.find((i) => i.id === singletonId) : null;
 
     appEl.innerHTML = `
       <div class="top-bar">
-        <div class="logo" style="text-align:right">${config.title}<span class="sub">${config.fields.length > 1 ? "formulário" : "lista permanente"}</span></div>
+        <div class="logo" style="text-align:right">${config.title}<span class="sub">${config.singleton ? "formulário" : config.fields.length > 1 ? "formulário" : "lista permanente"}</span></div>
       </div>
       <p class="muted">${config.subtitle}</p>
       <div class="card">
@@ -579,21 +628,25 @@ route("/list", async (rest) => {
           .map(
             (f) => `
           <label>${f.label}</label>
-          ${f.multiline ? `<textarea data-field="${f.key}"></textarea>` : `<input type="text" data-field="${f.key}" />`}`
+          ${f.multiline ? `<textarea data-field="${f.key}">${existingSingleton && existingSingleton[f.key] ? existingSingleton[f.key] : ""}</textarea>` : `<input type="text" data-field="${f.key}" value="${existingSingleton && existingSingleton[f.key] ? existingSingleton[f.key] : ""}" />`}`
           )
           .join("")}
-        <button class="btn brass block" id="addItem" style="margin-top:12px;">Adicionar</button>
+        <button class="btn brass block" id="addItem" style="margin-top:12px;">${config.singleton ? "Salvar" : "Adicionar"}</button>
       </div>
-      ${items
-        .map(
-          (item) => `
+      ${
+        config.singleton
+          ? ""
+          : items
+              .map(
+                (item) => `
         <div class="card">
           ${config.fields
             .map((f) => (item[f.key] ? `<p class="${config.fields.length > 1 ? "muted" : ""}">${config.fields.length > 1 ? `<strong>${f.label}:</strong> ` : ""}${item[f.key]}</p>` : ""))
             .join("")}
         </div>`
-        )
-        .join("")}
+              )
+              .join("")
+      }
       <div class="spacer"></div>
     `;
 
@@ -606,9 +659,100 @@ route("/list", async (rest) => {
         fields[f.key] = value;
         if (value) hasContent = true;
       });
+
+      if (config.singleton) {
+        await DB.updateListItem(config.listName, "singleton", fields);
+        return;
+      }
+
       if (!hasContent) return;
       await DB.addListItem(config.listName, fields);
       renderScreen();
+    });
+  }
+
+  renderScreen();
+});
+
+// ================= QUIZ (genérico, dirigido por QUIZ_CONFIGS) =================
+route("/quiz", async (rest) => {
+  const quiz = QUIZ_CONFIGS[rest[0]];
+  if (!quiz) {
+    navigate("#/settings");
+    return;
+  }
+
+  async function renderScreen() {
+    const attempts = (await DB.getListItems(quiz.key)).sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
+
+    appEl.innerHTML = `
+      <div class="top-bar">
+        <div class="logo" style="text-align:right">${quiz.title}<span class="sub">${quiz.subtitle}</span></div>
+      </div>
+      <div class="card">
+        ${quiz.questions
+          .map(
+            (q, qi) => `
+          <div class="quiz-question">
+            <p><strong>${qi + 1}.</strong> ${q.text}</p>
+            <div class="quiz-options">
+              ${q.options
+                .map(
+                  (o) => `
+                <label class="quiz-option">
+                  <input type="radio" name="q${qi}" value="${o.value}" />
+                  ${o.label}
+                </label>`
+                )
+                .join("")}
+            </div>
+          </div>`
+          )
+          .join("")}
+        <button class="btn brass block" id="seeResult" style="margin-top:12px;">Ver resultado</button>
+        <p class="muted" id="quizResult" style="margin-top:12px;"></p>
+      </div>
+      ${
+        attempts.length
+          ? `<div class="card">
+              <div class="card-title" style="font-size:1.05rem;">Tentativas anteriores</div>
+              ${attempts
+                .slice()
+                .reverse()
+                .map((a) => `<p class="muted">${(a.date || "").slice(0, 10)} — ${a.score} pontos (${a.bandLabel || ""})</p>`)
+                .join("")}
+            </div>`
+          : ""
+      }
+      <div class="spacer"></div>
+    `;
+
+    document.getElementById("seeResult").addEventListener("click", async () => {
+      let total = 0;
+      let answeredAll = true;
+      quiz.questions.forEach((q, qi) => {
+        const checked = appEl.querySelector(`input[name="q${qi}"]:checked`);
+        if (!checked) {
+          answeredAll = false;
+          return;
+        }
+        total += Number(checked.value);
+      });
+
+      const resultEl = document.getElementById("quizResult");
+      if (!answeredAll) {
+        resultEl.textContent = "Responda todas as perguntas pra ver o resultado.";
+        return;
+      }
+
+      const band = quiz.bands.find((b) => total >= b.min && total <= b.max) || quiz.bands[quiz.bands.length - 1];
+      resultEl.innerHTML = `<strong>${total} pontos — ${band.label}.</strong> ${band.description}`;
+
+      await DB.addListItem(quiz.key, {
+        score: String(total),
+        bandLabel: band.label,
+        date: todayStr(),
+      });
     });
   }
 
@@ -983,6 +1127,60 @@ route("/checkin", async (rest) => {
   });
 });
 
+// ================= HISTÓRICO (Artist Dates + reler check-ins) =================
+// Só leitura -- lê os stores artistDates/checkins já existentes, sem
+// escrever nada novo.
+route("/artist-date-history", async () => {
+  const all = await DB.dbGetAll(DB.STORES.artistDates);
+  const items = all
+    .filter((a) => a.done || a.idea)
+    .sort((a, b) => (b.weekStart || "").localeCompare(a.weekStart || ""));
+
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <div class="logo" style="text-align:right">Histórico de Artist Dates<span class="sub">todos os encontros já registrados</span></div>
+    </div>
+    <div class="card">
+      ${
+        items.length
+          ? items
+              .map(
+                (item) => `
+        <div style="margin-bottom:12px;">
+          <p style="font-weight:var(--fontWeightSemibold,600);margin:0;">${item.weekStart}${item.done ? " — feito" : " — planejado"}</p>
+          ${item.idea ? `<p class="muted" style="margin:0;">${item.idea}</p>` : ""}
+        </div>`
+              )
+              .join("")
+          : `<p class="muted">Nenhum Artist Date registrado ainda.</p>`
+      }
+    </div>
+    <div class="spacer"></div>
+  `;
+});
+
+route("/checkin-history", async () => {
+  const all = await DB.dbGetAll(DB.STORES.checkins);
+  const weeksWithCheckin = new Set(all.map((c) => Number(c.weekId)));
+
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <div class="logo" style="text-align:right">Reler Check-ins Antigos<span class="sub">toque numa semana com check-in salvo</span></div>
+    </div>
+    <div class="card">
+      ${Array.from({ length: 12 }, (_, i) => i + 1)
+        .map((weekId) => {
+          const has = weeksWithCheckin.has(weekId);
+          return has
+            ? `<a class="btn secondary block" href="#/checkin/${weekId}" style="margin-bottom:8px;">Semana ${weekId} — ver check-in</a>`
+            : `<button class="btn secondary block" style="margin-bottom:8px;" disabled>Semana ${weekId} — sem check-in ainda</button>`;
+        })
+        .join("")}
+    </div>
+    <div class="spacer"></div>
+  `;
+});
+
 // ================= PROGRESS (jornada) =================
 route("/progress", async () => {
   const settings = await DB.getSetting("profile", null);
@@ -1019,26 +1217,112 @@ route("/progress", async () => {
 });
 
 // ================= SETTINGS =================
+// Cada seção é uma lista de links; a maioria aponta pra #/list/:key
+// (tela genérica, ver TOOL_CONFIGS) -- só as com tela própria (Círculo de
+// Segurança, Life Pie, Crença->Positiva, Regras/Princípios, histórico,
+// quiz) têm rota dedicada.
+function toolLink(key) {
+  return `<a class="btn secondary block" href="#/list/${key}">${TOOL_CONFIGS[key].title}</a>`;
+}
+
 route("/ferramentas", async () => {
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Recursos<span class="sub">listas e exercícios vivos do livro</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["recursos.title"]}<span class="sub">${UI_STRINGS["recursos.subtitle"]}</span></div>
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Exercícios do livro</div>
-      <p class="muted">Crescem com o tempo, não somem depois de uma semana.</p>
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.reference.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.reference.description"]}</p>
+      <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
+      <div class="spacer-sm"></div>
       <a class="btn secondary block" href="#/tabela-crencas">Crença → Positiva</a>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.lists.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.lists.description"]}</p>
+      ${toolLink("imaginaryLives")}
       <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/list/imaginaryLives">Vidas Imaginárias</a>
+      ${toolLink("thingsILike")}
       <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/list/thingsILike">20 Coisas que Gosto de Fazer</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/list/jealousyMap">Mapa do Ciúme</a>
+      ${toolLink("jealousyMap")}
       <div class="spacer-sm"></div>
       <a class="btn secondary block" href="#/circulo-seguranca">Círculo de Segurança</a>
       <div class="spacer-sm"></div>
       <a class="btn secondary block" href="#/life-pie">Life Pie</a>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.diaries.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.diaries.description"]}</p>
+      ${toolLink("sincronicidade")}
+      <div class="spacer-sm"></div>
+      ${toolLink("pocoCriativo")}
+      <div class="spacer-sm"></div>
+      ${toolLink("diarioResistencia")}
+      <div class="spacer-sm"></div>
+      ${toolLink("cartaCriticoInterno")}
+      <div class="spacer-sm"></div>
+      ${toolLink("diarioLeitura")}
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.letters.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.letters.description"]}</p>
+      ${toolLink("carta80anos")}
+      <div class="spacer-sm"></div>
+      ${toolLink("carta8anos")}
+      <div class="spacer-sm"></div>
+      ${toolLink("oracaoArtista")}
+      <div class="spacer-sm"></div>
+      ${toolLink("cartaEncorajamento")}
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.planning.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.planning.description"]}</p>
+      ${toolLink("metasNorteVerdadeiro")}
+      <div class="spacer-sm"></div>
+      ${toolLink("buscaEstilo")}
+      <div class="spacer-sm"></div>
+      ${toolLink("diaIdeal")}
+      <div class="spacer-sm"></div>
+      ${toolLink("cadernoDesejos")}
+      <div class="spacer-sm"></div>
+      ${toolLink("planoContinuidade")}
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.boundaries.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.boundaries.description"]}</p>
+      ${toolLink("resentimentosMedos")}
+      <div class="spacer-sm"></div>
+      ${toolLink("retornosEmU")}
+      <div class="spacer-sm"></div>
+      ${toolLink("arqueologia")}
+      <div class="spacer-sm"></div>
+      ${toolLink("bottomLine")}
+      <div class="spacer-sm"></div>
+      ${toolLink("pontosFelicidade")}
+      <div class="spacer-sm"></div>
+      ${toolLink("totemArtista")}
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.history.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.history.description"]}</p>
+      <a class="btn secondary block" href="#/artist-date-history">Histórico de Artist Dates</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/checkin-history">Reler Check-ins Antigos</a>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.quiz.title"]}</div>
+      <p class="muted">${UI_STRINGS["recursos.quiz.description"]}</p>
+      <a class="btn secondary block" href="#/quiz/workaholismQuiz">${QUIZ_CONFIGS.workaholismQuiz.title}</a>
     </div>
 
     <div class="spacer"></div>
@@ -1052,7 +1336,7 @@ route("/settings", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Ajustes<span class="sub">seus rituais</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["settings.title"]}<span class="sub">${UI_STRINGS["settings.subtitle"]}</span></div>
     </div>
 
     <div class="card">
@@ -1065,7 +1349,7 @@ route("/settings", async () => {
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Aparência</div>
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.appearance.title"]}</div>
       <p class="muted">Accent color e tema — sincronizados entre aparelhos junto com o resto do seu progresso.</p>
       <label>Cor de destaque</label>
       <div class="swatch-row" id="accentSwatches">
@@ -1120,7 +1404,7 @@ route("/settings", async () => {
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Seus dados</div>
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.data.title"]}</div>
       <p class="muted">Tudo fica só no seu aparelho. Faça backup de vez em quando.</p>
       <button class="btn secondary block" id="exportData">Exportar backup (.json)</button>
       ${
@@ -1131,7 +1415,7 @@ route("/settings", async () => {
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Sincronização</div>
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.sync.title"]}</div>
       <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o app do Windows, no mesmo login.</p>
       <p class="muted" id="syncStatus">Verificando...</p>
       <button class="btn brass block" id="googleLogin">Entrar com Google</button>
@@ -1139,23 +1423,23 @@ route("/settings", async () => {
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Zona de risco</div>
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.maintenance.title"]}</div>
+      <p class="muted">${UI_STRINGS["settings.maintenance.description"]}</p>
+      <button class="btn ${settings.maintenanceMode ? "secondary" : "brass"} block" id="toggleMaintenance">
+        ${settings.maintenanceMode ? UI_STRINGS["settings.maintenance.toggleOff"] : UI_STRINGS["settings.maintenance.toggleOn"]}
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.dangerZone.title"]}</div>
       <p class="muted">Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa.</p>
       <button class="btn secondary block" id="clearData">Apagar todos os dados (mantém login)</button>
       <div class="spacer-sm"></div>
       <button class="btn secondary block" id="fullReset">Resetar o app completamente (sai da conta)</button>
     </div>
 
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Referência</div>
-      <p class="muted">Sempre à mão, pra reler quando bater a dúvida.</p>
-      <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
-    </div>
-
     <div class="card" id="updatesCard">
-      <div class="card-title" style="font-size:1.05rem;">Atualizações</div>
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.updates.title"]}</div>
       <p class="muted" id="updatesBody">Verificando...</p>
     </div>
 
@@ -1320,6 +1604,12 @@ route("/settings", async () => {
       refreshSyncStatus();
     });
   }
+
+  document.getElementById("toggleMaintenance").addEventListener("click", async () => {
+    const updated = Object.assign({}, settings, { maintenanceMode: !settings.maintenanceMode });
+    await DB.setProfile(updated);
+    render();
+  });
 
   // Apaga o progresso (aparelho + nuvem, se logado) mas mantém a sessão --
   // útil pra recomeçar o programa do zero sem precisar logar de novo. A

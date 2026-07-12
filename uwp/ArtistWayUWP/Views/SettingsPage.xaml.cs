@@ -23,6 +23,17 @@ namespace ArtistWayUWP.Views
             this.InitializeComponent();
             PopulateWeekdayCombo(ArtistDateDayCombo);
             PopulateWeekdayCombo(CheckinDayCombo);
+
+            // Títulos vêm de UI_STRINGS (www/js/data.js), fonte única
+            // compartilhada com o PWA -- ver ContentStore.S.
+            PageTitleText.Text = ContentStore.S("settings.title");
+            PageSubtitleText.Text = ContentStore.S("settings.subtitle");
+            AppearanceTitleText.Text = ContentStore.S("settings.appearance.title");
+            DataTitleText.Text = ContentStore.S("settings.data.title");
+            UpdatesTitleText.Text = ContentStore.S("settings.updates.title");
+            SyncTitleText.Text = ContentStore.S("settings.sync.title");
+            MaintenanceTitleText.Text = ContentStore.S("settings.maintenance.title");
+            DangerZoneTitleText.Text = ContentStore.S("settings.dangerZone.title");
         }
 
         private static void PopulateWeekdayCombo(ComboBox combo)
@@ -79,9 +90,17 @@ namespace ArtistWayUWP.Views
             SelectWeekday(ArtistDateDayCombo, _profile.ArtistDateDay);
             SelectWeekday(CheckinDayCombo, _profile.CheckinDay);
             UpdateThemeButtonsVisual();
+            ToggleMaintenanceButton.Content = _profile.MaintenanceMode ? ContentStore.S("settings.maintenance.toggleOff") : ContentStore.S("settings.maintenance.toggleOn");
 
             _ = LoadUpdateStatusAsync();
             RefreshSyncStatus();
+        }
+
+        private async void ToggleMaintenance_Click(object sender, RoutedEventArgs e)
+        {
+            _profile.MaintenanceMode = !_profile.MaintenanceMode;
+            ToggleMaintenanceButton.Content = _profile.MaintenanceMode ? ContentStore.S("settings.maintenance.toggleOff") : ContentStore.S("settings.maintenance.toggleOn");
+            await LocalDataStore.SetProfileAsync(_profile);
         }
 
         private void UpdateThemeButtonsVisual()
@@ -426,16 +445,5 @@ namespace ArtistWayUWP.Views
             }
             MainPage.Current.BeginOnboarding();
         }
-
-        private void OpenRoadRules_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(RegrasDaEstradaPage));
-        }
-
-        private void OpenPrinciples_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage));
-        }
-
     }
 }

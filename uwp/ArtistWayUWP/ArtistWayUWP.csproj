@@ -67,6 +67,7 @@
     <Compile Include="Models\CheckinEntry.cs" />
     <Compile Include="Models\NamedListItem.cs" />
     <Compile Include="Models\NamedListConfig.cs" />
+    <Compile Include="Models\QuizConfig.cs" />
 
     <Compile Include="Services\AppointmentService.cs" />
     <Compile Include="Services\AuthService.cs" />
@@ -105,6 +106,15 @@
     </Compile>
     <Compile Include="Views\FerramentasPage.xaml.cs">
       <DependentUpon>FerramentasPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\QuizPage.xaml.cs">
+      <DependentUpon>QuizPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ArtistDateHistoryPage.xaml.cs">
+      <DependentUpon>ArtistDateHistoryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CheckinHistoryPage.xaml.cs">
+      <DependentUpon>CheckinHistoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RegrasDaEstradaPage.xaml.cs">
       <DependentUpon>RegrasDaEstradaPage.xaml</DependentUpon>
@@ -167,6 +177,18 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\FerramentasPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\QuizPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ArtistDateHistoryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\CheckinHistoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -75,7 +75,26 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Content="← Voltar" Click="Back_Click" />
-                    <Button Grid.Column="1" Content="Concluir e ativar lembretes" Click="Finish_Click" Margin="12,0,0,0" HorizontalAlignment="Stretch" />
+                    <Button Grid.Column="1" Content="Continuar" Click="Next_Click" Margin="12,0,0,0" HorizontalAlignment="Stretch" />
+                </Grid>
+            </StackPanel>
+
+            <StackPanel x:Name="ContractPanel" Visibility="Collapsed">
+                <TextBlock Text="Seu contrato inicial" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock Text="O livro abre com um compromisso de 12 semanas: Morning Pages todo dia, Artist Date semanal, e cuidado consigo mesmo(a) ao longo do processo. Assine com seu nome pra começar."
+                           Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,16" />
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <TextBlock x:Name="ContractText" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Opacity="0.9" />
+                </Border>
+                <TextBlock Text="Assinatura (seu nome)" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
+                <TextBox x:Name="SignatureBox" />
+                <Grid Margin="0,24,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="← Voltar" Click="Back_Click" />
+                    <Button Grid.Column="1" Content="Assinar e começar" Click="Finish_Click" Margin="12,0,0,0" HorizontalAlignment="Stretch" />
                 </Grid>
             </StackPanel>
 

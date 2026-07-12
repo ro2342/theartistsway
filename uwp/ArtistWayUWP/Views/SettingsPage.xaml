@@ -10,8 +10,8 @@
 
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
-            <TextBlock Text="Ajustes" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock Text="seus rituais" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
+            <TextBlock x:Name="PageTitleText" Text="Ajustes" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock x:Name="PageSubtitleText" Text="seus rituais" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
@@ -44,7 +44,7 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Aparência" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="AppearanceTitleText" Text="Aparência" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Tema claro, escuro ou automático (segue o sistema) — sincronizado com o PWA no mesmo login."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <Grid>
@@ -75,7 +75,7 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Seus dados" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="DataTitleText" Text="Seus dados" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Tudo fica só no seu aparelho. Faça backup de vez em quando." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <Button Content="Exportar backup (.json)" Click="Export_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Importar backup (.json)" Click="Import_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
@@ -84,16 +84,7 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Referência" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Sempre à mão, pra reler quando bater a dúvida." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="Regras da Estrada" Click="OpenRoadRules_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="Princípios Básicos" Click="OpenPrinciples_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Atualizações" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="UpdatesTitleText" Text="Atualizações" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock x:Name="UpdateStatusText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,0" />
                     <ProgressBar x:Name="UpdateProgressBar" Minimum="0" Maximum="100" Visibility="Collapsed" Margin="0,12,0,0" />
                     <Button x:Name="DownloadUpdateButton" Content="Baixar atualização" Visibility="Collapsed" Click="DownloadUpdate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
@@ -103,7 +94,7 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Sincronização" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="SyncTitleText" Text="Sincronização" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o PWA, no mesmo login."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <TextBlock x:Name="SyncStatusText" Text="Não logado." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
@@ -114,7 +105,16 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="MaintenanceTitleText" Text="Modo manutenção" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Depois das 12 semanas, desliga o checklist e o check-in semanal — fica só Morning Pages e Artist Date rodando indefinidamente."
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <Button x:Name="ToggleMaintenanceButton" Content="Ativar modo manutenção" Click="ToggleMaintenance_Click" HorizontalAlignment="Stretch" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock x:Name="DangerZoneTitleText" Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <Button Click="ClearData_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">

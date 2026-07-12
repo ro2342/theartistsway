@@ -303,7 +303,31 @@ button { font-family: inherit; }
 }
 
 .week-chip.current { border-color: var(--colorBrandStroke1, #0f6cbd); border-width: 2px; }
-.week-chip.complete { background: var(--colorBrandBackground, #0f6cbd); color: #fff; border-color: var(--colorBrandBackground, #0f6cbd); }
+.week-chip.complete {
+  background: var(--colorBrandBackground, #0f6cbd);
+  color: #fff;
+  border-color: var(--colorBrandBackground, #0f6cbd);
+  position: relative;
+}
+/* Selo de semana concluída -- um "carimbo" decorativo, só CSS. */
+.week-chip.complete::after {
+  content: "✓";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--colorBrandBackground, #0f6cbd);
+  font-size: 12px;
+  font-weight: var(--fontWeightBold, 700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--colorBrandBackground, #0f6cbd);
+  transform: rotate(-12deg);
+}
 
 .week-chip small {
   font-weight: var(--fontWeightRegular, 400);
@@ -438,6 +462,31 @@ input[type="date"] {
   color: var(--colorNeutralForeground1, #242424);
   font-family: inherit;
   font-size: var(--fontSizeBase300, 14px);
+}
+
+/* ---------- Quiz ---------- */
+
+.quiz-question {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--colorNeutralStrokeSubtle, #e0e0e0);
+}
+.quiz-question:last-of-type {
+  border-bottom: none;
+}
+.quiz-options {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fontSizeBase300, 14px);
+  font-weight: normal;
+  color: var(--colorNeutralForeground1, #242424);
+  margin: 0;
 }
 
 /* ---------- Onboarding ---------- */

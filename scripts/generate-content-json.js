@@ -29,6 +29,9 @@ const content = {
   basicPrinciples: data.BASIC_PRINCIPLES,
   beliefTable: data.BELIEF_TABLE,
   affirmations: data.AFFIRMATIONS,
+  uiStrings: data.UI_STRINGS,
+  toolConfigs: Object.keys(data.TOOL_CONFIGS).map((key) => data.TOOL_CONFIGS[key]),
+  quizConfigs: Object.keys(data.QUIZ_CONFIGS).map((key) => data.QUIZ_CONFIGS[key]),
 };
 
 const outPath = path.join(__dirname, "..", "uwp", "ArtistWayUWP", "Data", "content.json");

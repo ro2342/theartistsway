@@ -34,7 +34,14 @@
                 <TextBlock x:Name="GreetingText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,0" />
             </StackPanel>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+            <Border x:Name="MaintenanceCard" Visibility="Collapsed" Style="{StaticResource NudgeBorderStyle}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="Modo manutenção" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" HorizontalAlignment="Center" />
+                    <TextBlock Text="As 12 semanas terminaram — agora é só manter Morning Pages e Artist Date no seu ritmo." Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="WeekCard" Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock x:Name="WeekLabelText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
                     <TextBlock x:Name="WeekTitleText" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" Margin="0,4,0,0" />
@@ -69,7 +76,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource NudgeBorderStyle}">
+            <Border x:Name="CheckinNudgeCard" Style="{StaticResource NudgeBorderStyle}">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="Prefere revisar a semana agora?" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" HorizontalAlignment="Center" />
                     <Button Content="Ir para o check-in" Click="OpenCheckin_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />

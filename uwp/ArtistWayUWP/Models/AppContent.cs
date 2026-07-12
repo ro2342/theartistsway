@@ -15,6 +15,9 @@ namespace ArtistWayUWP.Models
         public List<string> BasicPrinciples { get; set; } = new List<string>();
         public List<BeliefPair> BeliefTable { get; set; } = new List<BeliefPair>();
         public List<string> Affirmations { get; set; } = new List<string>();
+        public Dictionary<string, string> UiStrings { get; set; } = new Dictionary<string, string>();
+        public List<NamedListConfig> ToolConfigs { get; set; } = new List<NamedListConfig>();
+        public List<QuizConfig> QuizConfigs { get; set; } = new List<QuizConfig>();
     }
 
     public sealed class BeliefPair

@@ -26,6 +26,7 @@ namespace ArtistWayUWP
             {
                 this.InitializeComponent();
                 Current = this;
+                ApplyNavLabels();
                 this.Loaded += MainPage_Loaded;
                 ContentFrame.Navigated += ContentFrame_Navigated;
                 SystemNavigationManager.GetForCurrentView().BackRequested += OnBackRequested;
@@ -34,6 +35,17 @@ namespace ArtistWayUWP
             {
                 ShowFatalError("Erro ao iniciar a página: " + ex.Message);
             }
+        }
+
+        // Rótulos da nav vêm de UI_STRINGS (www/js/data.js), fonte única
+        // compartilhada com o PWA -- ver ContentStore.S.
+        private void ApplyNavLabels()
+        {
+            TabHomeLabel.Text = ContentStore.S("nav.home");
+            TabProgressLabel.Text = ContentStore.S("nav.progress");
+            TabArtistDateLabel.Text = ContentStore.S("nav.artistDate");
+            TabFerramentasLabel.Text = ContentStore.S("nav.recursos");
+            TabSettingsLabel.Text = ContentStore.S("nav.settings");
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)

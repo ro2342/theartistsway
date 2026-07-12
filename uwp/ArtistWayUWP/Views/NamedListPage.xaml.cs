@@ -8,13 +8,19 @@ using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP.Views
 {
-    // Página genérica reaproveitada por Vidas Imaginárias, 20 Coisas que
-    // Gosto de Fazer e Mapa do Ciúme -- só muda o esquema de campos
+    // Página genérica reaproveitada por qualquer ferramenta descrita em
+    // TOOL_CONFIGS (www/js/data.js -> Data/content.json ->
+    // ContentStore.Content.ToolConfigs) -- só muda o esquema de campos
     // (ver Models/NamedListConfig.cs). O parâmetro de navegação é a
-    // chave da config (string), não a config em si, pra manter o
-    // parâmetro simples de serializar.
+    // chave da lista (string), não a config em si, pra manter o
+    // parâmetro simples de serializar. Quando a config tem
+    // Singleton=true, a tela vira um formulário de UM registro só
+    // (carregado/sobrescrito na chave fixa "singleton"), em vez de uma
+    // lista que só cresce -- mesmo mecanismo de armazenamento embaixo.
     public sealed partial class NamedListPage : Page
     {
+        private const string SingletonItemId = "singleton";
+
         private NamedListConfig _config;
         private readonly Dictionary<string, TextBox> _inputs = new Dictionary<string, TextBox>();
 
@@ -26,11 +32,38 @@ namespace ArtistWayUWP.Views
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            _config = NamedListConfigs.Get(e.Parameter as string);
+            string key = e.Parameter as string;
+            _config = ContentStore.Content.ToolConfigs.Find(c => c.ListName == key);
             TitleText.Text = _config.Title;
             SubText.Text = _config.Subtitle;
+            SaveButton.Content = _config.Singleton ? "Salvar" : "Adicionar";
+            ItemsPanel.Visibility = _config.Singleton ? Visibility.Collapsed : Visibility.Visible;
             BuildFieldInputs();
-            _ = LoadItemsAsync();
+            if (_config.Singleton)
+            {
+                _ = LoadSingletonAsync();
+            }
+            else
+            {
+                _ = LoadItemsAsync();
+            }
+        }
+
+        private async Task LoadSingletonAsync()
+        {
+            List<NamedListItem> items = await LocalDataStore.GetListItemsAsync(_config.ListName);
+            NamedListItem existing = items.Find(i => i.Id == SingletonItemId);
+            if (existing == null)
+            {
+                return;
+            }
+            foreach (KeyValuePair<string, TextBox> kv in _inputs)
+            {
+                if (existing.Fields.ContainsKey(kv.Key))
+                {
+                    kv.Value.Text = existing.Fields[kv.Key];
+                }
+            }
         }
 
         private void BuildFieldInputs()
@@ -70,6 +103,13 @@ namespace ArtistWayUWP.Views
                     hasContent = true;
                 }
             }
+
+            if (_config.Singleton)
+            {
+                await LocalDataStore.UpdateListItemAsync(_config.ListName, SingletonItemId, fields);
+                return;
+            }
+
             if (!hasContent)
             {
                 return;

@@ -37,9 +37,15 @@ namespace ArtistWayUWP.Views
             WeekContent week = ContentStore.Content.Weeks.FirstOrDefault(w => w.Id == weekId);
             string weekKey = WeekCalculator.WeekKeyForOffset(profile, weekId);
 
-            GreetingText.Text = string.IsNullOrEmpty(profile.Name)
-                ? "seu companheiro de jornada"
-                : $"Olá, {profile.Name}";
+            int? dayCount = WeekCalculator.GetDayCount(profile);
+            string dayCountLabel = dayCount.HasValue ? $"Dia {Math.Max(1, dayCount.Value)} de {WeekCalculator.ProgramLengthDays}" : null;
+            GreetingText.Text = dayCountLabel
+                ?? (string.IsNullOrEmpty(profile.Name) ? "seu companheiro de jornada" : $"Olá, {profile.Name}");
+
+            bool maintenanceMode = profile.MaintenanceMode || WeekCalculator.IsProgramFinished(profile);
+            MaintenanceCard.Visibility = maintenanceMode ? Visibility.Visible : Visibility.Collapsed;
+            WeekCard.Visibility = maintenanceMode ? Visibility.Collapsed : Visibility.Visible;
+            CheckinNudgeCard.Visibility = maintenanceMode ? Visibility.Collapsed : Visibility.Visible;
 
             WeekLabelText.Text = $"Semana {weekId} de 12";
             WeekTitleText.Text = week?.Title ?? "";
@@ -103,7 +109,7 @@ namespace ArtistWayUWP.Views
             OpenArtistDateButton.Content = adDone ? "Ver / trocar" : "Planejar meu Artist Date";
 
             DateTimeOffset? lastActivity = await LocalDataStore.GetLastActivityAsync();
-            bool showNudge = lastActivity.HasValue && (DateTimeOffset.UtcNow - lastActivity.Value).TotalDays >= 3;
+            bool showNudge = !maintenanceMode && lastActivity.HasValue && (DateTimeOffset.UtcNow - lastActivity.Value).TotalDays >= 3;
             RoadRulesNudgeCard.Visibility = showNudge ? Visibility.Visible : Visibility.Collapsed;
         }
 

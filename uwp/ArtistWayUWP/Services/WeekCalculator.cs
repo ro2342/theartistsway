@@ -42,5 +42,25 @@ namespace ArtistWayUWP.Services
             DateTime weekStart = start.AddDays((weekId - 1) * 7);
             return DateToStr(weekStart);
         }
+
+        public const int ProgramLengthDays = 84; // 12 semanas x 7 dias
+
+        // Contador de dias (Home) -- mesmo cálculo do PWA (dayCountSinceStart
+        // em app.js), sem guardar nenhum dado novo.
+        public static int? GetDayCount(ProfileSettings profile)
+        {
+            if (profile == null || string.IsNullOrEmpty(profile.StartDate) ||
+                !DateTime.TryParse(profile.StartDate, out DateTime startDate))
+            {
+                return null;
+            }
+            return (int)(DateTime.Now.Date - startDate.Date).TotalDays + 1;
+        }
+
+        public static bool IsProgramFinished(ProfileSettings profile)
+        {
+            int? dayCount = GetDayCount(profile);
+            return dayCount.HasValue && dayCount.Value > ProgramLengthDays;
+        }
     }
 }

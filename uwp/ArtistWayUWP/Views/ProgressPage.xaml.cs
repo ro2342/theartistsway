@@ -60,20 +60,51 @@ namespace ArtistWayUWP.Views
                     chip.BorderThickness = new Thickness(2);
                 }
 
-                StackPanel content = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
-                content.Children.Add(new TextBlock
+                StackPanel textStack = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+                textStack.Children.Add(new TextBlock
                 {
                     Text = week.Id.ToString(),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     FontSize = 20,
                 });
-                content.Children.Add(new TextBlock
+                textStack.Children.Add(new TextBlock
                 {
                     Text = complete ? "feito" : current ? "atual" : "",
                     HorizontalAlignment = HorizontalAlignment.Center,
                     FontSize = 11,
                     Opacity = 0.8,
                 });
+
+                Grid content = new Grid();
+                content.Children.Add(textStack);
+                if (complete)
+                {
+                    // Selo de semana concluída -- um "carimbo" decorativo no
+                    // canto, mesmo espírito visual do PWA (.week-chip.complete::after).
+                    Border stamp = new Border
+                    {
+                        Width = 20,
+                        Height = 20,
+                        CornerRadius = new CornerRadius(10),
+                        Background = new Windows.UI.Xaml.Media.SolidColorBrush(Windows.UI.Colors.White),
+                        BorderBrush = ThemeHelper.AccentBrush(),
+                        BorderThickness = new Thickness(2),
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        Margin = new Thickness(0, -8, -8, 0),
+                        RenderTransform = new Windows.UI.Xaml.Media.RotateTransform { Angle = -12 },
+                    };
+                    stamp.Child = new TextBlock
+                    {
+                        Text = "✓",
+                        FontSize = 12,
+                        FontWeight = Windows.UI.Text.FontWeights.Bold,
+                        Foreground = ThemeHelper.AccentBrush(),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                    };
+                    content.Children.Add(stamp);
+                }
                 chip.Content = content;
                 chip.Click += Chip_Click;
 

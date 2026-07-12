@@ -17,7 +17,7 @@ namespace ArtistWayUWP.Views
         public OnboardingPage()
         {
             this.InitializeComponent();
-            _panels = new[] { WelcomePanel, NameDatePanel, RitualsPanel, FinishPanel };
+            _panels = new[] { WelcomePanel, NameDatePanel, RitualsPanel, FinishPanel, ContractPanel };
 
             for (int i = 1; i <= 7; i++)
             {
@@ -43,6 +43,16 @@ namespace ArtistWayUWP.Views
             {
                 _panels[i].Visibility = i == step ? Visibility.Visible : Visibility.Collapsed;
             }
+
+            if (_panels[step] == ContractPanel)
+            {
+                string name = string.IsNullOrEmpty(NameBox.Text.Trim()) ? "___" : NameBox.Text.Trim();
+                ContractText.Text = $"Eu, {name}, me comprometo com 12 semanas de recuperação criativa: escrever minhas Morning Pages todos os dias, fazer meu Artist Date toda semana, e ser gentil comigo mesmo(a) no caminho.";
+                if (string.IsNullOrEmpty(SignatureBox.Text))
+                {
+                    SignatureBox.Text = NameBox.Text.Trim();
+                }
+            }
         }
 
         private void Next_Click(object sender, RoutedEventArgs e)
@@ -67,6 +77,8 @@ namespace ArtistWayUWP.Views
                 CheckinDay = ((ComboBoxItem)CheckinDayCombo.SelectedItem)?.Tag.ToString() ?? "7",
                 CheckinTime = CheckinTimePicker.Time.ToString(@"hh\:mm"),
                 Onboarded = true,
+                ContractSignedName = string.IsNullOrEmpty(SignatureBox.Text.Trim()) ? NameBox.Text.Trim() : SignatureBox.Text.Trim(),
+                ContractSignedAt = DateTime.UtcNow.ToString("o"),
             };
 
             await LocalDataStore.SetProfileAsync(profile);

@@ -546,6 +546,310 @@ const ARTIST_DATE_IDEAS = [
   "Reserve uma hora para não fazer absolutamente nada — só observar o teto e devanear.",
 ];
 
+// ================= TEXTO DE INTERFACE (fonte única) =================
+// UI_STRINGS — dicionário plano (chave "secao.item" -> texto), pra não
+// duplicar rótulos de nav, cards e diálogos entre o PWA e o UWP à mão.
+// Gerado em Data/content.json (ver scripts/generate-content-json.js) e
+// consumido no UWP por atribuição direta no code-behind (ContentStore.
+// Content.UiStrings["chave"]), já que XAML não faz bind direto contra um
+// dicionário. Só cobre texto estático e realmente duplicado -- strings
+// totalmente dinâmicas/interpoladas continuam locais em cada plataforma.
+const UI_STRINGS = {
+  "nav.home": "Início",
+  "nav.progress": "Jornada",
+  "nav.artistDate": "Date",
+  "nav.recursos": "Recursos",
+  "nav.settings": "Ajustes",
+  "nav.sync": "Sincronizar",
+
+  "common.save": "Salvar",
+  "common.add": "Adicionar",
+  "common.cancel": "Cancelar",
+  "common.ok": "OK",
+  "common.allDone": "Tudo certo",
+
+  "settings.title": "Ajustes",
+  "settings.subtitle": "seus rituais",
+  "settings.profile.title": "Seu perfil",
+  "settings.profile.saveButton": "Salvar e reativar lembretes",
+  "settings.appearance.title": "Aparência",
+  "settings.appearance.description": "Tema claro, escuro ou automático (segue o sistema) — sincronizado entre aparelhos.",
+  "settings.calendar.title": "Calendário do Windows",
+  "settings.data.title": "Seus dados",
+  "settings.data.description": "Tudo fica só no seu aparelho. Faça backup de vez em quando.",
+  "settings.sync.title": "Sincronização",
+  "settings.updates.title": "Atualizações",
+  "settings.dangerZone.title": "Zona de risco",
+  "settings.maintenance.title": "Modo manutenção",
+  "settings.maintenance.description": "Depois das 12 semanas, desliga o checklist e o check-in semanal — fica só Morning Pages e Artist Date rodando indefinidamente.",
+  "settings.maintenance.toggleOn": "Ativar modo manutenção",
+  "settings.maintenance.toggleOff": "Desativar modo manutenção",
+
+  "recursos.title": "Recursos",
+  "recursos.subtitle": "ferramentas e exercícios vivos do livro",
+  "recursos.reference.title": "Referência",
+  "recursos.reference.description": "Sempre à mão, pra reler quando bater a dúvida.",
+  "recursos.lists.title": "Listas e mapas",
+  "recursos.lists.description": "Crescem com o tempo, não somem depois de uma semana.",
+  "recursos.diaries.title": "Diários",
+  "recursos.diaries.description": "Registros contínuos, não presos a nenhuma semana específica.",
+  "recursos.letters.title": "Cartas",
+  "recursos.letters.description": "Escritas uma vez, guardadas pra reler exatamente quando o livro pede.",
+  "recursos.planning.title": "Planejamento",
+  "recursos.planning.description": "Formulários estruturados de metas, estilo e dia ideal.",
+  "recursos.boundaries.title": "Limites e memórias",
+  "recursos.boundaries.description": "Bottom line, pontos de felicidade, totem e memórias de projetos.",
+  "recursos.history.title": "Histórico",
+  "recursos.history.description": "Reveja Artist Dates e check-ins de semanas passadas.",
+  "recursos.quiz.title": "Quiz",
+  "recursos.quiz.description": "Um teste rápido de autoavaliação do livro.",
+};
+
+// TOOL_CONFIGS — substitui o antigo LIST_CONFIGS (que só existia dentro de
+// app.js). Cada entrada descreve uma ferramenta de lista/formulário
+// genérica, reaproveitada pela mesma tela em ambas plataformas
+// (NamedListPage no UWP, rota /list no PWA). `singleton: true` marca um
+// formulário de UM registro só (editável/sobrescrito) em vez de uma lista
+// que só cresce -- mesmo mecanismo de armazenamento (store "lists"), só
+// muda o comportamento de salvar.
+const TOOL_CONFIGS = {
+  // já existiam antes desta leva
+  imaginaryLives: {
+    listName: "imaginaryLives",
+    title: "Vidas Imaginárias",
+    subtitle: "Vidas que você gostaria de ter vivido — a lista cresce a cada semana, não precisa reescrever do zero.",
+    fields: [{ key: "text", label: "Uma vida imaginária", multiline: true }],
+  },
+  thingsILike: {
+    listName: "thingsILike",
+    title: "20 Coisas que Gosto de Fazer",
+    subtitle: "Uma lista viva — reaparece em vários exercícios do livro, inclusive como banco de ideias pra Artist Date.",
+    fields: [{ key: "text", label: "Uma coisa que eu gosto de fazer", multiline: false }],
+  },
+  jealousyMap: {
+    listName: "jealousyMap",
+    title: "Mapa do Ciúme",
+    subtitle: "Quem você sente inveja, por quê, e uma ação-antídoto pra cada um.",
+    fields: [
+      { key: "who", label: "Quem", multiline: false },
+      { key: "why", label: "Por quê", multiline: true },
+      { key: "antidote", label: "Ação-antídoto", multiline: true },
+    ],
+  },
+
+  // novas — tipo lista (crescem, nunca são sobrescritas)
+  sincronicidade: {
+    listName: "sincronicidade",
+    title: "Diário de Sincronicidade",
+    subtitle: "Toda vez que uma coincidência boa acontecer, registre aqui — sinal de que você está alinhado(a) com sua criatividade.",
+    fields: [{ key: "texto", label: "O que aconteceu", multiline: true }],
+  },
+  pocoCriativo: {
+    listName: "pocoCriativo",
+    title: "Registro do Poço Criativo",
+    subtitle: "Pequenos gestos sensoriais do dia a dia que encheram seu poço criativo — um cheiro, uma música, um caminho diferente pra casa.",
+    fields: [{ key: "texto", label: "O que encheu seu poço hoje", multiline: true }],
+  },
+  diarioResistencia: {
+    listName: "diarioResistencia",
+    title: "Diário de Resistência",
+    subtitle: "Toda vez que perceber que evitou fazer algo, registre aqui — o livro chama isso de medo, não preguiça.",
+    fields: [{ key: "texto", label: "O que você evitou fazer", multiline: true }],
+  },
+  cartaCriticoInterno: {
+    listName: "cartaCriticoInterno",
+    title: "Cartas para o Crítico Interno",
+    subtitle: "Um espaço pra responder, por escrito, às vozes autocríticas — sempre que precisar.",
+    fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+  },
+  diarioLeitura: {
+    listName: "diarioLeitura",
+    title: "Diário de Leitura Complementar",
+    subtitle: "Reflexões sobre outros livros lidos ao longo do processo — o livro incentiva leitura como parte de encher o poço criativo.",
+    fields: [
+      { key: "livro", label: "Livro", multiline: false },
+      { key: "reflexao", label: "Sua reflexão", multiline: true },
+    ],
+  },
+  resentimentosMedos: {
+    listName: "resentimentosMedos",
+    title: "Resentimentos, Medos e Ganho Oculto",
+    subtitle: "Pra um projeto específico: o que te ressente nele, o que teme, e o que ganha (mesmo sem querer) em não fazê-lo.",
+    fields: [
+      { key: "projeto", label: "Projeto", multiline: false },
+      { key: "resentimento", label: "Ressentimento", multiline: true },
+      { key: "medo", label: "Medo", multiline: true },
+      { key: "ganhoOculto", label: "Ganho oculto em não fazer", multiline: true },
+    ],
+  },
+  retornosEmU: {
+    listName: "retornosEmU",
+    title: "Registro de Retornos em U",
+    subtitle: "Um projeto criativo abandonado, o motivo (quase sempre medo) e se vale a pena resgatar agora.",
+    fields: [
+      { key: "projeto", label: "Projeto abandonado", multiline: false },
+      { key: "motivo", label: "Motivo (o medo por trás)", multiline: true },
+      { key: "resgatar", label: "Vale a pena resgatar agora?", multiline: true },
+    ],
+  },
+  arqueologia: {
+    listName: "arqueologia",
+    title: "Arqueologia",
+    subtitle: "Duas listas complementares: o que faltou na infância e um inventário positivo do presente.",
+    fields: [
+      { key: "faltou", label: "O que faltou na infância", multiline: true },
+      { key: "ganho", label: "Inventário positivo de hoje", multiline: true },
+    ],
+  },
+  buscaEstilo: {
+    listName: "buscaEstilo",
+    title: "Busca de Estilo",
+    subtitle: "Reaproveita sua lista de 20 Coisas que Gosto de Fazer, categorizada — revela um 'perfil' de estilo criativo.",
+    fields: [
+      { key: "atividade", label: "Atividade", multiline: false },
+      { key: "custaDinheiro", label: "Custa dinheiro?", multiline: false },
+      { key: "sozinhoOuAcompanhado", label: "Sozinho(a) ou acompanhado(a)?", multiline: false },
+      { key: "riscoFisico", label: "Tem risco físico?", multiline: false },
+      { key: "ligadoATrabalho", label: "Ligado a trabalho?", multiline: false },
+    ],
+  },
+  bottomLine: {
+    listName: "bottomLine",
+    title: "Bottom Line / Limites Não-Negociáveis",
+    subtitle: "Uma lista permanente e sempre visível de limites — pra funcionar de verdade como lembrete, não só um item de checklist riscado.",
+    fields: [{ key: "limite", label: "Limite", multiline: true }],
+  },
+  pontosFelicidade: {
+    listName: "pontosFelicidade",
+    title: "Pontos de Referência de Felicidade",
+    subtitle: "Pequenos consolos que sempre funcionam pra você — pensados pra estar a um toque de distância nos momentos difíceis.",
+    fields: [{ key: "texto", label: "O que te conforta", multiline: true }],
+  },
+
+  // novas — tipo formulário único (singleton: um registro só, sobrescrito)
+  carta80anos: {
+    listName: "carta80anos",
+    title: "Carta de Você aos 80 Anos",
+    subtitle: "Escreva pra si mesmo(a) hoje, a partir da perspectiva de quem você será daqui a décadas.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+  },
+  carta8anos: {
+    listName: "carta8anos",
+    title: "Carta de Você aos 8 Anos",
+    subtitle: "A carta espelhada — escrita a partir de quem você foi quando criança.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+  },
+  oracaoArtista: {
+    listName: "oracaoArtista",
+    title: "Oração do Artista",
+    subtitle: "Sua própria declaração de intenção e entrega — não precisa ser religiosa no sentido tradicional. Use-a todos os dias.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Sua oração", multiline: true }],
+  },
+  cartaEncorajamento: {
+    listName: "cartaEncorajamento",
+    title: "Carta de Encorajamento à Criança-Artista",
+    subtitle: "Fecha o ciclo aberto na carta de defesa da Semana 1 — uma carta de apoio, escrita já numa fase mais fortalecida.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+  },
+  metasNorteVerdadeiro: {
+    listName: "metasNorteVerdadeiro",
+    title: "Busca de Metas / Norte Verdadeiro",
+    subtitle: "Nomeie um sonho secreto, o que sinalizaria realizá-lo, e um plano em camadas de tempo.",
+    singleton: true,
+    fields: [
+      { key: "sonho", label: "Sonho secreto", multiline: true },
+      { key: "norteVerdadeiro", label: "Norte verdadeiro (o que sinalizaria essa realização)", multiline: true },
+      { key: "horizonte5anos", label: "Em 5 anos", multiline: false },
+      { key: "horizonte3anos", label: "Em 3 anos", multiline: false },
+      { key: "horizonte1ano", label: "Em 1 ano", multiline: false },
+      { key: "horizonte1mes", label: "Em 1 mês", multiline: false },
+      { key: "horizonte1semana", label: "Em 1 semana", multiline: false },
+      { key: "horizonteAgora", label: "Agora", multiline: false },
+    ],
+  },
+  diaIdeal: {
+    listName: "diaIdeal",
+    title: "Dia Ideal",
+    subtitle: "Planeje um dia perfeito dentro da vida atual — e depois a versão sem nenhuma restrição.",
+    singleton: true,
+    fields: [
+      { key: "diaIdealAtual", label: "Dia ideal dentro da vida atual", multiline: true },
+      { key: "diaIdealSemRestricoes", label: "Dia ideal sem nenhuma restrição", multiline: true },
+    ],
+  },
+  cadernoDesejos: {
+    listName: "cadernoDesejos",
+    title: "Caderno de Desejos",
+    subtitle: "7 áreas da vida — liste o que deseja em cada uma.",
+    singleton: true,
+    fields: [
+      { key: "saude", label: "Saúde", multiline: true },
+      { key: "posses", label: "Posses", multiline: true },
+      { key: "lazer", label: "Lazer", multiline: true },
+      { key: "relacoes", label: "Relações", multiline: true },
+      { key: "criatividade", label: "Criatividade", multiline: true },
+      { key: "carreira", label: "Carreira", multiline: true },
+      { key: "espiritualidade", label: "Espiritualidade", multiline: true },
+    ],
+  },
+  planoContinuidade: {
+    listName: "planoContinuidade",
+    title: "Plano de Continuidade",
+    subtitle: "Como manter Morning Pages e Artist Date depois que o programa das 12 semanas terminar.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Seu plano", multiline: true }],
+  },
+  totemArtista: {
+    listName: "totemArtista",
+    title: "Totem do Artista",
+    subtitle: "Um objeto que desperte ternura pela sua criança-artista — guardado aqui pra não esquecer qual é.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Seu totem", multiline: true }],
+  },
+};
+
+// QUIZ_CONFIGS — quiz de múltipla escolha com pontuação. Só uma entrada
+// por enquanto. Perguntas em paráfrase própria (mesmo espírito do resto
+// deste arquivo), não cópia literal do livro.
+const QUIZ_CONFIGS = {
+  workaholismQuiz: {
+    key: "workaholismQuiz",
+    title: "Quiz do Vício em Trabalho",
+    subtitle: "Autoavaliação rápida — sem nenhum caráter clínico, só um espelho pro seu padrão de trabalho.",
+    questions: [
+      { text: "Trabalho fora do horário de expediente.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Cancelo compromissos com pessoas queridas pra trabalhar mais.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Adio passeios até o prazo de um projeto passar.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Levo trabalho pra casa nos fins de semana.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Levo trabalho comigo nas férias.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Eu realmente tiro férias.", options: [{ label: "Nunca", value: 2 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 0 }] },
+      { text: "As pessoas próximas a mim reclamam que eu só trabalho.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Tento fazer duas coisas ao mesmo tempo.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Eu me permito um tempo livre entre um projeto e outro.", options: [{ label: "Nunca", value: 2 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 0 }] },
+      { text: "Eu consigo encerrar de verdade uma tarefa (fechar o ciclo) em vez de deixá-la sempre em aberto.", options: [{ label: "Nunca", value: 2 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 0 }] },
+      { text: "Procrastino as pontas soltas de um trabalho até o fim.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Começo um projeto e já emendo em outros ao mesmo tempo.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Trabalho à noite, no horário que seria da família.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Deixo ligações/mensagens interromperem (e alongarem) meu dia de trabalho.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Reservo uma hora do meu dia pra trabalho criativo ou lazer de verdade.", options: [{ label: "Nunca", value: 2 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 0 }] },
+      { text: "Coloco meus sonhos criativos antes das demandas de trabalho.", options: [{ label: "Nunca", value: 2 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 0 }] },
+      { text: "Encaixo meu tempo livre nos planos dos outros, em vez dos meus.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Me permito um tempo de ócio, sem fazer absolutamente nada.", options: [{ label: "Nunca", value: 2 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 0 }] },
+      { text: "Uso a palavra 'prazo' pra justificar o tanto que estou trabalhando.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+      { text: "Levo trabalho comigo até pra sair pra jantar.", options: [{ label: "Nunca", value: 0 }, { label: "Às vezes", value: 1 }, { label: "Sempre", value: 2 }] },
+    ],
+    bands: [
+      { min: 0, max: 13, label: "Baixo", description: "Seu trabalho parece equilibrado com sua vida criativa e pessoal." },
+      { min: 14, max: 26, label: "Moderado", description: "Vale prestar atenção — alguns padrões de excesso de trabalho já estão aparecendo." },
+      { min: 27, max: 40, label: "Alto", description: "O livro chama isso de vício. Considere estabelecer um Bottom Line de limites não-negociáveis (Recursos → Limites e memórias)." },
+    ],
+  },
+};
+
 if (typeof module !== "undefined") {
   module.exports = {
     BASIC_TOOLS,
@@ -556,5 +860,8 @@ if (typeof module !== "undefined") {
     BASIC_PRINCIPLES,
     BELIEF_TABLE,
     AFFIRMATIONS,
+    UI_STRINGS,
+    TOOL_CONFIGS,
+    QUIZ_CONFIGS,
   };
 }

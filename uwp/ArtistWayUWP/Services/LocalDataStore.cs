@@ -90,6 +90,9 @@ namespace ArtistWayUWP.Services
                 Onboarded = p.ContainsKey("onboarded") && p["onboarded"].GetBoolean(),
                 FontSize = GetStringOrDefault(p, "fontSize", "medium"),
                 ThemeMode = GetStringOrDefault(p, "themeMode", "auto"),
+                MaintenanceMode = p.ContainsKey("maintenanceMode") && p["maintenanceMode"].GetBoolean(),
+                ContractSignedName = GetStringOrDefault(p, "contractSignedName", ""),
+                ContractSignedAt = GetStringOrDefault(p, "contractSignedAt", ""),
             };
         }
 
@@ -108,6 +111,9 @@ namespace ArtistWayUWP.Services
                 ["onboarded"] = JsonValue.CreateBooleanValue(profile.Onboarded),
                 ["fontSize"] = JsonValue.CreateStringValue(profile.FontSize ?? "medium"),
                 ["themeMode"] = JsonValue.CreateStringValue(profile.ThemeMode ?? "auto"),
+                ["maintenanceMode"] = JsonValue.CreateBooleanValue(profile.MaintenanceMode),
+                ["contractSignedName"] = JsonValue.CreateStringValue(profile.ContractSignedName ?? ""),
+                ["contractSignedAt"] = JsonValue.CreateStringValue(profile.ContractSignedAt ?? ""),
             };
             settings["profile"] = p;
             // Carimba o blob inteiro de settings — é o que o SyncService usa
@@ -201,6 +207,36 @@ namespace ArtistWayUWP.Services
             SyncScheduler.ScheduleSync();
         }
 
+        // Pro histórico de Artist Dates (Recursos -> Histórico) -- só leitura,
+        // não adiciona nenhum store novo.
+        public static async Task<List<ArtistDateHistoryItem>> GetAllArtistDatesAsync()
+        {
+            JsonObject store = await ReadStoreAsync(ArtistDatesFile);
+            List<ArtistDateHistoryItem> result = new List<ArtistDateHistoryItem>();
+            foreach (KeyValuePair<string, IJsonValue> kv in store)
+            {
+                if (kv.Value.ValueType != JsonValueType.Object)
+                {
+                    continue;
+                }
+                JsonObject entry = kv.Value.GetObject();
+                bool done = entry.ContainsKey("done") && entry["done"].GetBoolean();
+                string idea = GetStringOrDefault(entry, "idea", "");
+                if (!done && string.IsNullOrEmpty(idea))
+                {
+                    continue;
+                }
+                result.Add(new ArtistDateHistoryItem
+                {
+                    WeekStart = kv.Key,
+                    Done = done,
+                    Idea = idea,
+                });
+            }
+            result.Sort((a, b) => string.CompareOrdinal(b.WeekStart, a.WeekStart));
+            return result;
+        }
+
         // ---------- checklist ----------
 
         private static string ChecklistKey(int weekId, int itemIndex) => $"w{weekId}-i{itemIndex}";
@@ -261,6 +297,24 @@ namespace ArtistWayUWP.Services
                 foreach (KeyValuePair<string, IJsonValue> kv in entry["answers"].GetObject())
                 {
                     result.Answers[kv.Key] = kv.Value.GetString();
+                }
+            }
+            return result;
+        }
+
+        // Pra tela de índice "Reler check-ins antigos" (Recursos -> Histórico)
+        // -- só precisa saber quais semanas já têm check-in salvo, não o
+        // conteúdo (a tela de check-in já pré-preenche as respostas
+        // existentes sozinha quando o usuário abre uma semana específica).
+        public static async Task<HashSet<int>> GetWeeksWithCheckinAsync()
+        {
+            JsonObject store = await ReadStoreAsync(CheckinsFile);
+            HashSet<int> result = new HashSet<int>();
+            foreach (string key in store.Keys)
+            {
+                if (int.TryParse(key, out int weekId))
+                {
+                    result.Add(weekId);
                 }
             }
             return result;
