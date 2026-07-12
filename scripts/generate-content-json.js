@@ -34,9 +34,18 @@ const content = {
 const outPath = path.join(__dirname, "..", "uwp", "ArtistWayUWP", "Data", "content.json");
 const json = JSON.stringify(content, null, 2) + "\n";
 
+// Normaliza \r\n -> \n antes de comparar -- o runner do build (windows-latest)
+// faz checkout com quebra de linha CRLF por padrão, o que faria essa
+// checagem sempre acusar "desatualizado" mesmo quando o conteúdo é
+// idêntico. O arquivo em si continua sendo escrito como o git decidir
+// (ver .gitattributes), só a comparação ignora esse detalhe.
+function normalizeNewlines(text) {
+  return text == null ? text : text.replace(/\r\n/g, "\n");
+}
+
 if (process.argv.includes("--check")) {
   const current = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
-  if (current !== json) {
+  if (normalizeNewlines(current) !== normalizeNewlines(json)) {
     console.error(
       "content.json está desatualizado em relação a www/js/data.js.\n" +
         "Rode: node scripts/generate-content-json.js"

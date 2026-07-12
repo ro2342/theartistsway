@@ -1,0 +1,10 @@
+# Mantém LF em todo arquivo de texto, mesmo em checkout no windows-latest
+# (o runner do 02-build-appx.yml) -- sem isso, o Git converte pra CRLF lá
+# e qualquer comparação byte-a-byte de arquivo gerado (ex.: o --check do
+# scripts/generate-content-json.js) acusa diferença que não existe de
+# verdade.
+* text=auto eol=lf
+
+*.png binary
+*.woff2 binary
+*.pfx binary
