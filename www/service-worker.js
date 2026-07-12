@@ -1,4 +1,4 @@
-const CACHE_NAME = "artist-way-companion-v6";
+const CACHE_NAME = "artist-way-companion-v7";
 const ASSETS = [
   "./",
   "./index.html",
@@ -75,6 +75,34 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+
+  // Nunca intercepta pedido de outra origem -- Firestore, Google OAuth
+  // etc. Cachear essas respostas "resolve" a sincronização pra sempre no
+  // primeiro pull e nunca mais busca dado novo: cada aparelho fica preso
+  // pra sempre na primeira resposta que já viu, achando que sincronizou
+  // quando na verdade só releu o cache. Deixa passar direto pro browser.
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // app/version.json precisa ser sempre buscado fresco -- é como o app
+  // decide se há atualização nova e o que mostra como "versão instalada".
+  // Network-first, com o cache só como fallback se estiver offline.
+  if (url.pathname.endsWith("/app/version.json")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
