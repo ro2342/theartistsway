@@ -1,0 +1,31 @@
+<Page
+    x:Class="ArtistWayUWP.Views.FerramentasPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ArtistWayUWP.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="16,16,16,24">
+        <StackPanel>
+            <TextBlock Text="Ferramentas" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="listas e exercícios vivos do livro" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Exercícios do livro" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Crescem com o tempo, não somem depois de uma semana."
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <Button Content="Crença → Positiva" Click="OpenBeliefTable_Click" HorizontalAlignment="Stretch" />
+                    <Button Content="Vidas Imaginárias" Click="OpenImaginaryLives_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="20 Coisas que Gosto de Fazer" Click="OpenThingsILike_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Mapa do Ciúme" Click="OpenJealousyMap_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Círculo de Segurança" Click="OpenSafetyCircle_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Life Pie" Click="OpenLifePie_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

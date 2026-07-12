@@ -5,6 +5,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP.Views
@@ -15,6 +16,7 @@ namespace ArtistWayUWP.Views
             { "", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado" };
 
         private ProfileSettings _profile;
+        private StorageFile _downloadedUpdateFile;
 
         public SettingsPage()
         {
@@ -76,9 +78,30 @@ namespace ArtistWayUWP.Views
             }
             SelectWeekday(ArtistDateDayCombo, _profile.ArtistDateDay);
             SelectWeekday(CheckinDayCombo, _profile.CheckinDay);
+            UpdateThemeButtonsVisual();
 
             _ = LoadUpdateStatusAsync();
             RefreshSyncStatus();
+        }
+
+        private void UpdateThemeButtonsVisual()
+        {
+            string mode = _profile?.ThemeMode ?? "auto";
+            SolidColorBrush accent = ThemeHelper.AccentBrush();
+            Brush defaultBrush = (Brush)Application.Current.Resources["SystemControlBackgroundBaseLowBrush"];
+
+            ThemeLightButton.Background = mode == "light" ? accent : defaultBrush;
+            ThemeDarkButton.Background = mode == "dark" ? accent : defaultBrush;
+            ThemeAutoButton.Background = mode == "auto" ? accent : defaultBrush;
+        }
+
+        private async void ThemeMode_Click(object sender, RoutedEventArgs e)
+        {
+            string mode = (string)((Button)sender).Tag;
+            _profile.ThemeMode = mode;
+            ThemeModeService.Apply(mode);
+            UpdateThemeButtonsVisual();
+            await LocalDataStore.SetProfileAsync(_profile);
         }
 
         private void RefreshSyncStatus()
@@ -132,7 +155,47 @@ namespace ArtistWayUWP.Views
 
         private async void DownloadUpdate_Click(object sender, RoutedEventArgs e)
         {
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(UpdateCheckService.DownloadFileUrl));
+            DownloadUpdateButton.IsEnabled = false;
+            UpdateProgressBar.Value = 0;
+            UpdateProgressBar.Visibility = Visibility.Visible;
+            UpdateStatusText.Text = "Baixando atualização...";
+
+            Progress<double> progress = new Progress<double>(p => UpdateProgressBar.Value = p);
+            StorageFile file;
+            try
+            {
+                file = await UpdateCheckService.DownloadUpdateAsync(progress);
+            }
+            catch (Exception ex)
+            {
+                UpdateProgressBar.Visibility = Visibility.Collapsed;
+                DownloadUpdateButton.IsEnabled = true;
+                UpdateStatusText.Text = $"Falha ao baixar a atualização: {ex.Message}";
+                return;
+            }
+
+            UpdateProgressBar.Visibility = Visibility.Collapsed;
+            DownloadUpdateButton.IsEnabled = true;
+
+            if (file == null)
+            {
+                UpdateStatusText.Text = "Escolha uma pasta de download pra continuar.";
+                return;
+            }
+
+            _downloadedUpdateFile = file;
+            DownloadUpdateButton.Visibility = Visibility.Collapsed;
+            InstallUpdateButton.Visibility = Visibility.Visible;
+            UpdateStatusText.Text = "Atualização baixada — toque pra instalar.";
+        }
+
+        private async void InstallUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if (_downloadedUpdateFile == null)
+            {
+                return;
+            }
+            await Windows.System.Launcher.LaunchFileAsync(_downloadedUpdateFile);
         }
 
         private async void SaveProfile_Click(object sender, RoutedEventArgs e)
@@ -199,26 +262,6 @@ namespace ArtistWayUWP.Views
                     20,
                     UiHelper.GetElementRect((FrameworkElement)sender));
             }
-        }
-
-        private async void CalMp_Click(object sender, RoutedEventArgs e)
-        {
-            string url = CalendarLinkService.MorningPagesUrl(_profile.MorningPagesTime);
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(url));
-        }
-
-        private async void CalAd_Click(object sender, RoutedEventArgs e)
-        {
-            int.TryParse(_profile.ArtistDateDay, out int day);
-            string url = CalendarLinkService.ArtistDateUrl(day == 0 ? 7 : day, _profile.ArtistDateTime);
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(url));
-        }
-
-        private async void CalCi_Click(object sender, RoutedEventArgs e)
-        {
-            int.TryParse(_profile.CheckinDay, out int day);
-            string url = CalendarLinkService.CheckinUrl(day == 0 ? 7 : day, _profile.CheckinTime);
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(url));
         }
 
         private async void Export_Click(object sender, RoutedEventArgs e)
@@ -376,34 +419,5 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage));
         }
 
-        private void OpenBeliefTable_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage));
-        }
-
-        private void OpenImaginaryLives_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "imaginaryLives");
-        }
-
-        private void OpenThingsILike_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "thingsILike");
-        }
-
-        private void OpenJealousyMap_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "jealousyMap");
-        }
-
-        private void OpenSafetyCircle_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(CirculoSegurancaPage));
-        }
-
-        private void OpenLifePie_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage));
-        }
     }
 }

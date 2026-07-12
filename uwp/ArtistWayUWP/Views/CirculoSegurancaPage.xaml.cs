@@ -56,15 +56,42 @@ namespace ArtistWayUWP.Views
                 }
                 bool isSafe = !item.Fields.ContainsKey("side") || item.Fields["side"] != "caution";
 
-                Button button = new Button
+                Grid row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                TextBlock nameText = new TextBlock
                 {
-                    Content = name,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    Margin = new Thickness(0, 0, 0, 8),
-                    Tag = item.Id,
+                    Text = name,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap,
                 };
-                button.Click += ToggleSide_Click;
-                (isSafe ? SafePanel : CautionPanel).Children.Add(button);
+                Grid.SetColumn(nameText, 0);
+
+                Button moveButton = new Button
+                {
+                    Tag = item.Id,
+                    Content = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Children =
+                        {
+                            new SymbolIcon { Symbol = isSafe ? Symbol.Important : Symbol.Accept },
+                            new TextBlock
+                            {
+                                Text = isSafe ? "Mover pra Cautela" : "Mover pra Apoia",
+                                Margin = new Thickness(6, 0, 0, 0),
+                                VerticalAlignment = VerticalAlignment.Center,
+                            },
+                        },
+                    },
+                };
+                Grid.SetColumn(moveButton, 1);
+                moveButton.Click += ToggleSide_Click;
+
+                row.Children.Add(nameText);
+                row.Children.Add(moveButton);
+                (isSafe ? SafePanel : CautionPanel).Children.Add(row);
             }
         }
 

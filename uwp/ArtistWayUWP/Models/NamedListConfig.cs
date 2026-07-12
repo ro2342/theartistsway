@@ -33,7 +33,7 @@ namespace ArtistWayUWP.Models
                     {
                         ListName = "imaginaryLives",
                         Title = "Vidas Imaginárias",
-                        Subtitle = "Vidas que você gostaria de ter vivido -- a lista cresce a cada semana, não precisa reescrever do zero.",
+                        Subtitle = "Vidas que você gostaria de ter vivido — a lista cresce a cada semana, não precisa reescrever do zero.",
                         Fields = new List<ListFieldConfig>
                         {
                             new ListFieldConfig { Key = "text", Label = "Uma vida imaginária", Multiline = true },
@@ -44,7 +44,7 @@ namespace ArtistWayUWP.Models
                     {
                         ListName = "thingsILike",
                         Title = "20 Coisas que Gosto de Fazer",
-                        Subtitle = "Uma lista viva -- reaparece em vários exercícios do livro, inclusive como banco de ideias pra Artist Date.",
+                        Subtitle = "Uma lista viva — reaparece em vários exercícios do livro, inclusive como banco de ideias pra Artist Date.",
                         Fields = new List<ListFieldConfig>
                         {
                             new ListFieldConfig { Key = "text", Label = "Uma coisa que eu gosto de fazer", Multiline = false },

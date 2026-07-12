@@ -11,11 +11,11 @@ using Windows.UI.Xaml.Navigation;
 namespace ArtistWayUWP
 {
     // Shell de navegação nativo: um Frame pro conteúdo + uma barra de abas
-    // fixa embaixo (Início/Jornada/Date/Ajustes), no mesmo espírito do
-    // bottom-nav que existia no PWA -- só que com controles nativos, sem
-    // WebView. Troca de aba não empilha histórico (são pares do mesmo
-    // nível); navegação pra páginas de detalhe (semana, ensaio, check-in,
-    // referência) empilha normalmente no back stack do Frame.
+    // fixa embaixo (Início/Jornada/Date/Ferramentas/Ajustes), no mesmo
+    // espírito do bottom-nav que existia no PWA — só que com controles
+    // nativos, sem WebView. Troca de aba não empilha histórico (são pares
+    // do mesmo nível); navegação pra páginas de detalhe (semana, ensaio,
+    // check-in, referência) empilha normalmente no back stack do Frame.
     public sealed partial class MainPage : Page
     {
         public static MainPage Current { get; private set; }
@@ -87,6 +87,9 @@ namespace ArtistWayUWP
                 case "ArtistDate":
                     pageType = typeof(ArtistDatePage);
                     break;
+                case "Ferramentas":
+                    pageType = typeof(FerramentasPage);
+                    break;
                 case "Settings":
                     pageType = typeof(SettingsPage);
                     break;
@@ -94,6 +97,19 @@ namespace ArtistWayUWP
                     return;
             }
             NavigateToTab(pageType);
+        }
+
+        private async void SyncNowButton_Click(object sender, RoutedEventArgs e)
+        {
+            SyncNowButton.IsEnabled = false;
+            string result = await SyncService.SyncAllAsync();
+            SyncNowButton.IsEnabled = true;
+
+            Flyout flyout = new Flyout
+            {
+                Content = new TextBlock { Text = result, TextWrapping = TextWrapping.Wrap, MaxWidth = 240 },
+            };
+            flyout.ShowAt(SyncNowButton);
         }
 
         public void NavigateToTab(Type pageType, object parameter = null)
@@ -117,6 +133,7 @@ namespace ArtistWayUWP
             bool isHome = pageType == typeof(HomePage);
             bool isProgress = pageType == typeof(ProgressPage);
             bool isArtistDate = pageType == typeof(ArtistDatePage);
+            bool isFerramentas = pageType == typeof(FerramentasPage);
             bool isSettings = pageType == typeof(SettingsPage);
 
             TabHomeLabel.Foreground = isHome ? accent : defaultBrush;
@@ -125,6 +142,8 @@ namespace ArtistWayUWP
             TabProgressIcon.Foreground = isProgress ? accent : defaultBrush;
             TabArtistDateLabel.Foreground = isArtistDate ? accent : defaultBrush;
             TabArtistDateIcon.Foreground = isArtistDate ? accent : defaultBrush;
+            TabFerramentasLabel.Foreground = isFerramentas ? accent : defaultBrush;
+            TabFerramentasIcon.Foreground = isFerramentas ? accent : defaultBrush;
             TabSettingsLabel.Foreground = isSettings ? accent : defaultBrush;
             TabSettingsIcon.Foreground = isSettings ? accent : defaultBrush;
         }

@@ -25,14 +25,14 @@ function scheduleSync() {
 async function syncAll() {
   const session = await window.ArtistWayAuth.getSession();
   if (!session) {
-    return "Não logado -- nada pra sincronizar.";
+    return "Não logado — nada pra sincronizar.";
   }
 
   let activeSession = session;
   if (window.ArtistWayAuth.needsRefresh(activeSession)) {
     activeSession = await window.ArtistWayAuth.refreshIdToken(activeSession);
     if (!activeSession) {
-      return "Sessão expirada -- entre de novo.";
+      return "Sessão expirada — entre de novo.";
     }
   }
 

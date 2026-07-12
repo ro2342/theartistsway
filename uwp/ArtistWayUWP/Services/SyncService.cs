@@ -24,7 +24,7 @@ namespace ArtistWayUWP.Services
             FirebaseSession session = SessionService.GetSession();
             if (session == null)
             {
-                return "Não logado -- nada pra sincronizar.";
+                return "Não logado — nada pra sincronizar.";
             }
 
             string idToken = session.IdToken;
@@ -33,7 +33,7 @@ namespace ArtistWayUWP.Services
                 idToken = await RefreshIdTokenAsync(session);
                 if (idToken == null)
                 {
-                    return "Sessão expirada -- entre de novo.";
+                    return "Sessão expirada — entre de novo.";
                 }
             }
 

@@ -89,6 +89,7 @@ namespace ArtistWayUWP.Services
                 CheckinTime = GetStringOrDefault(p, "checkinTime", "19:00"),
                 Onboarded = p.ContainsKey("onboarded") && p["onboarded"].GetBoolean(),
                 FontSize = GetStringOrDefault(p, "fontSize", "medium"),
+                ThemeMode = GetStringOrDefault(p, "themeMode", "auto"),
             };
         }
 
@@ -106,9 +107,10 @@ namespace ArtistWayUWP.Services
                 ["checkinTime"] = JsonValue.CreateStringValue(profile.CheckinTime ?? ""),
                 ["onboarded"] = JsonValue.CreateBooleanValue(profile.Onboarded),
                 ["fontSize"] = JsonValue.CreateStringValue(profile.FontSize ?? "medium"),
+                ["themeMode"] = JsonValue.CreateStringValue(profile.ThemeMode ?? "auto"),
             };
             settings["profile"] = p;
-            // Carimba o blob inteiro de settings -- é o que o SyncService usa
+            // Carimba o blob inteiro de settings — é o que o SyncService usa
             // pra decidir, na hora de mesclar com a nuvem, qual cópia (local
             // ou remota) é mais recente (ver Services/SyncService.cs).
             settings["_updatedAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.ToString("o"));

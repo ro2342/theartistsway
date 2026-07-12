@@ -6,6 +6,7 @@ using ArtistWayUWP.Services;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP.Views
@@ -44,17 +45,29 @@ namespace ArtistWayUWP.Views
             {
                 ChecklistItem item = _week.Checklist[i];
 
+                // Borda à esquerda no detalhe da tarefa, mesmo espírito da
+                // "citação" (.item-note) do PWA -- marca visualmente que
+                // aquele texto é o detalhamento da tarefa acima, não uma
+                // frase solta.
+                Border detailBorder = new Border
+                {
+                    BorderThickness = new Thickness(2, 0, 0, 0),
+                    BorderBrush = ThemeHelper.AccentBrush(),
+                    Padding = new Thickness(8, 0, 0, 0),
+                    Margin = new Thickness(0, 4, 0, 0),
+                    Child = new TextBlock
+                    {
+                        Text = item.Detail,
+                        TextWrapping = TextWrapping.Wrap,
+                        Opacity = 0.7,
+                        FontStyle = FontStyle.Italic,
+                        FontSize = 12,
+                    },
+                };
+
                 StackPanel textPanel = new StackPanel();
                 textPanel.Children.Add(new TextBlock { Text = item.Task, TextWrapping = TextWrapping.Wrap });
-                textPanel.Children.Add(new TextBlock
-                {
-                    Text = item.Detail,
-                    TextWrapping = TextWrapping.Wrap,
-                    Opacity = 0.7,
-                    FontStyle = FontStyle.Italic,
-                    FontSize = 12,
-                    Margin = new Thickness(0, 4, 0, 0),
-                });
+                textPanel.Children.Add(detailBorder);
 
                 CheckBox cb = new CheckBox
                 {
@@ -63,13 +76,23 @@ namespace ArtistWayUWP.Views
                     Margin = new Thickness(0, 8, 0, 8),
                     IsChecked = done.Contains(i),
                 };
-                // Assina os eventos só depois de definir o estado inicial --
-                // caso contrário, o próprio IsChecked acima já dispara
+                // Assina os eventos só depois de definir o estado inicial,
+                // senão o próprio IsChecked acima já dispara
                 // Checked/Unchecked e desfaz o valor salvo.
                 cb.Checked += ChecklistItem_Toggled;
                 cb.Unchecked += ChecklistItem_Toggled;
 
                 ChecklistPanel.Children.Add(cb);
+
+                if (i < _week.Checklist.Count - 1)
+                {
+                    ChecklistPanel.Children.Add(new Border
+                    {
+                        BorderThickness = new Thickness(0, 0, 0, 1),
+                        BorderBrush = (Brush)Application.Current.Resources["SystemControlForegroundBaseLowBrush"],
+                        Margin = new Thickness(0, 0, 0, 4),
+                    });
+                }
             }
         }
 

@@ -1,8 +1,12 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Data.Json;
+using Windows.Storage;
+using Windows.Storage.AccessCache;
+using Windows.Storage.Pickers;
 
 namespace ArtistWayUWP.Services
 {
@@ -22,10 +26,89 @@ namespace ArtistWayUWP.Services
         private const string VersionUrl = "https://ro2342.github.io/theartistsway/app/version.json";
         public const string DownloadPageUrl = "https://ro2342.github.io/theartistsway/app/";
 
-        // Aponta direto pro arquivo .appxbundle -- o botão "Baixar
+        // Aponta direto pro arquivo .appxbundle — o botão "Baixar
         // atualização" usa esse link, pra ir direto no download em vez de
         // abrir a página e precisar tocar de novo no link de lá.
         public const string DownloadFileUrl = "https://ro2342.github.io/theartistsway/app/app.appxbundle";
+
+        // Um app sideloaded (sem associação com a Store) não consegue se
+        // instalar sozinho — é uma barreira de segurança do próprio
+        // Windows. O máximo que dá pra automatizar é isto: baixar o pacote
+        // com barra de progresso pra uma pasta escolhida uma vez (o token
+        // de acesso persiste via FutureAccessList) e, ao terminar, abrir o
+        // instalador nativo do Windows com um toque (LaunchFileAsync) —
+        // mesma tela que já aparece ao baixar manualmente pelo navegador.
+        private const string DownloadFolderTokenKey = "UpdateDownloadFolder";
+        private const string DownloadFileName = "app.appxbundle";
+
+        public static bool HasDownloadFolder()
+        {
+            return StorageApplicationPermissions.FutureAccessList.ContainsItem(DownloadFolderTokenKey);
+        }
+
+        public static async Task<StorageFolder> PickDownloadFolderAsync()
+        {
+            FolderPicker picker = new FolderPicker
+            {
+                SuggestedStartLocation = PickerLocationId.Downloads,
+            };
+            picker.FileTypeFilter.Add("*");
+
+            StorageFolder folder = await picker.PickSingleFolderAsync();
+            if (folder == null)
+            {
+                return null;
+            }
+
+            StorageApplicationPermissions.FutureAccessList.AddOrReplace(DownloadFolderTokenKey, folder);
+            return folder;
+        }
+
+        public static async Task<StorageFolder> GetOrPickDownloadFolderAsync()
+        {
+            if (HasDownloadFolder())
+            {
+                return await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(DownloadFolderTokenKey);
+            }
+            return await PickDownloadFolderAsync();
+        }
+
+        public static async Task<StorageFile> DownloadUpdateAsync(IProgress<double> progress)
+        {
+            StorageFolder folder = await GetOrPickDownloadFolderAsync();
+            if (folder == null)
+            {
+                return null;
+            }
+
+            StorageFile file = await folder.CreateFileAsync(DownloadFileName, CreationCollisionOption.ReplaceExisting);
+
+            using (HttpClient client = new HttpClient())
+            using (HttpResponseMessage response = await client.GetAsync(new Uri(DownloadFileUrl), HttpCompletionOption.ResponseHeadersRead))
+            {
+                response.EnsureSuccessStatusCode();
+                long? totalBytes = response.Content.Headers.ContentLength;
+
+                using (Stream networkStream = await response.Content.ReadAsStreamAsync())
+                using (Stream fileStream = await file.OpenStreamForWriteAsync())
+                {
+                    byte[] buffer = new byte[81920];
+                    long totalRead = 0;
+                    int read;
+                    while ((read = await networkStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        await fileStream.WriteAsync(buffer, 0, read);
+                        totalRead += read;
+                        if (totalBytes.HasValue && totalBytes.Value > 0)
+                        {
+                            progress?.Report((double)totalRead / totalBytes.Value * 100.0);
+                        }
+                    }
+                }
+            }
+
+            return file;
+        }
 
         public static string GetInstalledVersion()
         {

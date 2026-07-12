@@ -10,7 +10,10 @@
    ============================================================ */
 
 :root {
-  --radius: var(--borderRadiusMedium, 4px);
+  /* Cantos retos, estilo UWP — só elementos deliberadamente
+     circulares (--borderRadiusCircular: bolinhas, swatches, pill) ficam
+     de fora dessa mudança. */
+  --radius: 0;
   --nav-breakpoint: 720px;
 }
 
@@ -69,7 +72,7 @@ button { font-family: inherit; }
 .top-bar {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 16px;
 }
 
@@ -108,7 +111,7 @@ button { font-family: inherit; }
 .card {
   background: var(--colorNeutralBackground1, #fff);
   border: 1px solid var(--colorNeutralStroke2, #e0e0e0);
-  border-radius: var(--borderRadiusLarge, 6px);
+  border-radius: var(--radius);
   box-shadow: var(--shadow4, 0 0 2px rgba(0,0,0,.12), 0 2px 4px rgba(0,0,0,.14));
   padding: 18px 20px;
   margin-bottom: 16px;
@@ -132,6 +135,29 @@ button { font-family: inherit; }
   font-size: var(--fontSizeBase200, 12px);
   font-weight: var(--fontWeightSemibold, 600);
   margin-bottom: 8px;
+}
+
+.safety-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.safety-name {
+  flex: 1;
+  word-break: break-word;
+}
+.safety-row .btn {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.safety-row .btn .icon {
+  width: 16px;
+  height: 16px;
 }
 
 /* ---------- Progress ---------- */
@@ -172,7 +198,7 @@ button { font-family: inherit; }
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  border-radius: var(--borderRadiusSmall, 2px);
+  border-radius: var(--radius);
   border: 1.5px solid var(--colorNeutralStrokeAccessible, #616161);
   margin-top: 2px;
   display: flex;
@@ -218,7 +244,7 @@ button { font-family: inherit; }
   justify-content: center;
   gap: 8px;
   padding: 8px 16px;
-  border-radius: var(--borderRadiusMedium, 4px);
+  border-radius: var(--radius);
   border: 1px solid transparent;
   background: var(--colorBrandBackground, #0f6cbd);
   color: #fff;
@@ -259,7 +285,7 @@ button { font-family: inherit; }
 
 .week-chip {
   aspect-ratio: 1;
-  border-radius: var(--borderRadiusMedium, 4px);
+  border-radius: var(--radius);
   border: 1px solid var(--colorNeutralStroke2, #e0e0e0);
   background: var(--colorNeutralBackground1, #fff);
   display: flex;
@@ -338,6 +364,13 @@ button { font-family: inherit; }
 .nav-btn .icon { width: 22px; height: 22px; }
 .nav-btn.active { color: var(--colorBrandForeground1, #0f6cbd); }
 
+.nav-sync {
+  flex: 0 0 auto;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-left: 1px solid var(--colorNeutralStroke2, #e0e0e0);
+}
+
 .nav-version {
   display: none;
 }
@@ -359,10 +392,17 @@ button { font-family: inherit; }
     justify-content: flex-start;
     gap: 12px;
     padding: 10px 14px;
-    border-radius: var(--borderRadiusMedium, 4px);
+    border-radius: var(--radius);
     font-size: var(--fontSizeBase300, 14px);
   }
   .nav-btn.active { background: var(--colorSubtleBackgroundSelected, var(--colorNeutralBackground3, #f5f5f5)); }
+  .nav-sync {
+    justify-content: center;
+    border-left: none;
+    border-top: 1px solid var(--colorNeutralStroke2, #e0e0e0);
+    margin-top: 8px;
+    padding-top: 12px;
+  }
   .nav-version {
     display: block;
     margin-top: auto;
@@ -390,7 +430,7 @@ fluent-text-input, fluent-textarea, fluent-select, fluent-combobox {
 input[type="date"] {
   width: 100%;
   padding: 8px 10px;
-  border-radius: var(--borderRadiusMedium, 4px);
+  border-radius: var(--radius);
   border: 1px solid var(--colorNeutralStroke1, #d1d1d1);
   background: var(--colorNeutralBackground1, #fff);
   color: var(--colorNeutralForeground1, #242424);
@@ -424,7 +464,7 @@ input[type="date"] {
   background: var(--colorNeutralForeground1, #242424);
   color: var(--colorNeutralBackground1, #fff);
   padding: 10px 18px;
-  border-radius: var(--borderRadiusMedium, 4px);
+  border-radius: var(--radius);
   font-size: var(--fontSizeBase300, 14px);
   font-weight: var(--fontWeightSemibold, 600);
   z-index: 40;
@@ -448,7 +488,7 @@ input[type="date"] {
 
 .idea-card {
   border: 1px solid var(--colorNeutralStroke2, #e0e0e0);
-  border-radius: var(--borderRadiusLarge, 6px);
+  border-radius: var(--radius);
   padding: 20px;
   text-align: center;
   font-weight: var(--fontWeightSemibold, 600);

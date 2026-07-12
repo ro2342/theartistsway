@@ -18,6 +18,7 @@ como SVG estático — sem depender de nenhum pacote JS pra isso.
 | `arrow-left.svg` | Arrow Left | Voltar |
 | `person.svg` | Person | Nome/perfil |
 | `sync.svg` | Arrow Sync | Sincronização |
+| `tools-regular.svg` / `tools-filled.svg` | Wrench | Nav: Ferramentas |
 | `delete.svg` | Delete | Zona de risco |
 | `edit.svg` | Edit | Editar |
 | `save.svg` | Save | Salvar |

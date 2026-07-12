@@ -13,5 +13,10 @@ namespace ArtistWayUWP.Models
         public string CheckinTime { get; set; } = "19:00";
         public bool Onboarded { get; set; } = false;
         public string FontSize { get; set; } = "medium";
+
+        // "light" / "dark" / "auto" — mesmo campo e mesmos valores de
+        // profile.themeMode no PWA (www/js/theme.js), pra sincronizar como
+        // a mesma escolha nos dois aparelhos.
+        public string ThemeMode { get; set; } = "auto";
     }
 }

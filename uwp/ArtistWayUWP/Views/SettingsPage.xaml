@@ -44,21 +44,32 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Calendário do Windows" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Adiciona o compromisso recorrente direto no app de Calendário do aparelho." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="+ Morning Pages diário" Click="NativeCalMp_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="+ Artist Date semanal" Click="NativeCalAd_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="+ Check-in semanal" Click="NativeCalCi_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <TextBlock Text="Aparência" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Tema claro, escuro ou automático (segue o sistema) — sincronizado com o PWA no mesmo login."
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="ThemeLightButton" Content="Claro" Tag="light" Click="ThemeMode_Click"
+                                Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                        <Button x:Name="ThemeDarkButton" Content="Escuro" Tag="dark" Click="ThemeMode_Click"
+                                Grid.Column="1" HorizontalAlignment="Stretch" Margin="4,0,4,0" />
+                        <Button x:Name="ThemeAutoButton" Content="Automático" Tag="auto" Click="ThemeMode_Click"
+                                Grid.Column="2" HorizontalAlignment="Stretch" Margin="4,0,0,0" />
+                    </Grid>
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Google Calendar" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Um toque adiciona o compromisso recorrente direto no seu calendário." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="+ Morning Pages diário" Click="CalMp_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="+ Artist Date semanal" Click="CalAd_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="+ Check-in semanal" Click="CalCi_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <TextBlock Text="Calendário do Windows" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Adiciona o compromisso recorrente direto no app de Calendário do aparelho." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <Button Content="+ Morning Pages diário" Click="NativeCalMp_Click" HorizontalAlignment="Stretch" />
+                    <Button Content="+ Artist Date semanal" Click="NativeCalAd_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="+ Check-in semanal" Click="NativeCalCi_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
@@ -77,20 +88,6 @@
                     <TextBlock Text="Sempre à mão, pra reler quando bater a dúvida." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <Button Content="Regras da Estrada" Click="OpenRoadRules_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Princípios Básicos" Click="OpenPrinciples_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="Crença → Positiva" Click="OpenBeliefTable_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Ferramentas" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Listas e exercícios vivos do livro -- crescem com o tempo, não somem depois de uma semana."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="Vidas Imaginárias" Click="OpenImaginaryLives_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="20 Coisas que Gosto de Fazer" Click="OpenThingsILike_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="Mapa do Ciúme" Click="OpenJealousyMap_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="Círculo de Segurança" Click="OpenSafetyCircle_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="Life Pie" Click="OpenLifePie_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
@@ -98,14 +95,16 @@
                 <StackPanel>
                     <TextBlock Text="Atualizações" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock x:Name="UpdateStatusText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,0" />
+                    <ProgressBar x:Name="UpdateProgressBar" Minimum="0" Maximum="100" Visibility="Collapsed" Margin="0,12,0,0" />
                     <Button x:Name="DownloadUpdateButton" Content="Baixar atualização" Visibility="Collapsed" Click="DownloadUpdate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
+                    <Button x:Name="InstallUpdateButton" Content="Instalar agora" Visibility="Collapsed" Click="InstallUpdate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="Sincronização" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano -- funciona junto com o PWA, no mesmo login."
+                    <TextBlock Text="Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o PWA, no mesmo login."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <TextBlock x:Name="SyncStatusText" Text="Não logado." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
                     <Button x:Name="GoogleLoginButton" Content="Entrar com Google" Click="GoogleLogin_Click" HorizontalAlignment="Stretch" />
@@ -116,7 +115,7 @@
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer -- faça um backup antes se quiser guardar alguma coisa."
+                    <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <Button Content="Apagar todos os dados (mantém login)" Click="ClearData_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Resetar o app completamente (sai da conta)" Click="FullReset_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />

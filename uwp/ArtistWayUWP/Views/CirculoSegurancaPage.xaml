@@ -11,7 +11,7 @@
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
             <TextBlock Text="Círculo de Segurança" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock Text="Quem apoia -- e de quem se proteger por enquanto. Toque num nome pra mover de lado." Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" Margin="0,4,0,16" />
+            <TextBlock Text="Quem apoia — e de quem se proteger por enquanto." Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" Margin="0,4,0,16" />
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>

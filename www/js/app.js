@@ -164,6 +164,7 @@ function renderBottomNav(activePath) {
       { path: "/home", label: "Início", regular: ICONS.homeRegular, filled: ICONS.homeFilled },
       { path: "/progress", label: "Jornada", regular: ICONS.bookRegular, filled: ICONS.bookFilled },
       { path: "/artist-date", label: "Date", regular: ICONS.heartRegular, filled: ICONS.heartFilled },
+      { path: "/ferramentas", label: "Ferramentas", regular: ICONS.toolsRegular, filled: ICONS.toolsFilled },
       { path: "/settings", label: "Ajustes", regular: ICONS.settingsRegular, filled: ICONS.settingsFilled },
     ];
     const html = items
@@ -180,10 +181,22 @@ function renderBottomNav(activePath) {
       nav.className = "bottom-nav";
       document.body.appendChild(nav);
     }
-    nav.innerHTML = html + `<div class="nav-version" id="navVersion"></div>`;
+    nav.innerHTML =
+      html +
+      `<button class="nav-btn nav-sync" id="navSyncBtn" title="Sincronizar agora"><span class="icon">${ICONS.sync}</span></button>` +
+      `<div class="nav-version" id="navVersion"></div>`;
     forEachNode(nav.querySelectorAll("[data-nav]"), (btn) => {
       btn.addEventListener("click", () => navigate("#" + btn.dataset.nav));
     });
+    const syncBtn = document.getElementById("navSyncBtn");
+    if (syncBtn) {
+      syncBtn.addEventListener("click", async () => {
+        syncBtn.disabled = true;
+        const result = await window.ArtistWaySync.syncAll();
+        syncBtn.disabled = false;
+        toast(result);
+      });
+    }
     const version = await getDisplayVersion();
     const versionEl = document.getElementById("navVersion");
     if (versionEl) versionEl.textContent = version ? `versão ${version}` : "";
@@ -352,7 +365,6 @@ route("/home", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">The Artist's Way<span class="sub">seu companheiro de jornada</span></div>
     </div>
 
@@ -411,7 +423,6 @@ route("/home", async () => {
     }
   `;
 
-  document.getElementById("back").addEventListener("click", () => history.back());
   document.getElementById("toggleMP").addEventListener("click", async () => {
     const done = await DB.toggleMorningPage(todayStr());
     toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
@@ -427,7 +438,6 @@ route("/week", async (rest) => {
   if (rest[1] === "essay") {
     appEl.innerHTML = `
       <div class="top-bar">
-        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">o tema em detalhe</span></div>
       </div>
       <h2>${week.title}</h2>
@@ -436,7 +446,6 @@ route("/week", async (rest) => {
       </div>
       <div class="spacer"></div>
     `;
-    document.getElementById("back").addEventListener("click", () => history.back());
     return;
   }
 
@@ -445,7 +454,6 @@ route("/week", async (rest) => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">${WEEKS.length} no total</span></div>
     </div>
     <h2>${week.title}</h2>
@@ -470,7 +478,6 @@ route("/week", async (rest) => {
     <div class="spacer"></div>
   `;
 
-  document.getElementById("back").addEventListener("click", () => history.back());
   forEachNode(appEl.querySelectorAll(".checklist-item"), (el) => {
     el.addEventListener("click", async () => {
       const idx = Number(el.dataset.idx);
@@ -484,7 +491,6 @@ route("/week", async (rest) => {
 function renderReferenceScreen(title, sub, items) {
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">${title}<span class="sub">${sub}</span></div>
     </div>
     <div class="card">
@@ -494,7 +500,6 @@ function renderReferenceScreen(title, sub, items) {
     </div>
     <div class="spacer"></div>
   `;
-  document.getElementById("back").addEventListener("click", () => history.back());
 }
 
 route("/regras-da-estrada", async () => {
@@ -508,7 +513,6 @@ route("/principios-basicos", async () => {
 route("/tabela-crencas", async () => {
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Crença → Positiva<span class="sub">contraponto rápido</span></div>
     </div>
     <div class="card">
@@ -522,7 +526,6 @@ route("/tabela-crencas", async () => {
     </div>
     <div class="spacer"></div>
   `;
-  document.getElementById("back").addEventListener("click", () => history.back());
 });
 
 // ================= LISTAS NOMEADAS (Vidas Imaginárias, 20 Coisas, Mapa
@@ -566,7 +569,6 @@ route("/list", async (rest) => {
 
     appEl.innerHTML = `
       <div class="top-bar">
-        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <div class="logo" style="text-align:right">${config.title}<span class="sub">${config.fields.length > 1 ? "formulário" : "lista permanente"}</span></div>
       </div>
       <p class="muted">${config.subtitle}</p>
@@ -593,7 +595,6 @@ route("/list", async (rest) => {
       <div class="spacer"></div>
     `;
 
-    document.getElementById("back").addEventListener("click", () => history.back());
     document.getElementById("addItem").addEventListener("click", async () => {
       const fields = {};
       let hasContent = false;
@@ -621,16 +622,25 @@ route("/circulo-seguranca", async () => {
     const safe = items.filter((i) => i.side !== "caution");
     const caution = items.filter((i) => i.side === "caution");
 
-    function renderNames(list) {
-      return list.map((i) => `<button class="btn secondary block" data-toggle="${i.id}" style="margin-bottom:8px;">${i.name}</button>`).join("");
+    function renderNames(list, toCaution) {
+      const icon = toCaution ? window.ArtistWayIcons.warning : window.ArtistWayIcons.checkmarkCircle;
+      const label = toCaution ? "Mover pra Cautela" : "Mover pra Apoia";
+      return list
+        .map(
+          (i) => `
+        <div class="safety-row">
+          <span class="safety-name">${i.name}</span>
+          <button class="btn secondary" data-toggle="${i.id}"><span class="icon">${icon}</span>${label}</button>
+        </div>`
+        )
+        .join("");
     }
 
     appEl.innerHTML = `
       <div class="top-bar">
-        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
-        <div class="logo" style="text-align:right">Círculo de Segurança<span class="sub">toque pra mover</span></div>
+        <div class="logo" style="text-align:right">Círculo de Segurança<span class="sub">quem apoia, quem exige cautela</span></div>
       </div>
-      <p class="muted">Quem apoia — e de quem se proteger por enquanto. Toque num nome pra mover de lado.</p>
+      <p class="muted">Quem apoia — e de quem se proteger por enquanto.</p>
       <div class="card">
         <label>Nome</label>
         <input type="text" id="nameBox" />
@@ -638,16 +648,15 @@ route("/circulo-seguranca", async () => {
       </div>
       <div class="card">
         <div class="card-title" style="font-size:1.05rem;">Apoia</div>
-        ${renderNames(safe)}
+        ${renderNames(safe, true)}
       </div>
       <div class="card">
         <div class="card-title" style="font-size:1.05rem;">Cautela</div>
-        ${renderNames(caution)}
+        ${renderNames(caution, false)}
       </div>
       <div class="spacer"></div>
     `;
 
-    document.getElementById("back").addEventListener("click", () => history.back());
     document.getElementById("addSafe").addEventListener("click", async () => {
       const name = document.getElementById("nameBox").value.trim();
       if (!name) return;
@@ -692,7 +701,6 @@ route("/life-pie", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Life Pie<span class="sub">seu círculo de vida</span></div>
     </div>
     <p class="muted">Arraste cada eixo pra marcar o quanto essa área está satisfeita hoje (0 a 10). ${previous ? "A silhueta clara mostra o snapshot anterior, pra comparar." : ""}</p>
@@ -716,7 +724,6 @@ route("/life-pie", async () => {
     <div class="spacer"></div>
   `;
 
-  document.getElementById("back").addEventListener("click", () => history.back());
 
   const canvas = document.getElementById("lifePieCanvas");
   const ctx = canvas.getContext("2d");
@@ -866,7 +873,6 @@ route("/artist-date", async () => {
   function renderScreen() {
     appEl.innerHTML = `
       <div class="top-bar">
-        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <div class="logo" style="text-align:right">Artist Date<span class="sub">semana ${weekId}</span></div>
       </div>
       <p class="muted text-center">Um encontro solo, só por prazer — sem culpa, sem produtividade.</p>
@@ -900,7 +906,6 @@ route("/artist-date", async () => {
         <button class="btn brass block" id="addCal">Adicionar lembrete recorrente</button>
       </div>
     `;
-    document.getElementById("back").addEventListener("click", () => history.back());
 
     if (editing) {
       document.getElementById("ideaText").addEventListener("input", (e) => {
@@ -951,7 +956,6 @@ route("/checkin", async (rest) => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Check-in<span class="sub">semana ${weekId}</span></div>
     </div>
     <div class="card">
@@ -966,7 +970,6 @@ route("/checkin", async (rest) => {
     <button class="btn moss block" id="save">Salvar check-in</button>
     <div class="spacer"></div>
   `;
-  document.getElementById("back").addEventListener("click", () => history.back());
   document.getElementById("save").addEventListener("click", async () => {
     const answers = {};
     forEachNode(appEl.querySelectorAll("textarea[data-q]"), (ta) => {
@@ -994,7 +997,6 @@ route("/progress", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Sua Jornada<span class="sub">12 semanas</span></div>
     </div>
     <p class="muted">Toque em qualquer semana — você pode ir e voltar à vontade.</p>
@@ -1009,13 +1011,38 @@ route("/progress", async () => {
     </div>
     <div class="spacer"></div>
   `;
-  document.getElementById("back").addEventListener("click", () => history.back());
   forEachNode(appEl.querySelectorAll(".week-chip"), (el) => {
     el.addEventListener("click", () => navigate("#/week/" + el.dataset.week));
   });
 });
 
 // ================= SETTINGS =================
+route("/ferramentas", async () => {
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <div class="logo" style="text-align:right">Ferramentas<span class="sub">listas e exercícios vivos do livro</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Exercícios do livro</div>
+      <p class="muted">Crescem com o tempo, não somem depois de uma semana.</p>
+      <a class="btn secondary block" href="#/tabela-crencas">Crença → Positiva</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/list/imaginaryLives">Vidas Imaginárias</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/list/thingsILike">20 Coisas que Gosto de Fazer</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/list/jealousyMap">Mapa do Ciúme</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/circulo-seguranca">Círculo de Segurança</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/life-pie">Life Pie</a>
+    </div>
+
+    <div class="spacer"></div>
+  `;
+});
+
 route("/settings", async () => {
   const settings = (await DB.getSetting("profile", null)) || {};
 
@@ -1023,7 +1050,6 @@ route("/settings", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Ajustes<span class="sub">seus rituais</span></div>
     </div>
 
@@ -1038,7 +1064,7 @@ route("/settings", async () => {
 
     <div class="card">
       <div class="card-title" style="font-size:1.05rem;">Aparência</div>
-      <p class="muted">Accent color e tema -- sincronizados entre aparelhos junto com o resto do seu progresso.</p>
+      <p class="muted">Accent color e tema — sincronizados entre aparelhos junto com o resto do seu progresso.</p>
       <label>Cor de destaque</label>
       <div class="swatch-row" id="accentSwatches">
         ${window.ArtistWayTheme.ACCENT_COLORS.map(
@@ -1104,7 +1130,7 @@ route("/settings", async () => {
 
     <div class="card">
       <div class="card-title" style="font-size:1.05rem;">Sincronização</div>
-      <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano -- funciona junto com o app do Windows, no mesmo login.</p>
+      <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o app do Windows, no mesmo login.</p>
       <p class="muted" id="syncStatus">Verificando...</p>
       <button class="btn brass block" id="googleLogin">Entrar com Google</button>
       <button class="btn secondary block" id="signOut" style="display:none;">Sair</button>
@@ -1112,7 +1138,7 @@ route("/settings", async () => {
 
     <div class="card">
       <div class="card-title" style="font-size:1.05rem;">Zona de risco</div>
-      <p class="muted">Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer -- faça um backup antes se quiser guardar alguma coisa.</p>
+      <p class="muted">Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa.</p>
       <button class="btn secondary block" id="clearData">Apagar todos os dados (mantém login)</button>
       <div class="spacer-sm"></div>
       <button class="btn secondary block" id="fullReset">Resetar o app completamente (sai da conta)</button>
@@ -1124,22 +1150,6 @@ route("/settings", async () => {
       <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
       <div class="spacer-sm"></div>
       <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/tabela-crencas">Crença → Positiva</a>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Ferramentas</div>
-      <p class="muted">Listas e exercícios vivos do livro -- crescem com o tempo, não somem depois de uma semana.</p>
-      <a class="btn secondary block" href="#/list/imaginaryLives">Vidas Imaginárias</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/list/thingsILike">20 Coisas que Gosto de Fazer</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/list/jealousyMap">Mapa do Ciúme</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/circulo-seguranca">Círculo de Segurança</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/life-pie">Life Pie</a>
     </div>
 
     <div class="card" id="updatesCard">
@@ -1150,7 +1160,6 @@ route("/settings", async () => {
     <div class="spacer"></div>
   `;
 
-  document.getElementById("back").addEventListener("click", () => history.back());
 
   forEachNode(appEl.querySelectorAll("[data-fontsize]"), (btn) => {
     btn.addEventListener("click", async () => {

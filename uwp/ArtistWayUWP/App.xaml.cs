@@ -1,4 +1,5 @@
 using System;
+using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -22,12 +23,14 @@ namespace ArtistWayUWP
             this.UnhandledException += App_UnhandledException;
         }
 
-        // Sincroniza ao voltar de suspenso -- é aqui que pegamos o que
+        // Sincroniza ao voltar de suspenso — é aqui que pegamos o que
         // mudou em outro aparelho enquanto esse ficou parado (ver gatilhos
         // de sincronização em sincronizacao-nuvem-setup.md).
-        private void OnResuming(object sender, object e)
+        private async void OnResuming(object sender, object e)
         {
-            _ = SyncService.SyncAllAsync();
+            await SyncService.SyncAllAsync();
+            ProfileSettings profile = await LocalDataStore.GetProfileAsync();
+            ThemeModeService.Apply(profile?.ThemeMode ?? "auto");
         }
 
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -66,6 +69,8 @@ namespace ArtistWayUWP
                 if (rootFrame.Content == null)
                 {
                     await ContentStore.InitializeAsync();
+                    ProfileSettings profile = await LocalDataStore.GetProfileAsync();
+                    ThemeModeService.Apply(profile?.ThemeMode ?? "auto");
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
                 Window.Current.Activate();

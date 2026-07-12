@@ -117,15 +117,5 @@ namespace ArtistWayUWP.Views
             }
         }
 
-        private async void AddCalendar_Click(object sender, RoutedEventArgs e)
-        {
-            ProfileSettings profile = await LocalDataStore.GetProfileAsync();
-            if (profile == null || !int.TryParse(profile.ArtistDateDay, out int weekday))
-            {
-                weekday = 7;
-            }
-            string url = CalendarLinkService.ArtistDateUrl(weekday, profile?.ArtistDateTime ?? "16:00");
-            await Windows.System.Launcher.LaunchUriAsync(new Uri(url));
-        }
     }
 }
