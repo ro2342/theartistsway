@@ -12,6 +12,12 @@ namespace ArtistWayUWP.Services
         public string Provider { get; set; }
         public string Email { get; set; }
         public string DisplayName { get; set; }
+        public DateTimeOffset IdTokenExpiresAt { get; set; }
+
+        // Um pouco de folga antes do vencimento de verdade, pra nunca correr
+        // o risco de o Firestore rejeitar por token vencido no meio de uma
+        // chamada em andamento.
+        public bool NeedsRefresh => DateTimeOffset.UtcNow >= IdTokenExpiresAt.AddSeconds(-60);
     }
 
     // Guarda a sessão do login (uid/tokens do Firebase) no cofre de
@@ -28,6 +34,7 @@ namespace ArtistWayUWP.Services
             PasswordVault vault = new PasswordVault();
             RemoveExisting(vault);
 
+            DateTimeOffset expiresAt = DateTimeOffset.UtcNow.AddSeconds(result.ExpiresInSeconds > 0 ? result.ExpiresInSeconds : 3600);
             JsonObject json = new JsonObject
             {
                 ["uid"] = JsonValue.CreateStringValue(result.FirebaseUid ?? ""),
@@ -36,6 +43,34 @@ namespace ArtistWayUWP.Services
                 ["provider"] = JsonValue.CreateStringValue(result.Provider ?? ""),
                 ["email"] = JsonValue.CreateStringValue(result.FirebaseEmail ?? ""),
                 ["displayName"] = JsonValue.CreateStringValue(result.FirebaseDisplayName ?? ""),
+                ["idTokenExpiresAt"] = JsonValue.CreateStringValue(expiresAt.ToString("o")),
+            };
+
+            vault.Add(new PasswordCredential(Resource, UserName, json.Stringify()));
+        }
+
+        // Chamado pelo SyncService depois de renovar o idToken via refresh
+        // token (o refresh token em si não muda nesse fluxo do Firebase).
+        public static void UpdateTokens(string idToken, int expiresInSeconds)
+        {
+            FirebaseSession session = GetSession();
+            if (session == null)
+            {
+                return;
+            }
+
+            PasswordVault vault = new PasswordVault();
+            RemoveExisting(vault);
+
+            JsonObject json = new JsonObject
+            {
+                ["uid"] = JsonValue.CreateStringValue(session.Uid ?? ""),
+                ["idToken"] = JsonValue.CreateStringValue(idToken ?? ""),
+                ["refreshToken"] = JsonValue.CreateStringValue(session.RefreshToken ?? ""),
+                ["provider"] = JsonValue.CreateStringValue(session.Provider ?? ""),
+                ["email"] = JsonValue.CreateStringValue(session.Email ?? ""),
+                ["displayName"] = JsonValue.CreateStringValue(session.DisplayName ?? ""),
+                ["idTokenExpiresAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.AddSeconds(expiresInSeconds > 0 ? expiresInSeconds : 3600).ToString("o")),
             };
 
             vault.Add(new PasswordCredential(Resource, UserName, json.Stringify()));
@@ -57,6 +92,9 @@ namespace ArtistWayUWP.Services
                     Provider = json.GetNamedString("provider", ""),
                     Email = json.GetNamedString("email", ""),
                     DisplayName = json.GetNamedString("displayName", ""),
+                    IdTokenExpiresAt = DateTimeOffset.TryParse(json.GetNamedString("idTokenExpiresAt", ""), out DateTimeOffset expiresAt)
+                        ? expiresAt
+                        : DateTimeOffset.UtcNow.AddSeconds(-1),
                 };
             }
             catch (Exception)

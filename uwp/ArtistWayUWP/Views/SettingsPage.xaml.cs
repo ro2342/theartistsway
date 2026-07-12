@@ -99,6 +99,15 @@ namespace ArtistWayUWP.Views
             SignOutButton.Visibility = Visibility.Visible;
         }
 
+        // Sincroniza uma vez, na hora, logo depois do login -- as próximas
+        // sincronizações acontecem sozinhas em segundo plano (debounce nas
+        // mudanças locais + ao reabrir o app), sem precisar de outro botão.
+        private async System.Threading.Tasks.Task RunInitialSyncAsync()
+        {
+            string result = await SyncService.SyncAllAsync();
+            SyncStatusText.Text += " " + result;
+        }
+
         private async System.Threading.Tasks.Task LoadUpdateStatusAsync()
         {
             string installed = UpdateCheckService.GetInstalledVersion();
@@ -323,6 +332,7 @@ namespace ArtistWayUWP.Views
             {
                 SessionService.SaveSession(result);
                 RefreshSyncStatus();
+                _ = RunInitialSyncAsync();
             }
 
             ContentDialog resultDialog = new ContentDialog

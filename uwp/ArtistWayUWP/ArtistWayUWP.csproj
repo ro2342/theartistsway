@@ -69,6 +69,8 @@
     <Compile Include="Services\AppointmentService.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\SessionService.cs" />
+    <Compile Include="Services\SyncService.cs" />
+    <Compile Include="Services\SyncScheduler.cs" />
     <Compile Include="Services\ContentStore.cs" />
     <Compile Include="Services\LocalDataStore.cs" />
     <Compile Include="Services\ThemeHelper.cs" />

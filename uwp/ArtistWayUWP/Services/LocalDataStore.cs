@@ -107,7 +107,12 @@ namespace ArtistWayUWP.Services
                 ["fontSize"] = JsonValue.CreateStringValue(profile.FontSize ?? "medium"),
             };
             settings["profile"] = p;
+            // Carimba o blob inteiro de settings -- é o que o SyncService usa
+            // pra decidir, na hora de mesclar com a nuvem, qual cópia (local
+            // ou remota) é mais recente (ver Services/SyncService.cs).
+            settings["_updatedAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.ToString("o"));
             await WriteStoreAsync(SettingsFile, settings);
+            SyncScheduler.ScheduleSync();
         }
 
         // ---------- morning pages ----------
@@ -115,11 +120,16 @@ namespace ArtistWayUWP.Services
         public static async Task<bool> ToggleMorningPageAsync(string dateStr)
         {
             JsonObject store = await ReadStoreAsync(MorningPagesFile);
-            bool current = store.ContainsKey(dateStr) && store[dateStr].GetBoolean();
+            bool current = ReadDoneFlag(store, dateStr);
             bool next = !current;
-            store[dateStr] = JsonValue.CreateBooleanValue(next);
+            store[dateStr] = new JsonObject
+            {
+                ["done"] = JsonValue.CreateBooleanValue(next),
+                ["updatedAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.ToString("o")),
+            };
             await WriteStoreAsync(MorningPagesFile, store);
             await TouchActivityAsync();
+            SyncScheduler.ScheduleSync();
             return next;
         }
 
@@ -129,9 +139,32 @@ namespace ArtistWayUWP.Services
             Dictionary<string, bool> result = new Dictionary<string, bool>();
             foreach (KeyValuePair<string, IJsonValue> kv in store)
             {
-                result[kv.Key] = kv.Value.GetBoolean();
+                if (kv.Key == "_updatedAt")
+                {
+                    continue;
+                }
+                result[kv.Key] = ReadDoneFlag(store, kv.Key);
             }
             return result;
+        }
+
+        // Lê o campo "done" de um registro, aceitando tanto o formato novo
+        // ({ done, updatedAt }) quanto o booleano solto de versões antigas
+        // do app (antes da sincronização existir) -- não precisa de
+        // migração ativa, só compatibilidade na leitura.
+        private static bool ReadDoneFlag(JsonObject store, string key)
+        {
+            if (!store.ContainsKey(key))
+            {
+                return false;
+            }
+            IJsonValue value = store[key];
+            if (value.ValueType == JsonValueType.Boolean)
+            {
+                return value.GetBoolean();
+            }
+            JsonObject entry = value.GetObject();
+            return entry.ContainsKey("done") && entry["done"].GetBoolean();
         }
 
         // ---------- artist date ----------
@@ -158,9 +191,11 @@ namespace ArtistWayUWP.Services
             {
                 ["done"] = JsonValue.CreateBooleanValue(data.Done),
                 ["idea"] = JsonValue.CreateStringValue(data.Idea ?? ""),
+                ["updatedAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.ToString("o")),
             };
             store[weekStart] = entry;
             await WriteStoreAsync(ArtistDatesFile, store);
+            SyncScheduler.ScheduleSync();
         }
 
         // ---------- checklist ----------
@@ -171,11 +206,16 @@ namespace ArtistWayUWP.Services
         {
             JsonObject store = await ReadStoreAsync(ChecklistFile);
             string key = ChecklistKey(weekId, itemIndex);
-            bool current = store.ContainsKey(key) && store[key].GetBoolean();
+            bool current = ReadDoneFlag(store, key);
             bool next = !current;
-            store[key] = JsonValue.CreateBooleanValue(next);
+            store[key] = new JsonObject
+            {
+                ["done"] = JsonValue.CreateBooleanValue(next),
+                ["updatedAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.ToString("o")),
+            };
             await WriteStoreAsync(ChecklistFile, store);
             await TouchActivityAsync();
+            SyncScheduler.ScheduleSync();
             return next;
         }
 
@@ -187,7 +227,7 @@ namespace ArtistWayUWP.Services
             string prefix = $"w{weekId}-i";
             foreach (KeyValuePair<string, IJsonValue> kv in store)
             {
-                if (kv.Key.StartsWith(prefix) && kv.Value.GetBoolean())
+                if (kv.Key.StartsWith(prefix) && ReadDoneFlag(store, kv.Key))
                 {
                     if (int.TryParse(kv.Key.Substring(prefix.Length), out int idx))
                     {
@@ -238,6 +278,7 @@ namespace ArtistWayUWP.Services
             };
             store[weekId.ToString()] = entry;
             await WriteStoreAsync(CheckinsFile, store);
+            SyncScheduler.ScheduleSync();
         }
 
         // ---------- backup: exportar/importar ----------
@@ -302,6 +343,27 @@ namespace ArtistWayUWP.Services
                 }
             }
         }
+
+        // ---------- acesso genérico por nome (usado pelo SyncService) ----------
+
+        public static readonly string[] SyncStoreNames = { "settings", "morningPages", "artistDates", "checklist", "checkins" };
+
+        private static string FileNameFor(string storeName)
+        {
+            switch (storeName)
+            {
+                case "settings": return SettingsFile;
+                case "morningPages": return MorningPagesFile;
+                case "artistDates": return ArtistDatesFile;
+                case "checklist": return ChecklistFile;
+                case "checkins": return CheckinsFile;
+                default: throw new ArgumentException("Store desconhecido: " + storeName);
+            }
+        }
+
+        public static Task<JsonObject> GetStoreForSyncAsync(string storeName) => ReadStoreAsync(FileNameFor(storeName));
+
+        public static Task WriteStoreForSyncAsync(string storeName, JsonObject obj) => WriteStoreAsync(FileNameFor(storeName), obj);
 
         // ---------- helpers ----------
 

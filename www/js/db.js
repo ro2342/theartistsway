@@ -112,6 +112,15 @@ async function setSetting(key, value) {
   return dbPut(STORES.settings, { key, value });
 }
 
+// Carimba _updatedAt junto do perfil -- é o que sync.js usa pra decidir,
+// na hora de mesclar com a nuvem, qual cópia (local ou remota) é mais
+// recente (mesmo desenho do SetProfileAsync no app do Windows).
+async function setProfile(profile) {
+  await setSetting("profile", profile);
+  await setSetting("_updatedAt", new Date().toISOString());
+  if (window.ArtistWaySync) window.ArtistWaySync.scheduleSync();
+}
+
 async function touchActivity() {
   await dbPut(STORES.settings, { key: "lastActivityAt", value: new Date().toISOString() });
 }
@@ -119,8 +128,9 @@ async function touchActivity() {
 async function toggleMorningPage(dateStr) {
   const existing = await dbGet(STORES.morningPages, dateStr);
   const done = !(existing && existing.done);
-  await dbPut(STORES.morningPages, { date: dateStr, done });
+  await dbPut(STORES.morningPages, { date: dateStr, done, updatedAt: new Date().toISOString() });
   await touchActivity();
+  if (window.ArtistWaySync) window.ArtistWaySync.scheduleSync();
   return done;
 }
 
@@ -134,7 +144,12 @@ async function getAllMorningPages() {
 }
 
 async function setArtistDate(weekStart, data) {
-  return dbPut(STORES.artistDates, Object.assign({ weekStart: weekStart }, data));
+  const result = await dbPut(
+    STORES.artistDates,
+    Object.assign({ weekStart: weekStart }, data, { updatedAt: new Date().toISOString() })
+  );
+  if (window.ArtistWaySync) window.ArtistWaySync.scheduleSync();
+  return result;
 }
 
 async function getArtistDate(weekStart) {
@@ -145,8 +160,9 @@ async function toggleChecklistItem(weekId, itemIndex) {
   const id = `w${weekId}-i${itemIndex}`;
   const existing = await dbGet(STORES.checklist, id);
   const done = !(existing && existing.done);
-  await dbPut(STORES.checklist, { id, weekId, itemIndex, done });
+  await dbPut(STORES.checklist, { id, weekId, itemIndex, done, updatedAt: new Date().toISOString() });
   await touchActivity();
+  if (window.ArtistWaySync) window.ArtistWaySync.scheduleSync();
   return done;
 }
 
@@ -156,7 +172,9 @@ async function getChecklistForWeek(weekId) {
 }
 
 async function saveCheckin(weekId, answers) {
-  return dbPut(STORES.checkins, { weekId, answers, savedAt: new Date().toISOString() });
+  const result = await dbPut(STORES.checkins, { weekId, answers, savedAt: new Date().toISOString() });
+  if (window.ArtistWaySync) window.ArtistWaySync.scheduleSync();
+  return result;
 }
 
 async function getCheckin(weekId) {
@@ -204,8 +222,11 @@ async function importAllData(payload) {
 
 window.ArtistWayDB = {
   STORES,
+  dbGetAll,
+  dbPut,
   getSetting,
   setSetting,
+  setProfile,
   touchActivity,
   toggleMorningPage,
   getMorningPagesInRange,

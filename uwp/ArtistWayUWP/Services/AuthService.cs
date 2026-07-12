@@ -20,6 +20,7 @@ namespace ArtistWayUWP.Services
         public string FirebaseEmail { get; set; }
         public string FirebaseDisplayName { get; set; }
         public string Provider { get; set; }
+        public int ExpiresInSeconds { get; set; } = 3600;
     }
 
     // Login com Microsoft via WAM (WebAuthenticationCoreManager) -- reaproveita
@@ -33,7 +34,9 @@ namespace ArtistWayUWP.Services
         private const string MicrosoftClientId = "bf179c88-8388-4ffb-a90a-d8676d4e9513";
 
         // apiKey público do projeto Firebase (uwp/ArtistWayUWP/Data/firebase-config.json).
-        private const string FirebaseApiKey = "AIzaSyD8xvN_LU11KY51em_RsCaksRmXDmlXF48";
+        // Público de propósito (reaproveitado pelo SyncService pra chamar o
+        // Firestore e o endpoint de refresh de token).
+        public const string FirebaseApiKey = "AIzaSyD8xvN_LU11KY51em_RsCaksRmXDmlXF48";
 
         // Cliente OAuth "TVs e dispositivos de entrada limitada" (Device
         // Authorization Grant) -- ver sincronizacao-nuvem-setup.md, Parte 6.
@@ -345,6 +348,7 @@ namespace ArtistWayUWP.Services
                         FirebaseEmail = json.ContainsKey("email") ? json["email"].GetString() : null,
                         FirebaseDisplayName = json.ContainsKey("displayName") ? json["displayName"].GetString() : null,
                         Provider = providerId == "google.com" ? "Google" : providerId == "microsoft.com" ? "Microsoft" : providerId,
+                        ExpiresInSeconds = json.ContainsKey("expiresIn") && int.TryParse(json["expiresIn"].GetString(), out int exp) ? exp : 3600,
                     };
                 }
             }

@@ -244,7 +244,7 @@ route("/onboarding", async () => {
       draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
       draft.onboarded = true;
       try {
-        await DB.setSetting("profile", draft);
+        await DB.setProfile(draft);
         await NOTIF.applySettings(draft);
         window.__onboardStep = 0;
         window.__onboardDraft = null;
@@ -652,6 +652,14 @@ route("/settings", async () => {
     </div>
 
     <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Sincronização (experimental)</div>
+      <p class="muted">Login com Google sincroniza seu progresso com a nuvem (Firebase) automaticamente em segundo plano -- funciona junto com o app do Windows, no mesmo login.</p>
+      <p class="muted" id="syncStatus">Verificando...</p>
+      <button class="btn brass block" id="googleLogin">Entrar com Google</button>
+      <button class="btn secondary block" id="signOut" style="display:none;">Sair</button>
+    </div>
+
+    <div class="card">
       <div class="card-title" style="font-size:1.05rem;">Referência</div>
       <p class="muted">Sempre à mão, pra reler quando bater a dúvida.</p>
       <a class="btn secondary block" href="#/regras-da-estrada">📍 Regras da Estrada</a>
@@ -672,7 +680,7 @@ route("/settings", async () => {
   forEachNode(appEl.querySelectorAll("[data-fontsize]"), (btn) => {
     btn.addEventListener("click", async () => {
       const updated = Object.assign({}, settings, { fontSize: btn.dataset.fontsize });
-      await DB.setSetting("profile", updated);
+      await DB.setProfile(updated);
       applyFontSizePreference(updated.fontSize);
       render();
     });
@@ -689,7 +697,7 @@ route("/settings", async () => {
       checkinTime: document.getElementById("fcitime").value,
       onboarded: true,
     });
-    await DB.setSetting("profile", updated);
+    await DB.setProfile(updated);
     await NOTIF.applySettings(updated);
     toast("Ajustes salvos e lembretes atualizados 🔔");
     render();
@@ -777,6 +785,35 @@ route("/settings", async () => {
         }
       };
       window.external.notify(JSON.stringify({ type: "importRequest" }));
+    });
+  }
+
+  const syncStatusEl = document.getElementById("syncStatus");
+  const googleLoginBtn = document.getElementById("googleLogin");
+  const signOutBtn = document.getElementById("signOut");
+
+  async function refreshSyncStatus() {
+    if (!syncStatusEl || !syncStatusEl.isConnected) return;
+    const session = await window.ArtistWayAuth.getSession();
+    if (!session) {
+      syncStatusEl.textContent = "Não logado.";
+      if (googleLoginBtn) googleLoginBtn.style.display = "";
+      if (signOutBtn) signOutBtn.style.display = "none";
+      return;
+    }
+    syncStatusEl.textContent = `Logado como ${session.email || session.uid} (${session.provider}).`;
+    if (googleLoginBtn) googleLoginBtn.style.display = "none";
+    if (signOutBtn) signOutBtn.style.display = "";
+  }
+  refreshSyncStatus();
+
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener("click", () => window.ArtistWayAuth.startGoogleLogin());
+  }
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", async () => {
+      await window.ArtistWayAuth.signOut();
+      refreshSyncStatus();
     });
   }
 

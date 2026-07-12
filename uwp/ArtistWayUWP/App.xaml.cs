@@ -18,7 +18,16 @@ namespace ArtistWayUWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            this.Resuming += OnResuming;
             this.UnhandledException += App_UnhandledException;
+        }
+
+        // Sincroniza ao voltar de suspenso -- é aqui que pegamos o que
+        // mudou em outro aparelho enquanto esse ficou parado (ver gatilhos
+        // de sincronização em sincronizacao-nuvem-setup.md).
+        private void OnResuming(object sender, object e)
+        {
+            _ = SyncService.SyncAllAsync();
         }
 
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -60,6 +69,7 @@ namespace ArtistWayUWP
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
                 Window.Current.Activate();
+                _ = SyncService.SyncAllAsync();
             }
         }
 

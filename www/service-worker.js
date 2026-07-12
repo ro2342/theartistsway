@@ -1,4 +1,4 @@
-const CACHE_NAME = "artist-way-companion-v4";
+const CACHE_NAME = "artist-way-companion-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,6 +6,8 @@ const ASSETS = [
   "./css/style.css",
   "./js/data.js",
   "./js/db.js",
+  "./js/auth.js",
+  "./js/sync.js",
   "./js/notifications.js",
   "./js/calendar.js",
   "./js/updates.js",
