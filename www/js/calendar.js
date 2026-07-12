@@ -71,7 +71,7 @@ function buildRenderUrl({ title, details, hour, minute, durationMinutes = 30, we
 function morningPagesUrl(time) {
   const [h, m] = time.split(":").map(Number);
   return buildRenderUrl({
-    title: "Morning Pages ✍️",
+    title: "Morning Pages",
     details: "3 páginas à mão, sem reler. Companheiro The Artist's Way.",
     hour: h,
     minute: m,
@@ -83,7 +83,7 @@ function morningPagesUrl(time) {
 function artistDateUrl(weekdayIndex, time) {
   const [h, m] = time.split(":").map(Number);
   return buildRenderUrl({
-    title: "Artist Date 🎨",
+    title: "Artist Date",
     details: "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
     hour: h,
     minute: m,
@@ -96,7 +96,7 @@ function artistDateUrl(weekdayIndex, time) {
 function checkinUrl(weekdayIndex, time) {
   const [h, m] = time.split(":").map(Number);
   return buildRenderUrl({
-    title: "Check-in semanal 📓",
+    title: "Check-in semanal",
     details: "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
     hour: h,
     minute: m,

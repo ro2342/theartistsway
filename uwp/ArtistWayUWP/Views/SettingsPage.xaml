@@ -57,7 +57,7 @@
                                 Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
                         <Button x:Name="ThemeDarkButton" Content="Escuro" Tag="dark" Click="ThemeMode_Click"
                                 Grid.Column="1" HorizontalAlignment="Stretch" Margin="4,0,4,0" />
-                        <Button x:Name="ThemeAutoButton" Content="Automático" Tag="auto" Click="ThemeMode_Click"
+                        <Button x:Name="ThemeAutoButton" Content="Auto" Tag="auto" Click="ThemeMode_Click"
                                 Grid.Column="2" HorizontalAlignment="Stretch" Margin="4,0,0,0" />
                     </Grid>
                 </StackPanel>
@@ -117,8 +117,12 @@
                     <TextBlock Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="Apagar todos os dados (mantém login)" Click="ClearData_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="Resetar o app completamente (sai da conta)" Click="FullReset_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Click="ClearData_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <TextBlock Text="Apagar todos os dados (mantém login)" TextWrapping="Wrap" TextAlignment="Center" />
+                    </Button>
+                    <Button Click="FullReset_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,8,0,0">
+                        <TextBlock Text="Resetar o app completamente (sai da conta)" TextWrapping="Wrap" TextAlignment="Center" />
+                    </Button>
                 </StackPanel>
             </Border>
         </StackPanel>

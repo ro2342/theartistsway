@@ -164,7 +164,7 @@ function renderBottomNav(activePath) {
       { path: "/home", label: "Início", regular: ICONS.homeRegular, filled: ICONS.homeFilled },
       { path: "/progress", label: "Jornada", regular: ICONS.bookRegular, filled: ICONS.bookFilled },
       { path: "/artist-date", label: "Date", regular: ICONS.heartRegular, filled: ICONS.heartFilled },
-      { path: "/ferramentas", label: "Ferramentas", regular: ICONS.toolsRegular, filled: ICONS.toolsFilled },
+      { path: "/ferramentas", label: "Recursos", regular: ICONS.toolsRegular, filled: ICONS.toolsFilled },
       { path: "/settings", label: "Ajustes", regular: ICONS.settingsRegular, filled: ICONS.settingsFilled },
     ];
     const html = items
@@ -183,7 +183,9 @@ function renderBottomNav(activePath) {
     }
     nav.innerHTML =
       html +
-      `<button class="nav-btn nav-sync" id="navSyncBtn" title="Sincronizar agora"><span class="icon">${ICONS.sync}</span></button>` +
+      `<button class="nav-btn nav-sync" id="navSyncBtn" title="Sincronizar agora">
+          <span class="icon">${ICONS.sync}</span>Sincronizar
+        </button>` +
       `<div class="nav-version" id="navVersion"></div>`;
     forEachNode(nav.querySelectorAll("[data-nav]"), (btn) => {
       btn.addEventListener("click", () => navigate("#" + btn.dataset.nav));
@@ -318,7 +320,7 @@ route("/onboarding", async () => {
         await NOTIF.applySettings(draft);
         window.__onboardStep = 0;
         window.__onboardDraft = null;
-        toast("Tudo pronto! Bem-vindo(a) 🌿");
+        toast("Tudo pronto! Bem-vindo(a)");
         navigate("#/home");
       } catch (err) {
         toast("Erro ao concluir: " + err.message);
@@ -379,7 +381,7 @@ route("/home", async () => {
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.1rem;">Morning Pages ✍️</div>
+      <div class="card-title" style="font-size:1.1rem;">Morning Pages</div>
       <p class="muted">Últimos 7 dias</p>
       <div class="streak-row">
         ${days
@@ -836,7 +838,7 @@ route("/life-pie", async () => {
       fields[`ratings.${c.key}`] = String(ratings[c.key]);
     });
     await DB.addListItem(LIST_NAME, fields);
-    toast("Snapshot salvo 🥧");
+    toast("Snapshot salvo");
     render();
   });
 });
@@ -916,7 +918,7 @@ route("/artist-date", async () => {
         current.idea = draftIdea;
         await DB.setArtistDate(weekKey, current);
         editing = false;
-        toast("Date salvo 🎨");
+        toast("Date salvo");
         renderScreen();
       });
       document.getElementById("cancelEdit").addEventListener("click", () => {
@@ -927,7 +929,7 @@ route("/artist-date", async () => {
       document.getElementById("markDone").addEventListener("click", async () => {
         current.done = !current.done;
         await DB.setArtistDate(weekKey, current);
-        toast(current.done ? "Aproveite seu Artist Date! 🎨" : "Desmarcado");
+        toast(current.done ? "Aproveite seu Artist Date!" : "Desmarcado");
         renderScreen();
       });
       document.getElementById("editDate").addEventListener("click", () => {
@@ -976,7 +978,7 @@ route("/checkin", async (rest) => {
       answers[ta.dataset.q] = ta.value;
     });
     await DB.saveCheckin(weekId, answers);
-    toast("Check-in salvo 📓");
+    toast("Check-in salvo");
     navigate("#/home");
   });
 });
@@ -1020,7 +1022,7 @@ route("/progress", async () => {
 route("/ferramentas", async () => {
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Ferramentas<span class="sub">listas e exercícios vivos do livro</span></div>
+      <div class="logo" style="text-align:right">Recursos<span class="sub">listas e exercícios vivos do livro</span></div>
     </div>
 
     <div class="card">
@@ -1201,7 +1203,7 @@ route("/settings", async () => {
     });
     await DB.setProfile(updated);
     await NOTIF.applySettings(updated);
-    toast("Ajustes salvos e lembretes atualizados 🔔");
+    toast("Ajustes salvos e lembretes atualizados");
     render();
   });
 

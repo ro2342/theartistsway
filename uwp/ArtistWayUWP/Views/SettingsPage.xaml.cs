@@ -88,11 +88,29 @@ namespace ArtistWayUWP.Views
         {
             string mode = _profile?.ThemeMode ?? "auto";
             SolidColorBrush accent = ThemeHelper.AccentBrush();
-            Brush defaultBrush = (Brush)Application.Current.Resources["SystemControlBackgroundBaseLowBrush"];
 
-            ThemeLightButton.Background = mode == "light" ? accent : defaultBrush;
-            ThemeDarkButton.Background = mode == "dark" ? accent : defaultBrush;
-            ThemeAutoButton.Background = mode == "auto" ? accent : defaultBrush;
+            SetThemeButtonSelected(ThemeLightButton, mode == "light", accent);
+            SetThemeButtonSelected(ThemeDarkButton, mode == "dark", accent);
+            SetThemeButtonSelected(ThemeAutoButton, mode == "auto", accent);
+        }
+
+        // Igual ao UpdateActiveTab do MainPage: nunca calcula o brush
+        // "não selecionado" via Application.Current.Resources[...] (não
+        // acompanha troca de tema em tempo real). ClearValue deixa o botão
+        // herdar o Background/Foreground padrão dele mesmo, que é
+        // theme-aware via {ThemeResource}.
+        private static void SetThemeButtonSelected(Button button, bool selected, Brush accent)
+        {
+            if (selected)
+            {
+                button.Background = accent;
+                button.Foreground = new SolidColorBrush(Windows.UI.Colors.White);
+            }
+            else
+            {
+                button.ClearValue(Button.BackgroundProperty);
+                button.ClearValue(Button.ForegroundProperty);
+            }
         }
 
         private async void ThemeMode_Click(object sender, RoutedEventArgs e)

@@ -150,7 +150,7 @@ async function applySettings(settings) {
     const [h, m] = settings.morningPagesTime.split(":").map(Number);
     await scheduleDaily(
       NOTIF_IDS.morningPages,
-      "Hora das Morning Pages ✍️",
+      "Hora das Morning Pages",
       "Três páginas, sem reler. Só você e o papel.",
       h,
       m
@@ -160,7 +160,7 @@ async function applySettings(settings) {
     const [h, m] = settings.artistDateTime.split(":").map(Number);
     await scheduleWeekly(
       NOTIF_IDS.artistDate,
-      "Que tal um Artist Date? 🎨",
+      "Que tal um Artist Date?",
       "Reserve um tempinho sozinho(a) essa semana, só por prazer.",
       Number(settings.artistDateDay),
       h,
@@ -171,7 +171,7 @@ async function applySettings(settings) {
     const [h, m] = settings.checkinTime.split(":").map(Number);
     await scheduleWeekly(
       NOTIF_IDS.checkin,
-      "Check-in da semana 📓",
+      "Check-in da semana",
       "Hora de revisar como foi sua semana criativa.",
       Number(settings.checkinDay),
       h,

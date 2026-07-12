@@ -267,7 +267,12 @@ button { font-family: inherit; }
 .btn.moss:hover { background: #0e700e; }
 .btn.wax { background: #c50f1f; }
 .btn.wax:hover { background: #b10e1c; }
-.btn.brass { background: var(--colorPaletteMarigoldBackground2, #b89500); color: #242424; }
+.btn.brass {
+  background: var(--colorBrandBackground, #0f6cbd);
+  color: var(--colorNeutralForegroundOnBrand, #fff);
+}
+.btn.brass:hover { background: var(--colorBrandBackgroundHover, #115ea3); }
+.btn.brass:active { background: var(--colorBrandBackgroundPressed, #0c3b5e); }
 .btn.block { width: 100%; }
 .btn .icon { width: 18px; height: 18px; }
 
@@ -365,9 +370,6 @@ button { font-family: inherit; }
 .nav-btn.active { color: var(--colorBrandForeground1, #0f6cbd); }
 
 .nav-sync {
-  flex: 0 0 auto;
-  padding-left: 12px;
-  padding-right: 12px;
   border-left: 1px solid var(--colorNeutralStroke2, #e0e0e0);
 }
 

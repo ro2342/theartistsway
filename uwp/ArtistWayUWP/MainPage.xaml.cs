@@ -121,14 +121,14 @@ namespace ArtistWayUWP
 
         private void UpdateActiveTab(Type pageType)
         {
-            // Busca o brush "padrão" do tema de novo a cada troca (em vez de
-            // guardar uma referência da primeira vez) -- um brush capturado
-            // de um elemento antes de ele terminar de aplicar o Style podia
-            // vir nulo/errado, e ficava preso nisso pro resto da sessão.
-            // Esse era o motivo dos ícones sumirem no tema claro: o valor
-            // cacheado não correspondia ao texto/ícone padrão daquele tema.
+            // Nunca calcula um brush "padrão" na mão aqui: um lookup via
+            // Application.Current.Resources[...] não acompanha a troca de
+            // tema em tempo real (RequestedTheme mudado por ThemeModeService),
+            // sempre resolve pro tema com que o app abriu -- foi exatamente
+            // isso que sumiu com os ícones no tema Claro antes. Em vez disso,
+            // limpa o valor local (ClearValue) pra herdar o Foreground padrão
+            // do Button, que É theme-aware de verdade via {ThemeResource}.
             SolidColorBrush accent = ThemeHelper.AccentBrush();
-            Brush defaultBrush = (Brush)Application.Current.Resources["SystemControlForegroundBaseHighBrush"];
 
             bool isHome = pageType == typeof(HomePage);
             bool isProgress = pageType == typeof(ProgressPage);
@@ -136,16 +136,25 @@ namespace ArtistWayUWP
             bool isFerramentas = pageType == typeof(FerramentasPage);
             bool isSettings = pageType == typeof(SettingsPage);
 
-            TabHomeLabel.Foreground = isHome ? accent : defaultBrush;
-            TabHomeIcon.Foreground = isHome ? accent : defaultBrush;
-            TabProgressLabel.Foreground = isProgress ? accent : defaultBrush;
-            TabProgressIcon.Foreground = isProgress ? accent : defaultBrush;
-            TabArtistDateLabel.Foreground = isArtistDate ? accent : defaultBrush;
-            TabArtistDateIcon.Foreground = isArtistDate ? accent : defaultBrush;
-            TabFerramentasLabel.Foreground = isFerramentas ? accent : defaultBrush;
-            TabFerramentasIcon.Foreground = isFerramentas ? accent : defaultBrush;
-            TabSettingsLabel.Foreground = isSettings ? accent : defaultBrush;
-            TabSettingsIcon.Foreground = isSettings ? accent : defaultBrush;
+            SetTabForeground(TabHomeLabel, TabHomeIcon, isHome, accent);
+            SetTabForeground(TabProgressLabel, TabProgressIcon, isProgress, accent);
+            SetTabForeground(TabArtistDateLabel, TabArtistDateIcon, isArtistDate, accent);
+            SetTabForeground(TabFerramentasLabel, TabFerramentasIcon, isFerramentas, accent);
+            SetTabForeground(TabSettingsLabel, TabSettingsIcon, isSettings, accent);
+        }
+
+        private static void SetTabForeground(TextBlock label, SymbolIcon icon, bool active, Brush accent)
+        {
+            if (active)
+            {
+                label.Foreground = accent;
+                icon.Foreground = accent;
+            }
+            else
+            {
+                label.ClearValue(TextBlock.ForegroundProperty);
+                icon.ClearValue(IconElement.ForegroundProperty);
+            }
         }
 
         // ---------- navegação/voltar ----------

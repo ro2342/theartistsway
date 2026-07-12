@@ -115,7 +115,7 @@
                     Style="{StaticResource TabButtonStyle}">
                 <StackPanel HorizontalAlignment="Center">
                     <SymbolIcon x:Name="TabFerramentasIcon" Symbol="Repair" HorizontalAlignment="Center" />
-                    <TextBlock x:Name="TabFerramentasLabel" Text="Ferramentas" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="TabFerramentasLabel" Text="Recursos" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
                 </StackPanel>
             </Button>
 

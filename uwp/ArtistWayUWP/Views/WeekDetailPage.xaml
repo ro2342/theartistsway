@@ -18,7 +18,9 @@
                     <TextBlock Text="Entenda o tema da semana" Margin="8,0,0,0" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
-            <StackPanel x:Name="ChecklistPanel" />
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel x:Name="ChecklistPanel" />
+            </Border>
             <Button Click="OpenCheckin_Click" HorizontalAlignment="Stretch" Margin="0,16,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <SymbolIcon Symbol="Accept" />
