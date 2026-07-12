@@ -3,7 +3,7 @@
 // explicitamente exporte um backup ou clique em "adicionar ao Google Calendar".
 
 const DB_NAME = "artist-way-companion";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const STORES = {
   settings: "settings", // { key, value }
@@ -12,6 +12,7 @@ const STORES = {
   checklist: "checklist", // { id: 'w{n}-i{idx}', weekId, itemIndex, done }
   checkins: "checkins", // { weekId, answers: {...}, savedAt }
   calendarEvents: "calendarEvents", // { type, createdAt } — apenas para saber o que já foi exportado
+  lists: "lists", // { id: 'listName/itemId', listName, ...campos, updatedAt }
 };
 
 let dbInstance = null;
@@ -39,6 +40,9 @@ function openDB() {
       }
       if (!db.objectStoreNames.contains(STORES.calendarEvents)) {
         db.createObjectStore(STORES.calendarEvents, { keyPath: "type" });
+      }
+      if (!db.objectStoreNames.contains(STORES.lists)) {
+        db.createObjectStore(STORES.lists, { keyPath: "id" });
       }
     };
     req.onsuccess = (event) => {
@@ -181,13 +185,51 @@ async function getCheckin(weekId) {
   return dbGet(STORES.checkins, weekId);
 }
 
+// ---------- listas nomeadas (Vidas Imaginárias, 20 Coisas, Mapa do
+// Ciúme, Círculo de Segurança, Life Pie) ----------
+// Um store só (STORES.lists), id = "listName/itemId" -- assim toda
+// funcionalidade nova desse tipo usa o mesmo mecanismo de guardar/
+// sincronizar, em vez de um store por funcionalidade. Itens só são
+// adicionados/editados, nunca removidos (sem tombstone na mesclagem).
+
+function listItemId(listName, itemId) {
+  return `${listName}/${itemId}`;
+}
+
+function newListItemId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+async function addListItem(listName, fields) {
+  const itemId = newListItemId();
+  await updateListItem(listName, itemId, fields);
+  return itemId;
+}
+
+async function updateListItem(listName, itemId, fields) {
+  const entry = Object.assign({ id: listItemId(listName, itemId), listName }, fields, {
+    updatedAt: new Date().toISOString(),
+  });
+  await dbPut(STORES.lists, entry);
+  if (window.ArtistWaySync) window.ArtistWaySync.scheduleSync();
+}
+
+async function getListItems(listName) {
+  const all = await dbGetAll(STORES.lists);
+  return all.filter((r) => r.listName === listName);
+}
+
 async function exportAllData() {
-  const [settings, morningPages, artistDates, checklist, checkins] = await Promise.all([
+  const [settings, morningPages, artistDates, checklist, checkins, lists] = await Promise.all([
     dbGetAll(STORES.settings),
     dbGetAll(STORES.morningPages),
     dbGetAll(STORES.artistDates),
     dbGetAll(STORES.checklist),
     dbGetAll(STORES.checkins),
+    dbGetAll(STORES.lists),
   ]);
   return {
     exportedAt: new Date().toISOString(),
@@ -196,6 +238,7 @@ async function exportAllData() {
     artistDates,
     checklist,
     checkins,
+    lists,
   };
 }
 
@@ -207,6 +250,7 @@ async function importAllData(payload) {
     [STORES.artistDates, payload.artistDates],
     [STORES.checklist, payload.checklist],
     [STORES.checkins, payload.checkins],
+    [STORES.lists, payload.lists],
   ];
   for (const [storeName, rows] of stores) {
     if (!rows) continue;
@@ -227,7 +271,7 @@ async function resetAllData({ keepSession } = {}) {
   const db = await openDB();
   const session = keepSession ? await getSetting("session", null) : null;
 
-  const stores = [STORES.settings, STORES.morningPages, STORES.artistDates, STORES.checklist, STORES.checkins, STORES.calendarEvents];
+  const stores = [STORES.settings, STORES.morningPages, STORES.artistDates, STORES.checklist, STORES.checkins, STORES.calendarEvents, STORES.lists];
   for (const storeName of stores) {
     await new Promise((resolve, reject) => {
       const tx = db.transaction(storeName, "readwrite");
@@ -260,6 +304,9 @@ window.ArtistWayDB = {
   getChecklistForWeek,
   saveCheckin,
   getCheckin,
+  addListItem,
+  updateListItem,
+  getListItems,
   exportAllData,
   importAllData,
 };

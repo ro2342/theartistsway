@@ -50,6 +50,16 @@ function startOfWeek(d) {
   return r;
 }
 
+// Afirmação do dia: escolha determinística pelo dia do ano, sem precisar
+// guardar nenhum dado novo -- mesmo cálculo no app do Windows
+// (HomePage.xaml.cs), pra mostrar a mesma frase nos dois aparelhos no
+// mesmo dia.
+function dayOfYear(d) {
+  const start = new Date(d.getFullYear(), 0, 0);
+  const diff = d - start;
+  return Math.floor(diff / (24 * 3600 * 1000));
+}
+
 async function getCurrentWeekId(settings) {
   if (!settings.startDate) return 1;
   const start = startOfWeek(new Date(settings.startDate + "T00:00:00"));
@@ -375,6 +385,11 @@ route("/home", async () => {
       </button>
     </div>
 
+    <div class="card dotted text-center">
+      <p class="muted">Afirmação de hoje</p>
+      <p style="font-weight:var(--fontWeightSemibold,600);">${AFFIRMATIONS[dayOfYear(new Date()) % AFFIRMATIONS.length]}</p>
+    </div>
+
     <div class="card">
       <div class="card-title" style="font-size:1.1rem;">Artist Date dessa semana <span class="icon" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;">${window.ArtistWayIcons.heartRegular}</span></div>
       <p class="muted">${artistDate.done ? "Feito — " + (artistDate.idea || "") : "Ainda não rolou essa semana."}</p>
@@ -488,6 +503,335 @@ route("/regras-da-estrada", async () => {
 
 route("/principios-basicos", async () => {
   renderReferenceScreen("Princípios Básicos", "a base de tudo", BASIC_PRINCIPLES);
+});
+
+route("/tabela-crencas", async () => {
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
+      <div class="logo" style="text-align:right">Crença → Positiva<span class="sub">contraponto rápido</span></div>
+    </div>
+    <div class="card">
+      ${BELIEF_TABLE.map(
+        (pair) => `
+        <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--colorNeutralStrokeSubtle,#e0e0e0);">
+          <span class="muted" style="text-decoration:line-through;">${pair.negative}</span>
+          <span style="font-weight:var(--fontWeightSemibold,600);">${pair.positive}</span>
+        </div>`
+      ).join("")}
+    </div>
+    <div class="spacer"></div>
+  `;
+  document.getElementById("back").addEventListener("click", () => history.back());
+});
+
+// ================= LISTAS NOMEADAS (Vidas Imaginárias, 20 Coisas, Mapa
+// do Ciúme) -- uma tela genérica reaproveitada pelas 3, espelhando
+// NamedListPage.xaml.cs no app do Windows. Círculo de Segurança tem tela
+// própria (duas colunas + alternar lado, não um formulário de adicionar).
+const LIST_CONFIGS = {
+  imaginaryLives: {
+    listName: "imaginaryLives",
+    title: "Vidas Imaginárias",
+    subtitle: "Vidas que você gostaria de ter vivido — a lista cresce a cada semana, não precisa reescrever do zero.",
+    fields: [{ key: "text", label: "Uma vida imaginária", multiline: true }],
+  },
+  thingsILike: {
+    listName: "thingsILike",
+    title: "20 Coisas que Gosto de Fazer",
+    subtitle: "Uma lista viva — reaparece em vários exercícios do livro, inclusive como banco de ideias pra Artist Date.",
+    fields: [{ key: "text", label: "Uma coisa que eu gosto de fazer", multiline: false }],
+  },
+  jealousyMap: {
+    listName: "jealousyMap",
+    title: "Mapa do Ciúme",
+    subtitle: "Quem você sente inveja, por quê, e uma ação-antídoto pra cada um.",
+    fields: [
+      { key: "who", label: "Quem", multiline: false },
+      { key: "why", label: "Por quê", multiline: true },
+      { key: "antidote", label: "Ação-antídoto", multiline: true },
+    ],
+  },
+};
+
+route("/list", async (rest) => {
+  const config = LIST_CONFIGS[rest[0]];
+  if (!config) {
+    navigate("#/settings");
+    return;
+  }
+
+  async function renderScreen() {
+    const items = (await DB.getListItems(config.listName)).sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
+
+    appEl.innerHTML = `
+      <div class="top-bar">
+        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
+        <div class="logo" style="text-align:right">${config.title}<span class="sub">${config.fields.length > 1 ? "formulário" : "lista permanente"}</span></div>
+      </div>
+      <p class="muted">${config.subtitle}</p>
+      <div class="card">
+        ${config.fields
+          .map(
+            (f) => `
+          <label>${f.label}</label>
+          ${f.multiline ? `<textarea data-field="${f.key}"></textarea>` : `<input type="text" data-field="${f.key}" />`}`
+          )
+          .join("")}
+        <button class="btn brass block" id="addItem" style="margin-top:12px;">Adicionar</button>
+      </div>
+      ${items
+        .map(
+          (item) => `
+        <div class="card">
+          ${config.fields
+            .map((f) => (item[f.key] ? `<p class="${config.fields.length > 1 ? "muted" : ""}">${config.fields.length > 1 ? `<strong>${f.label}:</strong> ` : ""}${item[f.key]}</p>` : ""))
+            .join("")}
+        </div>`
+        )
+        .join("")}
+      <div class="spacer"></div>
+    `;
+
+    document.getElementById("back").addEventListener("click", () => history.back());
+    document.getElementById("addItem").addEventListener("click", async () => {
+      const fields = {};
+      let hasContent = false;
+      config.fields.forEach((f) => {
+        const el = document.querySelector(`[data-field="${f.key}"]`);
+        const value = (el.value || "").trim();
+        fields[f.key] = value;
+        if (value) hasContent = true;
+      });
+      if (!hasContent) return;
+      await DB.addListItem(config.listName, fields);
+      renderScreen();
+    });
+  }
+
+  renderScreen();
+});
+
+// ================= CÍRCULO DE SEGURANÇA =================
+route("/circulo-seguranca", async () => {
+  const LIST_NAME = "safetyCircle";
+
+  async function renderScreen() {
+    const items = (await DB.getListItems(LIST_NAME)).sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
+    const safe = items.filter((i) => i.side !== "caution");
+    const caution = items.filter((i) => i.side === "caution");
+
+    function renderNames(list) {
+      return list.map((i) => `<button class="btn secondary block" data-toggle="${i.id}" style="margin-bottom:8px;">${i.name}</button>`).join("");
+    }
+
+    appEl.innerHTML = `
+      <div class="top-bar">
+        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
+        <div class="logo" style="text-align:right">Círculo de Segurança<span class="sub">toque pra mover</span></div>
+      </div>
+      <p class="muted">Quem apoia — e de quem se proteger por enquanto. Toque num nome pra mover de lado.</p>
+      <div class="card">
+        <label>Nome</label>
+        <input type="text" id="nameBox" />
+        <button class="btn brass block" id="addSafe" style="margin-top:12px;">Adicionar em "Apoia"</button>
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size:1.05rem;">Apoia</div>
+        ${renderNames(safe)}
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size:1.05rem;">Cautela</div>
+        ${renderNames(caution)}
+      </div>
+      <div class="spacer"></div>
+    `;
+
+    document.getElementById("back").addEventListener("click", () => history.back());
+    document.getElementById("addSafe").addEventListener("click", async () => {
+      const name = document.getElementById("nameBox").value.trim();
+      if (!name) return;
+      await DB.addListItem(LIST_NAME, { name, side: "safe" });
+      renderScreen();
+    });
+    forEachNode(appEl.querySelectorAll("[data-toggle]"), (btn) => {
+      btn.addEventListener("click", async () => {
+        const item = items.find((i) => i.id === btn.dataset.toggle);
+        if (!item) return;
+        const newSide = item.side === "caution" ? "safe" : "caution";
+        await DB.updateListItem(LIST_NAME, item.id.split("/")[1], { name: item.name, side: newSide });
+        renderScreen();
+      });
+    });
+  }
+
+  renderScreen();
+});
+
+// ================= LIFE PIE =================
+const LIFE_PIE_CATEGORIES = [
+  { key: "espiritualidade", label: "Espiritualidade" },
+  { key: "trabalho", label: "Trabalho" },
+  { key: "lazer", label: "Lazer" },
+  { key: "amigos", label: "Amigos" },
+  { key: "romance", label: "Romance" },
+  { key: "exercicio", label: "Exercício" },
+];
+
+route("/life-pie", async () => {
+  const LIST_NAME = "lifePie";
+  const snapshots = (await DB.getListItems(LIST_NAME)).sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
+  const previous = snapshots.length ? snapshots[snapshots.length - 1] : null;
+
+  // Começa com os valores do último snapshot (se existir) -- assim dá
+  // pra ajustar em vez de sempre começar do zero.
+  const ratings = {};
+  LIFE_PIE_CATEGORIES.forEach((c) => {
+    ratings[c.key] = previous ? Number(previous[`ratings.${c.key}`] || 5) : 5;
+  });
+
+  appEl.innerHTML = `
+    <div class="top-bar">
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
+      <div class="logo" style="text-align:right">Life Pie<span class="sub">seu círculo de vida</span></div>
+    </div>
+    <p class="muted">Arraste cada eixo pra marcar o quanto essa área está satisfeita hoje (0 a 10). ${previous ? "A silhueta clara mostra o snapshot anterior, pra comparar." : ""}</p>
+    <div class="card text-center">
+      <canvas id="lifePieCanvas" width="300" height="300" style="max-width:100%;touch-action:none;"></canvas>
+      <div class="spacer-sm"></div>
+      <button class="btn brass block" id="saveSnapshot">Salvar snapshot de hoje</button>
+    </div>
+    ${
+      snapshots.length
+        ? `<div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Snapshots salvos</div>
+      ${snapshots
+        .slice()
+        .reverse()
+        .map((s) => `<p class="muted">${(s.date || s.updatedAt || "").slice(0, 10)} — ${LIFE_PIE_CATEGORIES.map((c) => `${c.label.slice(0, 3)} ${s[`ratings.${c.key}`] || 0}`).join(", ")}</p>`)
+        .join("")}
+    </div>`
+        : ""
+    }
+    <div class="spacer"></div>
+  `;
+
+  document.getElementById("back").addEventListener("click", () => history.back());
+
+  const canvas = document.getElementById("lifePieCanvas");
+  const ctx = canvas.getContext("2d");
+  const center = { x: canvas.width / 2, y: canvas.height / 2 };
+  const maxRadius = canvas.width / 2 - 40;
+  const n = LIFE_PIE_CATEGORIES.length;
+
+  function axisPoint(index, value) {
+    const angle = (Math.PI * 2 * index) / n - Math.PI / 2;
+    const r = (value / 10) * maxRadius;
+    return { x: center.x + r * Math.cos(angle), y: center.y + r * Math.sin(angle) };
+  }
+
+  function drawPolygon(values, strokeStyle, fillStyle) {
+    ctx.beginPath();
+    LIFE_PIE_CATEGORIES.forEach((c, i) => {
+      const p = axisPoint(i, values[c.key]);
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = fillStyle;
+    ctx.fill();
+    ctx.strokeStyle = strokeStyle;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // grade de fundo (anéis 2/4/6/8/10)
+    ctx.strokeStyle = "rgba(128,128,128,0.25)";
+    ctx.lineWidth = 1;
+    for (let ring = 2; ring <= 10; ring += 2) {
+      ctx.beginPath();
+      LIFE_PIE_CATEGORIES.forEach((c, i) => {
+        const p = axisPoint(i, ring);
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    // eixos + rótulos
+    ctx.fillStyle = "rgba(128,128,128,0.9)";
+    ctx.font = "11px sans-serif";
+    ctx.textAlign = "center";
+    LIFE_PIE_CATEGORIES.forEach((c, i) => {
+      const edge = axisPoint(i, 10);
+      ctx.beginPath();
+      ctx.moveTo(center.x, center.y);
+      ctx.lineTo(edge.x, edge.y);
+      ctx.strokeStyle = "rgba(128,128,128,0.25)";
+      ctx.stroke();
+      const label = axisPoint(i, 11.6);
+      ctx.fillText(c.label, label.x, label.y);
+    });
+
+    if (previous) {
+      const prevRatings = {};
+      LIFE_PIE_CATEGORIES.forEach((c) => (prevRatings[c.key] = Number(previous[`ratings.${c.key}`] || 0)));
+      drawPolygon(prevRatings, "rgba(128,128,128,0.5)", "rgba(128,128,128,0.12)");
+    }
+
+    drawPolygon(ratings, "#0f6cbd", "rgba(15,108,189,0.25)");
+
+    LIFE_PIE_CATEGORIES.forEach((c, i) => {
+      const p = axisPoint(i, ratings[c.key]);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = "#0f6cbd";
+      ctx.fill();
+    });
+  }
+
+  function updateFromPointer(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (clientX - rect.left) * scaleX - center.x;
+    const y = (clientY - rect.top) * scaleY - center.y;
+    let angle = Math.atan2(y, x) + Math.PI / 2;
+    if (angle < 0) angle += Math.PI * 2;
+    const index = Math.round(angle / ((Math.PI * 2) / n)) % n;
+    const dist = Math.sqrt(x * x + y * y);
+    const value = Math.max(0, Math.min(10, Math.round((dist / maxRadius) * 10)));
+    ratings[LIFE_PIE_CATEGORIES[index].key] = value;
+    draw();
+  }
+
+  let dragging = false;
+  canvas.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    updateFromPointer(e.clientX, e.clientY);
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (dragging) updateFromPointer(e.clientX, e.clientY);
+  });
+  window.addEventListener("pointerup", () => {
+    dragging = false;
+  });
+
+  draw();
+
+  document.getElementById("saveSnapshot").addEventListener("click", async () => {
+    const fields = { date: todayStr() };
+    LIFE_PIE_CATEGORIES.forEach((c) => {
+      fields[`ratings.${c.key}`] = String(ratings[c.key]);
+    });
+    await DB.addListItem(LIST_NAME, fields);
+    toast("Snapshot salvo 🥧");
+    render();
+  });
 });
 
 // ================= ARTIST DATE =================
@@ -780,6 +1124,22 @@ route("/settings", async () => {
       <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
       <div class="spacer-sm"></div>
       <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/tabela-crencas">Crença → Positiva</a>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Ferramentas</div>
+      <p class="muted">Listas e exercícios vivos do livro -- crescem com o tempo, não somem depois de uma semana.</p>
+      <a class="btn secondary block" href="#/list/imaginaryLives">Vidas Imaginárias</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/list/thingsILike">20 Coisas que Gosto de Fazer</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/list/jealousyMap">Mapa do Ciúme</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/circulo-seguranca">Círculo de Segurança</a>
+      <div class="spacer-sm"></div>
+      <a class="btn secondary block" href="#/life-pie">Life Pie</a>
     </div>
 
     <div class="card" id="updatesCard">

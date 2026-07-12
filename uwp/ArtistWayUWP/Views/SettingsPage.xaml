@@ -77,6 +77,20 @@
                     <TextBlock Text="Sempre à mão, pra reler quando bater a dúvida." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <Button Content="Regras da Estrada" Click="OpenRoadRules_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Princípios Básicos" Click="OpenPrinciples_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Crença → Positiva" Click="OpenBeliefTable_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="Ferramentas" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Listas e exercícios vivos do livro -- crescem com o tempo, não somem depois de uma semana."
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                    <Button Content="Vidas Imaginárias" Click="OpenImaginaryLives_Click" HorizontalAlignment="Stretch" />
+                    <Button Content="20 Coisas que Gosto de Fazer" Click="OpenThingsILike_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Mapa do Ciúme" Click="OpenJealousyMap_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Círculo de Segurança" Click="OpenSafetyCircle_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button Content="Life Pie" Click="OpenLifePie_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 

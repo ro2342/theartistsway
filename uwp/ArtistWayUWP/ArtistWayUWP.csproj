@@ -65,6 +65,8 @@
     <Compile Include="Models\ProfileSettings.cs" />
     <Compile Include="Models\ArtistDateEntry.cs" />
     <Compile Include="Models\CheckinEntry.cs" />
+    <Compile Include="Models\NamedListItem.cs" />
+    <Compile Include="Models\NamedListConfig.cs" />
 
     <Compile Include="Services\AppointmentService.cs" />
     <Compile Include="Services\AuthService.cs" />
@@ -109,6 +111,18 @@
     </Compile>
     <Compile Include="Views\OnboardingPage.xaml.cs">
       <DependentUpon>OnboardingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TabelaCrencasPage.xaml.cs">
+      <DependentUpon>TabelaCrencasPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NamedListPage.xaml.cs">
+      <DependentUpon>NamedListPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CirculoSegurancaPage.xaml.cs">
+      <DependentUpon>CirculoSegurancaPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LifePiePage.xaml.cs">
+      <DependentUpon>LifePiePage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +172,22 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\OnboardingPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\TabelaCrencasPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\NamedListPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\CirculoSegurancaPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\LifePiePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -54,6 +54,13 @@
                 </StackPanel>
             </Border>
 
+            <Border Style="{StaticResource NudgeBorderStyle}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="Afirmação de hoje" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="AffirmationText" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="Artist Date dessa semana" Style="{StaticResource SubtitleTextBlockStyle}" />

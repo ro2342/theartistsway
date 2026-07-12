@@ -375,5 +375,35 @@ namespace ArtistWayUWP.Views
         {
             MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage));
         }
+
+        private void OpenBeliefTable_Click(object sender, RoutedEventArgs e)
+        {
+            MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage));
+        }
+
+        private void OpenImaginaryLives_Click(object sender, RoutedEventArgs e)
+        {
+            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "imaginaryLives");
+        }
+
+        private void OpenThingsILike_Click(object sender, RoutedEventArgs e)
+        {
+            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "thingsILike");
+        }
+
+        private void OpenJealousyMap_Click(object sender, RoutedEventArgs e)
+        {
+            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "jealousyMap");
+        }
+
+        private void OpenSafetyCircle_Click(object sender, RoutedEventArgs e)
+        {
+            MainPage.Current.ContentFrame.Navigate(typeof(CirculoSegurancaPage));
+        }
+
+        private void OpenLifePie_Click(object sender, RoutedEventArgs e)
+        {
+            MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage));
+        }
     }
 }

@@ -39,6 +39,49 @@ const ROAD_RULES = [
   "Divida a responsabilidade. Quantidade é sua parte (mostrar-se, repetir, insistir); qualidade não precisa ser inteiramente controlada por você.",
 ];
 
+// Tabela Crença Negativa → Alternativa Positiva — contraponto rápido aos
+// clichês sobre "ser artista" que aparecem na Semana 1. Reescrita em
+// paráfrase própria, não copiada do livro.
+const BELIEF_TABLE = [
+  { negative: "Bêbado(a)", positive: "Sóbrio(a)" },
+  { negative: "Louco(a)", positive: "São(sã)" },
+  { negative: "Sempre duro(a) na grana", positive: "Solvente" },
+  { negative: "Egoísta", positive: "Gentil consigo mesmo(a)" },
+  { negative: "Irresponsável", positive: "Comprometido(a) com o processo" },
+  { negative: "Sofredor(a) por natureza", positive: "Merecedor(a) de alegria" },
+  { negative: "Amador(a), nunca profissional de verdade", positive: "Em formação — como todo mundo já foi" },
+  { negative: "Preguiçoso(a)", positive: "Trabalhando no seu próprio ritmo" },
+  { negative: "Instável", positive: "Em processo, não em crise" },
+  { negative: "Sozinho(a) no mundo", positive: "Parte de uma comunidade criativa" },
+];
+
+// Banco de Afirmações — frases prontas pra usar quando não se sabe o que
+// afirmar ao final das Morning Pages, ou pra aparecer sozinha na Home.
+// Conteúdo original, redigido no mesmo espírito de paráfrase própria do
+// resto deste arquivo.
+const AFFIRMATIONS = [
+  "Minha criatividade sempre me leva à verdade e ao amor.",
+  "É seguro para mim ser criativamente prolífico(a).",
+  "Meu talento cresce de acordo com o quanto o uso.",
+  "Deus/o universo não faz nada em vão — inclusive meus impulsos criativos.",
+  "Eu sou um canal para a criatividade, e essa criatividade flui através de mim.",
+  "Minhas ambições vêm de uma fonte divina, e ela conhece caminhos que eu ainda não vejo.",
+  "Quanto mais eu crio, mais energia eu tenho.",
+  "Minha criatividade cura a mim e a outras pessoas.",
+  "Eu sou merecedor(a) do meu tempo, atenção e cuidado criativo.",
+  "Está tudo bem em fazer algo pequeno e imperfeito hoje.",
+  "Aparecer na página já é o trabalho — o resto é consequência.",
+  "Minha voz importa, mesmo (principalmente) enquanto ainda está se formando.",
+  "Eu confio no processo mais do que no resultado.",
+  "Ninguém mais pode fazer o que eu faço do meu jeito.",
+  "Descansar também é parte do trabalho criativo.",
+  "Sou livre para experimentar sem precisar acertar de primeira.",
+  "Minha criança-artista merece proteção e encorajamento.",
+  "Cada Morning Page é um passo, não um exame.",
+  "Eu posso pedir ajuda a algo maior que eu quando travar.",
+  "É seguro querer mais do que eu tenho hoje.",
+];
+
 // Princípios Básicos — a base filosófica que abre o livro (também citada na
 // Semana 2, pra ser relida em voz alta). Conteúdo original, redigido no
 // mesmo espírito de paráfrase própria do resto deste arquivo.
@@ -511,5 +554,7 @@ if (typeof module !== "undefined") {
     ARTIST_DATE_IDEAS,
     ROAD_RULES,
     BASIC_PRINCIPLES,
+    BELIEF_TABLE,
+    AFFIRMATIONS,
   };
 }

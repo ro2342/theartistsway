@@ -30,7 +30,21 @@ namespace ArtistWayUWP.Services
                 ArtistDateIdeas = ReadStringArray(root, "artistDateIdeas"),
                 RoadRules = ReadStringArray(root, "roadRules"),
                 BasicPrinciples = ReadStringArray(root, "basicPrinciples"),
+                Affirmations = ReadStringArray(root, "affirmations"),
             };
+
+            if (root.ContainsKey("beliefTable"))
+            {
+                foreach (JsonValue pairValue in root.GetNamedArray("beliefTable"))
+                {
+                    JsonObject pairObj = pairValue.GetObject();
+                    content.BeliefTable.Add(new BeliefPair
+                    {
+                        Negative = pairObj.GetNamedString("negative"),
+                        Positive = pairObj.GetNamedString("positive"),
+                    });
+                }
+            }
 
             foreach (JsonValue weekValue in root.GetNamedArray("weeks"))
             {

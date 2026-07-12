@@ -657,5 +657,69 @@
     "Quando exploramos nossa criatividade, nos conectamos com nossa própria energia interior — e essa energia é generosa, não escassa.",
     "Nossa criatividade sempre nos leva, no fim, à verdade e ao autoconhecimento, mesmo quando o processo parece confuso no meio do caminho.",
     "Nunca é tarde demais, ou cedo demais, pra explorar sua criatividade — o único momento disponível pra começar é sempre agora."
+  ],
+  "beliefTable": [
+    {
+      "negative": "Bêbado(a)",
+      "positive": "Sóbrio(a)"
+    },
+    {
+      "negative": "Louco(a)",
+      "positive": "São(sã)"
+    },
+    {
+      "negative": "Sempre duro(a) na grana",
+      "positive": "Solvente"
+    },
+    {
+      "negative": "Egoísta",
+      "positive": "Gentil consigo mesmo(a)"
+    },
+    {
+      "negative": "Irresponsável",
+      "positive": "Comprometido(a) com o processo"
+    },
+    {
+      "negative": "Sofredor(a) por natureza",
+      "positive": "Merecedor(a) de alegria"
+    },
+    {
+      "negative": "Amador(a), nunca profissional de verdade",
+      "positive": "Em formação — como todo mundo já foi"
+    },
+    {
+      "negative": "Preguiçoso(a)",
+      "positive": "Trabalhando no seu próprio ritmo"
+    },
+    {
+      "negative": "Instável",
+      "positive": "Em processo, não em crise"
+    },
+    {
+      "negative": "Sozinho(a) no mundo",
+      "positive": "Parte de uma comunidade criativa"
+    }
+  ],
+  "affirmations": [
+    "Minha criatividade sempre me leva à verdade e ao amor.",
+    "É seguro para mim ser criativamente prolífico(a).",
+    "Meu talento cresce de acordo com o quanto o uso.",
+    "Deus/o universo não faz nada em vão — inclusive meus impulsos criativos.",
+    "Eu sou um canal para a criatividade, e essa criatividade flui através de mim.",
+    "Minhas ambições vêm de uma fonte divina, e ela conhece caminhos que eu ainda não vejo.",
+    "Quanto mais eu crio, mais energia eu tenho.",
+    "Minha criatividade cura a mim e a outras pessoas.",
+    "Eu sou merecedor(a) do meu tempo, atenção e cuidado criativo.",
+    "Está tudo bem em fazer algo pequeno e imperfeito hoje.",
+    "Aparecer na página já é o trabalho — o resto é consequência.",
+    "Minha voz importa, mesmo (principalmente) enquanto ainda está se formando.",
+    "Eu confio no processo mais do que no resultado.",
+    "Ninguém mais pode fazer o que eu faço do meu jeito.",
+    "Descansar também é parte do trabalho criativo.",
+    "Sou livre para experimentar sem precisar acertar de primeira.",
+    "Minha criança-artista merece proteção e encorajamento.",
+    "Cada Morning Page é um passo, não um exame.",
+    "Eu posso pedir ajuda a algo maior que eu quando travar.",
+    "É seguro querer mais do que eu tenho hoje."
   ]
 }

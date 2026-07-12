@@ -40,6 +40,15 @@ jobs:
             exit 1
           }
 
+      - name: Conferir se Data/content.json está em dia com www/js/data.js
+        shell: pwsh
+        run: |
+          node scripts/generate-content-json.js --check
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "content.json desatualizado -- rode 'node scripts/generate-content-json.js' e commite o resultado."
+            exit 1
+          }
+
       - name: Configurar MSBuild
         uses: microsoft/setup-msbuild@v2
 

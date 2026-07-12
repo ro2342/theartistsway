@@ -85,6 +85,16 @@ namespace ArtistWayUWP.Views
 
             ToggleMpButton.Content = todayDone ? "✓ Páginas de hoje feitas" : "Marcar páginas de hoje como feitas";
 
+            List<string> affirmations = ContentStore.Content.Affirmations;
+            if (affirmations.Count > 0)
+            {
+                // Mesmo cálculo do PWA (dia do ano) -- mostra a mesma frase
+                // nos dois aparelhos no mesmo dia, sem precisar sincronizar
+                // nada novo pra isso.
+                int index = DateTime.Now.DayOfYear % affirmations.Count;
+                AffirmationText.Text = affirmations[index];
+            }
+
             ArtistDateEntry artistDate = await LocalDataStore.GetArtistDateAsync(weekKey);
             bool adDone = artistDate?.Done ?? false;
             ArtistDateStatusText.Text = adDone

@@ -1,0 +1,36 @@
+<Page
+    x:Class="ArtistWayUWP.Views.LifePiePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ArtistWayUWP.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="16,16,16,24">
+        <StackPanel>
+            <TextBlock Text="Life Pie" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="seu círculo de vida" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,8" />
+            <TextBlock x:Name="HintText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel HorizontalAlignment="Center">
+                    <Canvas x:Name="PieCanvas" Width="300" Height="300"
+                            Background="Transparent"
+                            PointerPressed="PieCanvas_PointerPressed"
+                            PointerMoved="PieCanvas_PointerMoved"
+                            PointerReleased="PieCanvas_PointerReleased" />
+                    <Button Content="Salvar snapshot de hoje" Click="SaveSnapshot_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="HistoryCard" Style="{StaticResource CardBorderStyle}" Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="Snapshots salvos" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <StackPanel x:Name="HistoryPanel" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

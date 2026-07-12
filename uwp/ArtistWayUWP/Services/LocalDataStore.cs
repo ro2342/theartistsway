@@ -19,6 +19,7 @@ namespace ArtistWayUWP.Services
         private const string ArtistDatesFile = "artistDates.json";
         private const string ChecklistFile = "checklist.json";
         private const string CheckinsFile = "checkins.json";
+        private const string ListsFile = "lists.json";
 
         // ---------- infraestrutura ----------
 
@@ -293,6 +294,7 @@ namespace ArtistWayUWP.Services
                 ["artistDates"] = await ReadStoreAsync(ArtistDatesFile),
                 ["checklist"] = await ReadStoreAsync(ChecklistFile),
                 ["checkins"] = await ReadStoreAsync(CheckinsFile),
+                ["lists"] = await ReadStoreAsync(ListsFile),
             };
             return bundle.Stringify();
         }
@@ -320,16 +322,84 @@ namespace ArtistWayUWP.Services
             {
                 await WriteStoreAsync(CheckinsFile, bundle["checkins"].GetObject());
             }
+            if (bundle.ContainsKey("lists"))
+            {
+                await WriteStoreAsync(ListsFile, bundle["lists"].GetObject());
+            }
         }
+
+        // ---------- listas nomeadas (Vidas Imaginárias, 20 Coisas, Mapa do
+        // Ciúme, Círculo de Segurança, Life Pie) ----------
+        // Um arquivo só (lists.json), chave "<listName>/<itemId>" -- assim
+        // toda funcionalidade nova desse tipo usa o mesmo mecanismo de
+        // guardar/sincronizar, em vez de um arquivo/loja por
+        // funcionalidade. Itens só são adicionados/editados, nunca
+        // removidos (sem problema de "tombstone" na mesclagem do sync).
+
+        public static async Task<string> AddListItemAsync(string listName, Dictionary<string, string> fields)
+        {
+            string itemId = Guid.NewGuid().ToString("N");
+            await UpdateListItemAsync(listName, itemId, fields);
+            return itemId;
+        }
+
+        public static async Task UpdateListItemAsync(string listName, string itemId, Dictionary<string, string> fields)
+        {
+            JsonObject store = await ReadStoreAsync(ListsFile);
+            JsonObject entry = new JsonObject
+            {
+                ["listName"] = JsonValue.CreateStringValue(listName),
+                ["updatedAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.ToString("o")),
+            };
+            foreach (KeyValuePair<string, string> kv in fields)
+            {
+                entry[kv.Key] = JsonValue.CreateStringValue(kv.Value ?? "");
+            }
+            store[ListItemKey(listName, itemId)] = entry;
+            await WriteStoreAsync(ListsFile, store);
+            SyncScheduler.ScheduleSync();
+        }
+
+        public static async Task<List<NamedListItem>> GetListItemsAsync(string listName)
+        {
+            JsonObject store = await ReadStoreAsync(ListsFile);
+            List<NamedListItem> result = new List<NamedListItem>();
+            string prefix = listName + "/";
+            foreach (KeyValuePair<string, IJsonValue> kv in store)
+            {
+                if (!kv.Key.StartsWith(prefix) || kv.Value.ValueType != JsonValueType.Object)
+                {
+                    continue;
+                }
+                JsonObject entry = kv.Value.GetObject();
+                NamedListItem item = new NamedListItem
+                {
+                    Id = kv.Key.Substring(prefix.Length),
+                    UpdatedAt = GetStringOrDefault(entry, "updatedAt", ""),
+                };
+                foreach (KeyValuePair<string, IJsonValue> field in entry)
+                {
+                    if (field.Key == "listName" || field.Key == "updatedAt" || field.Value.ValueType != JsonValueType.String)
+                    {
+                        continue;
+                    }
+                    item.Fields[field.Key] = field.Value.GetString();
+                }
+                result.Add(item);
+            }
+            return result;
+        }
+
+        private static string ListItemKey(string listName, string itemId) => listName + "/" + itemId;
 
         // ---------- resetar ----------
 
         // Apaga todos os dados do usuário do aparelho (perfil, Morning
-        // Pages, Artist Dates, checklist, check-ins). Não afeta
+        // Pages, Artist Dates, checklist, check-ins, listas). Não afeta
         // Data/content.json (conteúdo do livro, empacotado no app).
         public static async Task ResetAllAsync()
         {
-            string[] files = { SettingsFile, MorningPagesFile, ArtistDatesFile, ChecklistFile, CheckinsFile };
+            string[] files = { SettingsFile, MorningPagesFile, ArtistDatesFile, ChecklistFile, CheckinsFile, ListsFile };
             foreach (string fileName in files)
             {
                 try
@@ -346,7 +416,7 @@ namespace ArtistWayUWP.Services
 
         // ---------- acesso genérico por nome (usado pelo SyncService) ----------
 
-        public static readonly string[] SyncStoreNames = { "settings", "morningPages", "artistDates", "checklist", "checkins" };
+        public static readonly string[] SyncStoreNames = { "settings", "morningPages", "artistDates", "checklist", "checkins", "lists" };
 
         private static string FileNameFor(string storeName)
         {
@@ -357,6 +427,7 @@ namespace ArtistWayUWP.Services
                 case "artistDates": return ArtistDatesFile;
                 case "checklist": return ChecklistFile;
                 case "checkins": return CheckinsFile;
+                case "lists": return ListsFile;
                 default: throw new ArgumentException("Store desconhecido: " + storeName);
             }
         }

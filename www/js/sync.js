@@ -7,7 +7,7 @@
 // arquitetura" em sincronizacao-nuvem-setup.md).
 
 const FIRESTORE_PROJECT_ID = "theartistsway";
-const SYNC_STORE_NAMES = ["settings", "morningPages", "artistDates", "checklist", "checkins"];
+const SYNC_STORE_NAMES = ["settings", "morningPages", "artistDates", "checklist", "checkins", "lists"];
 const SYNC_DEBOUNCE_MS = 5000;
 
 let syncDebounceTimer = null;
@@ -164,6 +164,15 @@ async function buildStoreBlob(storeName) {
       });
       return blob;
     }
+    case "lists": {
+      const rows = await db.dbGetAll(db.STORES.lists);
+      const blob = {};
+      rows.forEach((r) => {
+        const { id, ...fields } = r;
+        blob[id] = fields;
+      });
+      return blob;
+    }
     default:
       return {};
   }
@@ -212,6 +221,11 @@ async function applyStoreBlob(storeName, merged) {
       for (const weekId of Object.keys(merged)) {
         const entry = merged[weekId];
         await db.dbPut(db.STORES.checkins, { weekId: parseInt(weekId, 10), answers: entry.answers || {}, savedAt: entry.savedAt });
+      }
+      return;
+    case "lists":
+      for (const id of Object.keys(merged)) {
+        await db.dbPut(db.STORES.lists, Object.assign({ id }, merged[id]));
       }
       return;
   }
