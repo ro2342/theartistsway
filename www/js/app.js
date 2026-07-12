@@ -80,6 +80,32 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
 }
 
+// ---------- diálogo de confirmação (fluent-dialog de verdade) ----------
+function confirmDialog(title, message, confirmLabel) {
+  return new Promise((resolve) => {
+    const dialog = document.createElement("fluent-dialog");
+    dialog.setAttribute("type", "modal");
+    dialog.setAttribute("aria-label", title);
+    dialog.innerHTML = `
+      <fluent-dialog-body>
+        <div slot="title">${title}</div>
+        <p class="muted">${message}</p>
+        <fluent-button slot="action" appearance="primary" id="confirmDialogYes">${confirmLabel}</fluent-button>
+        <fluent-button slot="action" id="confirmDialogNo">Cancelar</fluent-button>
+      </fluent-dialog-body>
+    `;
+    document.body.appendChild(dialog);
+    function cleanup(result) {
+      dialog.hide();
+      dialog.remove();
+      resolve(result);
+    }
+    dialog.querySelector("#confirmDialogYes").addEventListener("click", () => cleanup(true));
+    dialog.querySelector("#confirmDialogNo").addEventListener("click", () => cleanup(false));
+    dialog.show();
+  });
+}
+
 // ---------- router ----------
 const routes = {};
 function route(path, handler) {
@@ -99,26 +125,44 @@ async function render() {
 }
 window.addEventListener("hashchange", render);
 
+// Número da versão publicada -- mesmo app/version.json que o checador de
+// atualização do app do Windows já usa (updates.js), só que aqui é
+// puramente informativo: aparece no rodapé da rail (desktop) e em
+// Ajustes, nas duas plataformas, pra sempre dar pra conferir visualmente
+// se o build certo está no ar.
+let displayVersionPromise = null;
+function getDisplayVersion() {
+  if (!displayVersionPromise) {
+    displayVersionPromise = fetch("./app/version.json", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => (data && data.version ? data.version : null))
+      .catch(() => null);
+  }
+  return displayVersionPromise;
+}
+
 function renderBottomNav(activePath) {
   let nav = document.getElementById("bottomNav");
   const settingsPromise = DB.getSetting("profile", null);
-  settingsPromise.then((settings) => {
+  settingsPromise.then(async (settings) => {
     if (!settings || !settings.onboarded) {
       if (nav) nav.remove();
       return;
     }
+    const ICONS = window.ArtistWayIcons;
     const items = [
-      { path: "/home", label: "Início", glyph: "🏡" },
-      { path: "/progress", label: "Jornada", glyph: "🗺️" },
-      { path: "/artist-date", label: "Date", glyph: "🎨" },
-      { path: "/settings", label: "Ajustes", glyph: "🕯️" },
+      { path: "/home", label: "Início", regular: ICONS.homeRegular, filled: ICONS.homeFilled },
+      { path: "/progress", label: "Jornada", regular: ICONS.bookRegular, filled: ICONS.bookFilled },
+      { path: "/artist-date", label: "Date", regular: ICONS.heartRegular, filled: ICONS.heartFilled },
+      { path: "/settings", label: "Ajustes", regular: ICONS.settingsRegular, filled: ICONS.settingsFilled },
     ];
     const html = items
-      .map(
-        (it) => `<button class="nav-btn ${it.path === activePath ? "active" : ""}" data-nav="${it.path}">
-          <span class="glyph">${it.glyph}</span>${it.label}
-        </button>`
-      )
+      .map((it) => {
+        const isActive = it.path === activePath;
+        return `<button class="nav-btn ${isActive ? "active" : ""}" data-nav="${it.path}">
+          <span class="icon">${isActive ? it.filled : it.regular}</span>${it.label}
+        </button>`;
+      })
       .join("");
     if (!nav) {
       nav = document.createElement("div");
@@ -126,10 +170,13 @@ function renderBottomNav(activePath) {
       nav.className = "bottom-nav";
       document.body.appendChild(nav);
     }
-    nav.innerHTML = html;
+    nav.innerHTML = html + `<div class="nav-version" id="navVersion"></div>`;
     forEachNode(nav.querySelectorAll("[data-nav]"), (btn) => {
       btn.addEventListener("click", () => navigate("#" + btn.dataset.nav));
     });
+    const version = await getDisplayVersion();
+    const versionEl = document.getElementById("navVersion");
+    if (versionEl) versionEl.textContent = version ? `versão ${version}` : "";
   });
 }
 
@@ -160,7 +207,7 @@ route("/onboarding", async () => {
     // 1 — nome + data de início
     () => `
       <div class="onboard-screen">
-        <button class="icon-btn" id="stepBack">←</button>
+        <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <h2 class="onboard-title">Como posso te chamar?</h2>
         <p class="onboard-sub">E quando você quer começar sua Semana 1 (domingo a sábado)?</p>
         <label>Nome</label>
@@ -174,7 +221,7 @@ route("/onboarding", async () => {
     // 2 — morning pages + artist date
     () => `
       <div class="onboard-screen">
-        <button class="icon-btn" id="stepBack">←</button>
+        <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <h2 class="onboard-title">Seus rituais</h2>
         <p class="onboard-sub">Escolha os horários. Dá pra mudar depois em Ajustes.</p>
         <label>Horário das Morning Pages (todo dia)</label>
@@ -194,7 +241,7 @@ route("/onboarding", async () => {
     // 3 — checkin + permissões
     () => `
       <div class="onboard-screen">
-        <button class="icon-btn" id="stepBack">←</button>
+        <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <h2 class="onboard-title">Check-in semanal</h2>
         <p class="onboard-sub">Um momento pra revisar a semana — geralmente no fim de semana.</p>
         <label>Dia do check-in</label>
@@ -295,7 +342,7 @@ route("/home", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back">←</button>
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">The Artist's Way<span class="sub">seu companheiro de jornada</span></div>
     </div>
 
@@ -329,7 +376,7 @@ route("/home", async () => {
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.1rem;">Artist Date dessa semana 🎨</div>
+      <div class="card-title" style="font-size:1.1rem;">Artist Date dessa semana <span class="icon" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;">${window.ArtistWayIcons.heartRegular}</span></div>
       <p class="muted">${artistDate.done ? "Feito — " + (artistDate.idea || "") : "Ainda não rolou essa semana."}</p>
       <a class="btn ${artistDate.done ? "secondary" : "brass"} block" href="#/artist-date">${artistDate.done ? "Ver / trocar" : "Planejar meu Artist Date"}</a>
     </div>
@@ -343,7 +390,7 @@ route("/home", async () => {
       showRoadRulesNudge
         ? `<div class="card dotted text-center">
       <p class="muted">Faz uns dias que você não passa por aqui.</p>
-      <a class="btn secondary block" href="#/regras-da-estrada">📍 Já revisou as Regras da Estrada?</a>
+      <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Já revisou as Regras da Estrada?</a>
     </div>`
         : ""
     }
@@ -365,7 +412,7 @@ route("/week", async (rest) => {
   if (rest[1] === "essay") {
     appEl.innerHTML = `
       <div class="top-bar">
-        <button class="icon-btn" id="back">←</button>
+        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">o tema em detalhe</span></div>
       </div>
       <h2>${week.title}</h2>
@@ -383,19 +430,19 @@ route("/week", async (rest) => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back">←</button>
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">${WEEKS.length} no total</span></div>
     </div>
     <h2>${week.title}</h2>
     <p class="muted">${week.intro}</p>
-    <a class="btn secondary block" href="#/week/${week.id}/essay">📖 Entenda o tema da semana</a>
+    <a class="btn secondary block" href="#/week/${week.id}/essay"><span class="icon">${window.ArtistWayIcons.bookRegular}</span> Entenda o tema da semana</a>
     <div class="spacer-sm"></div>
     <div class="card">
       ${week.checklist
         .map(
           (item, idx) => `
         <div class="checklist-item ${doneSet.has(idx) ? "done" : ""}" data-idx="${idx}">
-          <div class="box"></div>
+          <div class="box">${doneSet.has(idx) ? `<span class="icon">${window.ArtistWayIcons.checkmarkCircle}</span>` : ""}</div>
           <div class="text">
             ${item.task}
             <div class="item-note">${item.detail}</div>
@@ -422,7 +469,7 @@ route("/week", async (rest) => {
 function renderReferenceScreen(title, sub, items) {
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back">←</button>
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">${title}<span class="sub">${sub}</span></div>
     </div>
     <div class="card">
@@ -475,7 +522,7 @@ route("/artist-date", async () => {
   function renderScreen() {
     appEl.innerHTML = `
       <div class="top-bar">
-        <button class="icon-btn" id="back">←</button>
+        <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <div class="logo" style="text-align:right">Artist Date<span class="sub">semana ${weekId}</span></div>
       </div>
       <p class="muted text-center">Um encontro solo, só por prazer — sem culpa, sem produtividade.</p>
@@ -485,7 +532,7 @@ route("/artist-date", async () => {
         <div class="idea-card">
           <textarea id="ideaText" placeholder="Toque em 'sortear' ou escreva aqui o seu próprio plano...">${draftIdea}</textarea>
         </div>
-        <button class="btn secondary block" id="shuffle">🎲 Sortear outra ideia</button>
+        <button class="btn secondary block" id="shuffle"><span class="icon">${window.ArtistWayIcons.dice}</span> Sortear outra ideia</button>
         <div class="spacer"></div>
         <button class="btn brass block" id="saveDate">Salvar Date</button>
         <div class="spacer-sm"></div>
@@ -560,7 +607,7 @@ route("/checkin", async (rest) => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back">←</button>
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Check-in<span class="sub">semana ${weekId}</span></div>
     </div>
     <div class="card">
@@ -603,7 +650,7 @@ route("/progress", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back">←</button>
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Sua Jornada<span class="sub">12 semanas</span></div>
     </div>
     <p class="muted">Toque em qualquer semana — você pode ir e voltar à vontade.</p>
@@ -632,7 +679,7 @@ route("/settings", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <button class="icon-btn" id="back">←</button>
+      <button class="icon-btn" id="back"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
       <div class="logo" style="text-align:right">Ajustes<span class="sub">seus rituais</span></div>
     </div>
 
@@ -642,6 +689,24 @@ route("/settings", async () => {
         <button class="btn ${fontSize === "small" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="small">Pequena</button>
         <button class="btn ${fontSize === "medium" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="medium">Média</button>
         <button class="btn ${fontSize === "large" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="large">Grande</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Aparência</div>
+      <p class="muted">Accent color e tema -- sincronizados entre aparelhos junto com o resto do seu progresso.</p>
+      <label>Cor de destaque</label>
+      <div class="swatch-row" id="accentSwatches">
+        ${window.ArtistWayTheme.ACCENT_COLORS.map(
+          (color) =>
+            `<button class="swatch ${(settings.accentColor || window.ArtistWayTheme.ACCENT_COLORS[0]) === color ? "selected" : ""}" style="background:${color};" data-accent="${color}" aria-label="${color}"></button>`
+        ).join("")}
+      </div>
+      <label>Tema</label>
+      <div class="theme-mode-row" id="themeModeRow">
+        <button class="btn ${(settings.themeMode || "auto") === "light" ? "" : "secondary"}" data-theme-mode="light"><span class="icon">${window.ArtistWayIcons.sun}</span> Claro</button>
+        <button class="btn ${(settings.themeMode || "auto") === "dark" ? "" : "secondary"}" data-theme-mode="dark"><span class="icon">${window.ArtistWayIcons.moon}</span> Escuro</button>
+        <button class="btn ${(settings.themeMode || "auto") === "auto" ? "" : "secondary"}" data-theme-mode="auto">Automático</button>
       </div>
     </div>
 
@@ -712,9 +777,9 @@ route("/settings", async () => {
     <div class="card">
       <div class="card-title" style="font-size:1.05rem;">Referência</div>
       <p class="muted">Sempre à mão, pra reler quando bater a dúvida.</p>
-      <a class="btn secondary block" href="#/regras-da-estrada">📍 Regras da Estrada</a>
+      <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
       <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/principios-basicos">✳️ Princípios Básicos</a>
+      <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
     </div>
 
     <div class="card" id="updatesCard">
@@ -732,6 +797,24 @@ route("/settings", async () => {
       const updated = Object.assign({}, settings, { fontSize: btn.dataset.fontsize });
       await DB.setProfile(updated);
       applyFontSizePreference(updated.fontSize);
+      render();
+    });
+  });
+
+  forEachNode(appEl.querySelectorAll("[data-accent]"), (btn) => {
+    btn.addEventListener("click", async () => {
+      const updated = Object.assign({}, settings, { accentColor: btn.dataset.accent });
+      await DB.setProfile(updated);
+      window.ArtistWayTheme.applyTheme(updated);
+      render();
+    });
+  });
+
+  forEachNode(appEl.querySelectorAll("[data-theme-mode]"), (btn) => {
+    btn.addEventListener("click", async () => {
+      const updated = Object.assign({}, settings, { themeMode: btn.dataset.themeMode });
+      await DB.setProfile(updated);
+      window.ArtistWayTheme.applyTheme(updated);
       render();
     });
   });
@@ -873,9 +956,9 @@ route("/settings", async () => {
   document.getElementById("clearData").addEventListener("click", async () => {
     const session = await window.ArtistWayAuth.getSession();
     const msg = session
-      ? "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer. Tem certeza?"
-      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?";
-    if (!confirm(msg)) return;
+      ? "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer."
+      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer.";
+    if (!(await confirmDialog("Apagar todos os dados?", msg, "Apagar dados"))) return;
     if (session) await window.ArtistWaySync.clearCloudData();
     await DB.resetAllData({ keepSession: true });
     location.reload();
@@ -885,9 +968,9 @@ route("/settings", async () => {
   document.getElementById("fullReset").addEventListener("click", async () => {
     const session = await window.ArtistWayAuth.getSession();
     const msg = session
-      ? "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer. Tem certeza?"
-      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?";
-    if (!confirm(msg)) return;
+      ? "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer."
+      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer.";
+    if (!(await confirmDialog("Resetar o app completamente?", msg, "Resetar tudo"))) return;
     if (session) {
       await window.ArtistWaySync.clearCloudData();
       await window.ArtistWayAuth.signOut();
@@ -899,7 +982,12 @@ route("/settings", async () => {
   const updatesBodyEl = document.getElementById("updatesBody");
   if (updatesBodyEl) {
     if (!window.ArtistWayUpdates || !window.ArtistWayUpdates.isPackagedApp()) {
-      updatesBodyEl.textContent = "Você está usando a versão web — ela se atualiza sozinha, sem precisar checar nada aqui.";
+      getDisplayVersion().then((version) => {
+        if (!updatesBodyEl.isConnected) return;
+        updatesBodyEl.textContent = version
+          ? `Versão ${version} — a versão web se atualiza sozinha, sem precisar checar nada aqui.`
+          : "Você está usando a versão web — ela se atualiza sozinha, sem precisar checar nada aqui.";
+      });
     } else {
       const installed = window.ArtistWayUpdates.getInstalledVersion();
       updatesBodyEl.textContent = `Versão instalada: ${installed}. Verificando se há atualização...`;
@@ -932,9 +1020,21 @@ route("/settings", async () => {
 });
 
 // ---------- boot ----------
+// theme.js é um módulo ES (só ele, por causa dos temas prontos do
+// Fluent) -- módulos sempre carregam depois dos scripts clássicos, então
+// esperamos o evento de pronto antes do primeiro render pra não desenhar
+// a tela com o tema errado por um instante.
+function waitForTheme() {
+  if (window.ArtistWayTheme) return Promise.resolve();
+  return new Promise((resolve) => window.addEventListener("artistway-theme-ready", resolve, { once: true }));
+}
+
 (async function boot() {
+  await waitForTheme();
   const settings = await DB.getSetting("profile", null);
   applyFontSizePreference(settings && settings.fontSize);
+  window.ArtistWayTheme.applyTheme(settings);
+  window.ArtistWayTheme.watchSystemTheme(() => DB.getSetting("profile", null));
 
   if ("serviceWorker" in navigator) {
     try {

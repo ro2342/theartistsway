@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-  <meta name="theme-color" content="#f3ead9" />
+  <meta name="theme-color" content="#faf9f8" />
   <title>The Artist's Way — Companheiro</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./icons/icon-192.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <script>
-    // TEMPORÁRIO (branch de diagnóstico, servido via GitHub Pages): força
-    // busca fresca de cada arquivo, sem cache -- o WebView do Lumia estava
-    // servindo JS/CSS antigos do cache mesmo com o app reinstalado.
+    // Força busca fresca de cada arquivo, sem cache -- útil enquanto o
+    // app muda rápido; o service worker cuida do cache "de verdade" pro
+    // uso offline (ver service-worker.js).
     document.write('<link rel="stylesheet" href="./css/style.css?v=' + Date.now() + '" />');
   </script>
+  <!--
+    Bundle oficial do @fluentui/web-components (vendorizado, sem CDN --
+    ver www/vendor/fluentui/VENDORED.md). Zero import/export próprio,
+    carrega como script clássico igual ao resto do app; registra todos
+    os <fluent-*> como efeito colateral e expõe window.Fluent.setTheme.
+  -->
+  <script src="./vendor/fluentui/web-components.min.js"></script>
 </head>
 <body>
-  <div class="spiral-bar"></div>
   <div id="app"></div>
 
+  <script type="module" src="./js/theme.js"></script>
   <script>
     (function () {
       var v = Date.now();
-      ["data", "db", "auth", "sync", "notifications", "calendar", "updates", "app"].forEach(function (name) {
+      ["data", "icons", "db", "auth", "sync", "notifications", "calendar", "updates", "app"].forEach(function (name) {
         document.write('<script src="./js/' + name + '.js?v=' + v + '"><\/script>');
       });
     })();

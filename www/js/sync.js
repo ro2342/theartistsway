@@ -176,6 +176,11 @@ async function applyStoreBlob(storeName, merged) {
       await db.setSetting("profile", merged.profile || null);
       await db.setSetting("lastActivityAt", merged.lastActivityAt || null);
       await db.setSetting("_updatedAt", merged._updatedAt || null);
+      // Se accent/tema mudou em outro aparelho, reflete aqui assim que
+      // a sincronização pousa -- sem precisar reabrir o app.
+      if (window.ArtistWayTheme && merged.profile) {
+        window.ArtistWayTheme.applyTheme(merged.profile);
+      }
       return;
     case "morningPages":
       for (const date of Object.keys(merged)) {
