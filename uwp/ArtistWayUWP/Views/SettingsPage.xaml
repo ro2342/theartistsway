@@ -90,23 +90,22 @@
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Sincronização (experimental)" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Login com Google guarda seu progresso na nuvem (Firebase). A sincronização de dados em si ainda está sendo construída -- por enquanto isso mantém você logado nesse aparelho."
+                    <TextBlock Text="Sincronização" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano -- funciona junto com o PWA, no mesmo login."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                     <TextBlock x:Name="SyncStatusText" Text="Não logado." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
                     <Button x:Name="GoogleLoginButton" Content="Entrar com Google" Click="GoogleLogin_Click" HorizontalAlignment="Stretch" />
                     <Button x:Name="SignOutButton" Content="Sair" Click="SignOut_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" Visibility="Collapsed" />
-                    <Button Content="Mostrar identificador do pacote" Click="ShowPackageSid_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="Testar login com Microsoft (pausado)" Click="TestMicrosoftLogin_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Apaga todo o progresso salvo no aparelho (perfil, Morning Pages, Artist Dates, checklist, check-ins) e volta pro começo. Não tem como desfazer -- faça um backup antes se quiser guardar alguma coisa."
+                    <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer -- faça um backup antes se quiser guardar alguma coisa."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="Resetar o app" Click="Reset_Click" HorizontalAlignment="Stretch" />
+                    <Button Content="Apagar todos os dados (mantém login)" Click="ClearData_Click" HorizontalAlignment="Stretch" />
+                    <Button Content="Resetar o app completamente (sai da conta)" Click="FullReset_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
         </StackPanel>

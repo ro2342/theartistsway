@@ -453,6 +453,30 @@ route("/artist-date", async () => {
   let usedIdeas = JSON.parse(localStorage.getItem("awUsedIdeas") || "[]");
   window.__currentIdea = window.__currentIdea || current.idea || "";
 
+  // Salva a ideia sozinho, 700ms depois de parar de digitar, e também ao
+  // sair da tela -- mesmo comportamento do app do Windows (ArtistDatePage).
+  // Antes, a ideia só era salva ao clicar "Marcar como feito", então
+  // planejar com antecedência sem marcar nada se perdia (e não sincronizava
+  // pros outros aparelhos).
+  let saveTimer = null;
+  async function saveIdea() {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    current.idea = window.__currentIdea;
+    await DB.setArtistDate(weekKey, current);
+  }
+  function scheduleSaveIdea() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveIdea, 700);
+  }
+  // Sem "{ once: true }" de propósito -- o WebView antigo do Windows 10
+  // Mobile nem sempre honra opções de addEventListener, então remove à mão.
+  async function saveIdeaOnLeave() {
+    window.removeEventListener("hashchange", saveIdeaOnLeave);
+    await saveIdea();
+  }
+  window.addEventListener("hashchange", saveIdeaOnLeave);
+
   function pickIdea() {
     if (usedIdeas.length >= ARTIST_DATE_IDEAS.length) usedIdeas = [];
     let idx;
@@ -462,6 +486,7 @@ route("/artist-date", async () => {
     usedIdeas.push(idx);
     localStorage.setItem("awUsedIdeas", JSON.stringify(usedIdeas));
     window.__currentIdea = ARTIST_DATE_IDEAS[idx];
+    scheduleSaveIdea();
     renderScreen();
   }
 
@@ -489,14 +514,13 @@ route("/artist-date", async () => {
     document.getElementById("back").addEventListener("click", () => history.back());
     document.getElementById("ideaText").addEventListener("input", (e) => {
       window.__currentIdea = e.target.value;
+      scheduleSaveIdea();
     });
     document.getElementById("shuffle").addEventListener("click", pickIdea);
     document.getElementById("markDone").addEventListener("click", async () => {
-      const newDone = !current.done;
-      current.done = newDone;
-      current.idea = window.__currentIdea;
-      await DB.setArtistDate(weekKey, current);
-      toast(newDone ? "Aproveite seu Artist Date! 🎨" : "Desmarcado");
+      current.done = !current.done;
+      await saveIdea();
+      toast(current.done ? "Aproveite seu Artist Date! 🎨" : "Desmarcado");
       renderScreen();
     });
     document.getElementById("addCal").addEventListener("click", async () => {
@@ -652,11 +676,19 @@ route("/settings", async () => {
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Sincronização (experimental)</div>
-      <p class="muted">Login com Google sincroniza seu progresso com a nuvem (Firebase) automaticamente em segundo plano -- funciona junto com o app do Windows, no mesmo login.</p>
+      <div class="card-title" style="font-size:1.05rem;">Sincronização</div>
+      <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano -- funciona junto com o app do Windows, no mesmo login.</p>
       <p class="muted" id="syncStatus">Verificando...</p>
       <button class="btn brass block" id="googleLogin">Entrar com Google</button>
       <button class="btn secondary block" id="signOut" style="display:none;">Sair</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:1.05rem;">Zona de risco</div>
+      <p class="muted">Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer -- faça um backup antes se quiser guardar alguma coisa.</p>
+      <button class="btn secondary block" id="clearData">Apagar todos os dados (mantém login)</button>
+      <div class="spacer-sm"></div>
+      <button class="btn secondary block" id="fullReset">Resetar o app completamente (sai da conta)</button>
     </div>
 
     <div class="card">
@@ -816,6 +848,35 @@ route("/settings", async () => {
       refreshSyncStatus();
     });
   }
+
+  // Apaga o progresso (aparelho + nuvem, se logado) mas mantém a sessão --
+  // útil pra recomeçar o programa do zero sem precisar logar de novo. A
+  // conta continua existindo, só fica vazia. Mesmo par de opções do app UWP.
+  document.getElementById("clearData").addEventListener("click", async () => {
+    const session = await window.ArtistWayAuth.getSession();
+    const msg = session
+      ? "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer. Tem certeza?"
+      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?";
+    if (!confirm(msg)) return;
+    if (session) await window.ArtistWaySync.clearCloudData();
+    await DB.resetAllData({ keepSession: true });
+    location.reload();
+  });
+
+  // Reset completo: apaga o progresso (aparelho + nuvem) E sai da conta.
+  document.getElementById("fullReset").addEventListener("click", async () => {
+    const session = await window.ArtistWayAuth.getSession();
+    const msg = session
+      ? "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer. Tem certeza?"
+      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?";
+    if (!confirm(msg)) return;
+    if (session) {
+      await window.ArtistWaySync.clearCloudData();
+      await window.ArtistWayAuth.signOut();
+    }
+    await DB.resetAllData({ keepSession: false });
+    location.reload();
+  });
 
   const updatesBodyEl = document.getElementById("updatesBody");
   if (updatesBodyEl) {

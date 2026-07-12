@@ -55,6 +55,49 @@ namespace ArtistWayUWP.Services
             }
         }
 
+        // Apaga os dados da nuvem (todos os stores) sem mexer no login --
+        // usado pelo reset "Apagar meus dados" (mantém o aparelho logado).
+        // A conta em si nunca é apagada, só o que está guardado nela.
+        public static async Task<bool> ClearCloudDataAsync()
+        {
+            FirebaseSession session = SessionService.GetSession();
+            if (session == null)
+            {
+                return true;
+            }
+
+            string idToken = session.IdToken;
+            if (session.NeedsRefresh)
+            {
+                idToken = await RefreshIdTokenAsync(session);
+                if (idToken == null)
+                {
+                    return false;
+                }
+            }
+
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", idToken);
+                    foreach (string storeName in LocalDataStore.SyncStoreNames)
+                    {
+                        HttpResponseMessage response = await client.DeleteAsync(DocUrl(session.Uid, storeName));
+                        if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         private static async Task SyncStoreAsync(HttpClient client, string uid, string storeName)
         {
             JsonObject local = await LocalDataStore.GetStoreForSyncAsync(storeName);

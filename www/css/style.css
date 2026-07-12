@@ -428,24 +428,31 @@ button { font-family: "Figtree", sans-serif; }
   background: var(--paper);
   border-top: 2px solid var(--ink);
   display: flex;
-  justify-content: space-around;
-  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
   z-index: 20;
 }
 
+/* flex:1 (em vez de justify-content:space-around com padding só ao redor
+   do conteúdo) faz cada botão ocupar o quadrante inteiro da barra -- assim
+   o destaque de toque preenche o quadradinho todo, como nas listas nativas
+   do Windows, em vez de só uma caixinha estreita em volta do ícone/texto. */
 .nav-btn {
   background: none;
   border: none;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
   font-size: 0.68rem;
   font-weight: 600;
   color: var(--ink-soft);
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
+.nav-btn:active { background: var(--paper-shadow); }
 .nav-btn .glyph { font-size: 1.3rem; }
 .nav-btn.active { color: var(--teal-deep); }
 

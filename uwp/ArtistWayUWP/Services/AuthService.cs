@@ -5,8 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using Windows.Security.Authentication.Web;
-using Windows.Security.Authentication.Web.Core;
-using Windows.Security.Credentials;
 
 namespace ArtistWayUWP.Services
 {
@@ -23,16 +21,12 @@ namespace ArtistWayUWP.Services
         public int ExpiresInSeconds { get; set; } = 3600;
     }
 
-    // Login com Microsoft via WAM (WebAuthenticationCoreManager) -- reaproveita
-    // a conta Microsoft já logada no aparelho, sem abrir navegador. O token
-    // obtido é trocado pelo login do Firebase via REST (Identity Toolkit),
-    // já que não existe SDK oficial do Firebase pra UWP.
+    // Login com Google, trocado pelo login do Firebase via REST (Identity
+    // Toolkit), já que não existe SDK oficial do Firebase pra UWP. (Login
+    // Microsoft via WAM foi removido -- exigia associação com a Microsoft
+    // Store, incompatível com o certificado de sideload deste app.)
     public static class AuthService
     {
-        // Application (client) ID do app registrado no Entra ID
-        // (uwp/ArtistWayUWP -- ver sincronizacao-nuvem-setup.md).
-        private const string MicrosoftClientId = "bf179c88-8388-4ffb-a90a-d8676d4e9513";
-
         // apiKey público do projeto Firebase (uwp/ArtistWayUWP/Data/firebase-config.json).
         // Público de propósito (reaproveitado pelo SyncService pra chamar o
         // Firestore e o endpoint de refresh de token).
@@ -55,64 +49,6 @@ namespace ArtistWayUWP.Services
         private const string GoogleDesktopClientId = "431486750791-cm92iio4veer7ob4or7eqeg6qbb4t8af.apps.googleusercontent.com";
         private const string GoogleDesktopClientSecret = "__GOOGLE_OAUTH_DESKTOP_CLIENT_SECRET__";
         private const string GoogleDesktopRedirectUri = "http://127.0.0.1";
-
-        public static async Task<AuthResult> SignInWithMicrosoftAsync()
-        {
-            try
-            {
-                // Nem "common" nem "consumers" se comportaram direito nesse
-                // Windows 10 Mobile (um foi pra conta errada, o outro nem
-                // validou). O usuário confirmou que só existe UMA conta
-                // Microsoft no aparelho (pessoal) -- sem ambiguidade nenhuma
-                // pra resolver, então usa a sobrecarga sem authority e deixa
-                // o próprio broker escolher a única conta disponível.
-                WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(
-                    "https://login.microsoft.com");
-
-                if (provider == null)
-                {
-                    return new AuthResult { Success = false, ErrorMessage = "Provedor de conta Microsoft não encontrado nesse aparelho." };
-                }
-
-                WebTokenRequest request = new WebTokenRequest(provider, "openid profile", MicrosoftClientId);
-                WebTokenRequestResult result = await WebAuthenticationCoreManager.RequestTokenAsync(request);
-
-                if (result.ResponseStatus != WebTokenRequestStatus.Success)
-                {
-                    string errorDetail = result.ResponseError != null
-                        ? $" ({result.ResponseError.ErrorCode}: {result.ResponseError.ErrorMessage})"
-                        : "";
-                    return new AuthResult { Success = false, ErrorMessage = $"WAM: {result.ResponseStatus}{errorDetail}" };
-                }
-
-                if (result.ResponseData == null || result.ResponseData.Count == 0)
-                {
-                    return new AuthResult { Success = false, ErrorMessage = "WAM não devolveu nenhuma resposta." };
-                }
-
-                WebTokenResponse tokenResponse = result.ResponseData[0];
-                string idToken = null;
-                if (tokenResponse.Properties != null && tokenResponse.Properties.ContainsKey("id_token"))
-                {
-                    idToken = tokenResponse.Properties["id_token"];
-                }
-                if (string.IsNullOrEmpty(idToken))
-                {
-                    idToken = tokenResponse.Token;
-                }
-
-                if (string.IsNullOrEmpty(idToken))
-                {
-                    return new AuthResult { Success = false, ErrorMessage = "WAM não devolveu id_token nem access token." };
-                }
-
-                return await ExchangeWithFirebaseAsync(idToken, "microsoft.com", "id_token");
-            }
-            catch (Exception ex)
-            {
-                return new AuthResult { Success = false, ErrorMessage = ex.Message };
-            }
-        }
 
         // Fluxo de dispositivo (Device Authorization Grant) -- o mesmo que
         // Smart TVs usam: mostra um código e um link, o usuário confirma em

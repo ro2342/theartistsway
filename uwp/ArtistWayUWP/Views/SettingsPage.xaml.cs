@@ -1,7 +1,6 @@
 using System;
 using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
-using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
@@ -267,50 +266,6 @@ namespace ArtistWayUWP.Views
             }
         }
 
-        // Etapa A da sincronização entre aparelhos: pra registrar o app
-        // como cliente nativo no Entra ID (login Microsoft via WAM), o
-        // Azure precisa do SID do pacote como redirect URI
-        // (ms-app://<SID>/). Não tem como descobrir esse valor sem rodar
-        // no aparelho de verdade -- este botão só existe pra mostrar isso.
-        private async void ShowPackageSid_Click(object sender, RoutedEventArgs e)
-        {
-            string sid = WebAuthenticationBroker.GetCurrentApplicationCallbackUri().ToString();
-            ContentDialog dialog = new ContentDialog
-            {
-                Title = "Identificador do pacote",
-                Content = "Copie esse valor e registre como redirect URI (plataforma \"Mobile and desktop applications\") no app registrado no Entra ID:\n\n" + sid,
-                CloseButtonText = "OK",
-            };
-            await dialog.ShowAsync();
-        }
-
-        // Etapa B da sincronização entre aparelhos: login de teste (WAM +
-        // troca com o Firebase). Ainda não guarda o token nem sincroniza
-        // dado nenhum -- só confirma que o fluxo de ponta a ponta funciona
-        // nesse aparelho.
-        private async void TestMicrosoftLogin_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = (Button)sender;
-            string originalText = button.Content?.ToString();
-            button.IsEnabled = false;
-            button.Content = "Entrando...";
-
-            AuthResult result = await AuthService.SignInWithMicrosoftAsync();
-
-            button.IsEnabled = true;
-            button.Content = originalText;
-
-            ContentDialog dialog = new ContentDialog
-            {
-                Title = result.Success ? "Login OK" : "Login falhou",
-                Content = result.Success
-                    ? $"UID do Firebase: {result.FirebaseUid}"
-                    : result.ErrorMessage,
-                CloseButtonText = "OK",
-            };
-            await dialog.ShowAsync();
-        }
-
         // Login com a tela de consentimento normal do Google ("ArtistWay quer
         // acessar sua Conta Google -- Permitir?"). Ao ter sucesso, guarda a
         // sessão no PasswordVault (SessionService) e atualiza o card -- é
@@ -352,23 +307,62 @@ namespace ArtistWayUWP.Views
             RefreshSyncStatus();
         }
 
-        private async void Reset_Click(object sender, RoutedEventArgs e)
+        // Apaga o progresso (aparelho + nuvem, se logado) mas mantém a
+        // sessão -- útil pra recomeçar o programa do zero sem precisar
+        // logar de novo. A conta continua existindo, só fica vazia.
+        private async void ClearData_Click(object sender, RoutedEventArgs e)
         {
+            bool loggedIn = SessionService.GetSession() != null;
             ContentDialog confirm = new ContentDialog
             {
-                Title = "Resetar o app?",
-                Content = "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?",
-                PrimaryButtonText = "Resetar",
+                Title = "Apagar todos os dados?",
+                Content = loggedIn
+                    ? "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer. Tem certeza?"
+                    : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?",
+                PrimaryButtonText = "Apagar dados",
                 CloseButtonText = "Cancelar",
                 DefaultButton = ContentDialogButton.Close,
             };
-            ContentDialogResult result = await confirm.ShowAsync();
-            if (result != ContentDialogResult.Primary)
+            if (await confirm.ShowAsync() != ContentDialogResult.Primary)
             {
                 return;
             }
 
             await LocalDataStore.ResetAllAsync();
+            if (loggedIn)
+            {
+                await SyncService.ClearCloudDataAsync();
+            }
+            MainPage.Current.BeginOnboarding();
+        }
+
+        // Reset completo: apaga o progresso (aparelho + nuvem) E sai da
+        // conta -- pra quem quer entregar o aparelho pra outra pessoa ou
+        // simplesmente começar com outro login.
+        private async void FullReset_Click(object sender, RoutedEventArgs e)
+        {
+            bool loggedIn = SessionService.GetSession() != null;
+            ContentDialog confirm = new ContentDialog
+            {
+                Title = "Resetar o app completamente?",
+                Content = loggedIn
+                    ? "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer. Tem certeza?"
+                    : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?",
+                PrimaryButtonText = "Resetar tudo",
+                CloseButtonText = "Cancelar",
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (await confirm.ShowAsync() != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            await LocalDataStore.ResetAllAsync();
+            if (loggedIn)
+            {
+                await SyncService.ClearCloudDataAsync();
+                SessionService.ClearSession();
+            }
             MainPage.Current.BeginOnboarding();
         }
 

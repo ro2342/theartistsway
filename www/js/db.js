@@ -220,6 +220,28 @@ async function importAllData(payload) {
   }
 }
 
+// Apaga todo o progresso local. Se keepSession for true, preserva a
+// sessão de login (mesmo comportamento do LocalDataStore.ResetAllAsync +
+// SessionService no app do Windows).
+async function resetAllData({ keepSession } = {}) {
+  const db = await openDB();
+  const session = keepSession ? await getSetting("session", null) : null;
+
+  const stores = [STORES.settings, STORES.morningPages, STORES.artistDates, STORES.checklist, STORES.checkins, STORES.calendarEvents];
+  for (const storeName of stores) {
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, "readwrite");
+      tx.objectStore(storeName).clear();
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  if (session) {
+    await setSetting("session", session);
+  }
+}
+
 window.ArtistWayDB = {
   STORES,
   dbGetAll,
@@ -227,6 +249,7 @@ window.ArtistWayDB = {
   getSetting,
   setSetting,
   setProfile,
+  resetAllData,
   touchActivity,
   toggleMorningPage,
   getMorningPagesInRange,

@@ -46,6 +46,39 @@ async function syncAll() {
   }
 }
 
+// Apaga os dados da nuvem (todos os stores) sem mexer no login -- usado
+// pelo reset "Apagar meus dados" (mantém o aparelho logado). A conta em si
+// nunca é apagada, só o que está guardado nela.
+async function clearCloudData() {
+  const session = await window.ArtistWayAuth.getSession();
+  if (!session) {
+    return true;
+  }
+
+  let activeSession = session;
+  if (window.ArtistWayAuth.needsRefresh(activeSession)) {
+    activeSession = await window.ArtistWayAuth.refreshIdToken(activeSession);
+    if (!activeSession) {
+      return false;
+    }
+  }
+
+  try {
+    for (const storeName of SYNC_STORE_NAMES) {
+      const response = await fetch(docUrl(activeSession.uid, storeName), {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + activeSession.idToken },
+      });
+      if (!response.ok && response.status !== 404) {
+        return false;
+      }
+    }
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 async function syncStore(session, storeName) {
   const local = await buildStoreBlob(storeName);
   const remote = await getRemoteStore(session, storeName);
@@ -236,7 +269,7 @@ window.addEventListener("focus", () => {
   syncAll().catch((err) => console.warn("Sincronização falhou:", err));
 });
 
-window.ArtistWaySync = { scheduleSync, syncAll };
+window.ArtistWaySync = { scheduleSync, syncAll, clearCloudData };
 
 // Sincroniza uma vez ao carregar o app, se já tiver login guardado -- é
 // aqui que pegamos o que mudou em outro aparelho desde a última vez que
