@@ -34,11 +34,16 @@ namespace ArtistWayUWP.Services
         {
             try
             {
-                // O parâmetro authority precisa ser a URL completa (não só
-                // "common") -- WebProviderError 3399548933 no aparelho
-                // confirmou isso: "must be url of the format http(s)://hostname/subpath".
+                // A doc oficial (learn.microsoft.com/windows/uwp/security/web-account-manager)
+                // usa authority="consumers" (string simples) pra mirar
+                // especificamente conta Microsoft pessoal -- não "common",
+                // que fica ambíguo entre pessoal e corporativa/estudante (foi
+                // o que aconteceu no aparelho). Nesse Windows 10 Mobile,
+                // porém, a validação exige URL completa (WebProviderError
+                // 3399548933: "must be url of the format http(s)://hostname/subpath"),
+                // por isso "consumers" vira a URL completa abaixo.
                 WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(
-                    "https://login.microsoft.com", "https://login.microsoftonline.com/common");
+                    "https://login.microsoft.com", "https://login.microsoftonline.com/consumers");
 
                 if (provider == null)
                 {
