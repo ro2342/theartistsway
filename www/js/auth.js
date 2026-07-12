@@ -4,15 +4,20 @@
 // própria e por isso precisou de loopback/device flow), o PWA roda num
 // navegador de verdade, com endereço HTTPS real (GitHub Pages) -- então usa
 // o fluxo padrão de login de site: redireciona pro Google, o Google
-// redireciona de volta com um "code", e a troca desse code por tokens usa
-// PKCE em vez de client secret (o app roda inteiro no navegador do usuário,
-// não tem como guardar segredo nenhum com segurança).
+// redireciona de volta com um "code", e troca esse code por tokens com
+// PKCE + client_secret -- ao contrário de outros provedores, o Google
+// exige o secret mesmo em clientes "Web application" com PKCE. O secret
+// nunca fica em texto puro aqui: o workflow 02-build-appx.yml substitui o
+// placeholder abaixo pelo valor real (guardado como GitHub Actions secret)
+// só no artefato publicado no Pages -- o arquivo commitado no git sempre
+// mantém o placeholder. Mesmo esquema já usado pro client secret do UWP.
 //
 // Precisa de contexto seguro (HTTPS ou http://localhost) porque usa
 // crypto.subtle -- funciona em ro2342.github.io/theartistsway/, não
 // funciona acessando por IP na rede local em HTTP puro.
 
-const GOOGLE_WEB_CLIENT_ID = "PENDENTE_PARTE_8"; // ver sincronizacao-nuvem-setup.md, Parte 8
+const GOOGLE_WEB_CLIENT_ID = "431486750791-boejg1gtvt082b9hqpl5hjd3mqg3kh1c.apps.googleusercontent.com";
+const GOOGLE_WEB_CLIENT_SECRET = "__GOOGLE_OAUTH_WEB_CLIENT_SECRET__";
 const FIREBASE_API_KEY = "AIzaSyD8xvN_LU11KY51em_RsCaksRmXDmlXF48";
 const AUTH_REDIRECT_URI = window.location.origin + window.location.pathname;
 const AUTH_STATE_KEY = "artistway_oauth_state";
@@ -113,6 +118,7 @@ async function handleRedirectIfNeeded() {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       client_id: GOOGLE_WEB_CLIENT_ID,
+      client_secret: GOOGLE_WEB_CLIENT_SECRET,
       code,
       code_verifier: verifier,
       redirect_uri: AUTH_REDIRECT_URI,

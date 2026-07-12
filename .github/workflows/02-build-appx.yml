@@ -14,10 +14,19 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: windows-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
@@ -110,3 +119,35 @@ jobs:
             git commit -m "chore: atualiza app/app.appxbundle e app/version.json (automático)"
             git push
           }
+
+      - name: Preparar o conteúdo do GitHub Pages (PWA em / + download em /app/)
+        shell: pwsh
+        env:
+          GOOGLE_OAUTH_WEB_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_WEB_CLIENT_SECRET }}
+        run: |
+          if (-not $env:GOOGLE_OAUTH_WEB_CLIENT_SECRET) {
+            Write-Error "Secret GOOGLE_OAUTH_WEB_CLIENT_SECRET não configurado no repositório (Settings > Secrets and variables > Actions)."
+            exit 1
+          }
+          New-Item -ItemType Directory -Force -Path pages-dist | Out-Null
+          Copy-Item -Path "www/*" -Destination "pages-dist" -Recurse -Force
+          Copy-Item -Path "app" -Destination "pages-dist/app" -Recurse -Force
+
+          # O segredo só entra no artefato publicado no Pages, nunca no
+          # arquivo commitado no git -- mesmo esquema do client secret do
+          # UWP acima, aplicado ao js/auth.js do PWA.
+          $authPath = "pages-dist/js/auth.js"
+          (Get-Content $authPath -Raw) -replace '__GOOGLE_OAUTH_WEB_CLIENT_SECRET__', $env:GOOGLE_OAUTH_WEB_CLIENT_SECRET |
+            Set-Content $authPath -NoNewline
+
+      - name: Configurar o GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empacotar o site (PWA + download) como artefato do Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-dist
+
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
