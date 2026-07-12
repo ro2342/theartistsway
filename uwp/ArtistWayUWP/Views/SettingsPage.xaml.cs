@@ -293,12 +293,21 @@ namespace ArtistWayUWP.Views
 
             ContentDialog codeDialog = null;
 
-            AuthResult result = await AuthService.SignInWithGoogleAsync((verificationUrl, userCode) =>
+            AuthResult result = await AuthService.SignInWithGoogleAsync((verificationUrl, userCode, completeUrl) =>
             {
+                // Abre o navegador do próprio aparelho sozinho -- se o Google
+                // mandou a URL com o código já embutido, a pessoa só confirma;
+                // senão, abre a página base e ela digita o código mostrado no
+                // diálogo abaixo (que fica sempre visível, como reforço --
+                // útil também se ela preferir confirmar em outro aparelho).
+                _ = Windows.System.Launcher.LaunchUriAsync(new Uri(completeUrl ?? verificationUrl));
+
                 codeDialog = new ContentDialog
                 {
                     Title = "Confirme o login com Google",
-                    Content = $"Abra este link em qualquer navegador (celular, PC, tanto faz) e digite o código:\n\n{verificationUrl}\n\nCódigo: {userCode}\n\nDepois de confirmar lá, volte aqui -- o app está esperando.",
+                    Content = completeUrl != null
+                        ? "Abri o navegador com o código já preenchido -- só confirmar lá. Se preferir usar outro aparelho, o link é:\n\n" + verificationUrl + $"\n\nCódigo: {userCode}"
+                        : $"Abri o navegador -- digite este código lá (ou confirme em qualquer outro aparelho, no link {verificationUrl}):\n\nCódigo: {userCode}",
                     CloseButtonText = "Cancelar",
                 };
                 _ = codeDialog.ShowAsync();

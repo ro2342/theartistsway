@@ -106,8 +106,12 @@ namespace ArtistWayUWP.Services
         // esbarrou na exigência de associação com a Store.
         //
         // onCodeReady é chamado assim que o código chega, ANTES de começar a
-        // esperar a confirmação, pra UI poder mostrar o código pro usuário.
-        public static async Task<AuthResult> SignInWithGoogleAsync(Action<string, string> onCodeReady)
+        // esperar a confirmação, pra UI poder mostrar o código e/ou abrir o
+        // navegador. Parâmetros: (verificationUrl, userCode, completeUrl).
+        // completeUrl é a variante com o código já embutido (quando o Google
+        // devolve verification_url_complete) -- pode vir null, nesse caso só
+        // dá pra abrir a URL base e o usuário digita o código à mão.
+        public static async Task<AuthResult> SignInWithGoogleAsync(Action<string, string, string> onCodeReady)
         {
             try
             {
@@ -130,10 +134,23 @@ namespace ArtistWayUWP.Services
                     string deviceCode = deviceJson["device_code"].GetString();
                     string userCode = deviceJson["user_code"].GetString();
                     string verificationUrl = deviceJson["verification_url"].GetString();
+                    // O nome exato desse campo varia entre "_url_" (como o
+                    // resto da resposta do Google) e "_uri_" (como no RFC
+                    // 8628) -- checa os dois pra não depender de qual dos
+                    // dois o Google realmente devolve.
+                    string completeUrl = null;
+                    if (deviceJson.ContainsKey("verification_url_complete"))
+                    {
+                        completeUrl = deviceJson["verification_url_complete"].GetString();
+                    }
+                    else if (deviceJson.ContainsKey("verification_uri_complete"))
+                    {
+                        completeUrl = deviceJson["verification_uri_complete"].GetString();
+                    }
                     double interval = deviceJson.ContainsKey("interval") ? deviceJson["interval"].GetNumber() : 5;
                     double expiresIn = deviceJson.ContainsKey("expires_in") ? deviceJson["expires_in"].GetNumber() : 1800;
 
-                    onCodeReady?.Invoke(verificationUrl, userCode);
+                    onCodeReady?.Invoke(verificationUrl, userCode, completeUrl);
 
                     DateTime deadline = DateTime.UtcNow.AddSeconds(expiresIn);
                     while (DateTime.UtcNow < deadline)
