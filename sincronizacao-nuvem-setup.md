@@ -205,3 +205,53 @@ quando o mesmo dado muda em dois aparelhos antes de sincronizar. O login
 guardado agora é a base pra isso (já temos o `uid` e o `idToken` pra
 autenticar as chamadas ao Firestore), mas o mecanismo de push/pull ainda
 precisa ser desenhado e construído.
+
+## Parte 8 — Cliente OAuth "Web application" (login Google no PWA)
+
+O PWA roda num navegador de verdade com endereço HTTPS real (GitHub Pages),
+então o login lá não precisa das gambiarras do UWP (device flow/loopback) —
+usa o fluxo padrão de site (Authorization Code + PKCE), **sem client
+secret nenhum** (PKCE existe exatamente pra isso: clientes que rodam no
+navegador do usuário e não conseguem guardar segredo com segurança).
+
+1. **console.cloud.google.com** → **APIs e serviços → Credenciais** →
+   **Criar credenciais** → **ID do cliente OAuth**.
+2. **Tipo de aplicativo**: **"Aplicativo da Web"** (Web application).
+3. Nome: `artist-way-pwa` (ou o que preferir).
+4. Em **URIs de redirecionamento autorizados**, adicione a URL do GitHub
+   Pages do app (ex.: `https://ro2342.github.io/theartistsway/` — me
+   confirme a URL exata que o Pages está usando se não tiver certeza).
+5. **Criar** → vai aparecer só um **Client ID** (sem secret, é esperado
+   pra esse tipo) — **me envie esse valor**.
+
+## Parte 9 — Travar as regras do Firestore
+
+As regras hoje estão em "modo de teste" (abertas, expiram sozinhas em 30
+dias) — enquanto isso, qualquer um com a apiKey pública do projeto
+conseguiria ler/escrever os dados de qualquer usuário. Antes de a
+sincronização entrar em uso de verdade, precisa travar isso:
+
+1. **console.firebase.google.com** → seu projeto → **Firestore Database**
+   → aba **Regras**.
+2. Substitua o conteúdo por:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{uid}/stores/{store} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+       }
+     }
+   }
+   ```
+3. **Publicar**.
+
+Isso garante que cada pessoa só consegue ler/escrever os próprios dados
+(comparando o `uid` do token de login com o `uid` no caminho do
+documento) — ninguém mais, nem com a apiKey em mãos.
+
+## Resumo atualizado do que preciso de volta
+
+1. 🆕 Client ID do cliente **"Web application"** da Parte 8 (login Google
+   no PWA).
+2. 🆕 Confirmação de que publicou as regras da Parte 9 no Firestore.
