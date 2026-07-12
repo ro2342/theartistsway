@@ -34,16 +34,16 @@ namespace ArtistWayUWP.Services
         {
             try
             {
-                // A doc oficial (learn.microsoft.com/windows/uwp/security/web-account-manager)
-                // usa authority="consumers" (string simples) pra mirar
-                // especificamente conta Microsoft pessoal -- não "common",
-                // que fica ambíguo entre pessoal e corporativa/estudante (foi
-                // o que aconteceu no aparelho). Nesse Windows 10 Mobile,
-                // porém, a validação exige URL completa (WebProviderError
-                // 3399548933: "must be url of the format http(s)://hostname/subpath"),
-                // por isso "consumers" vira a URL completa abaixo.
+                // "consumers" (mesmo como URL) deu erro nesse aparelho
+                // ("consumers is neither a valid dns name nor a valid
+                // external domain") -- o broker desse Windows 10 Mobile
+                // parece só reconhecer "common" como palavra-chave especial
+                // (não "consumers"/"organizations", que são mais recentes).
+                // Volta pra "common" (confirmado que não dá erro nesse
+                // aparelho) até investigarmos por que ele foi pra conta
+                // corporativa/estudante em vez da pessoal.
                 WebAccountProvider provider = await WebAuthenticationCoreManager.FindAccountProviderAsync(
-                    "https://login.microsoft.com", "https://login.microsoftonline.com/consumers");
+                    "https://login.microsoft.com", "https://login.microsoftonline.com/common");
 
                 if (provider == null)
                 {
