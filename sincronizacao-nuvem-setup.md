@@ -9,32 +9,26 @@ cuido do lado do código.*
 
 ## Antes de começar: como isso vai funcionar
 
-Não existe SDK oficial do Firebase pra UWP/Windows Mobile — o app vai
-conversar direto com as APIs REST do Firebase (Identity Toolkit pra login,
-Firestore pra salvar dados). O login em si (Google e Microsoft) acontece
-assim:
+Não existe SDK oficial do Firebase pra UWP/Windows Mobile — o app conversa
+direto com as APIs REST do Firebase (Identity Toolkit pra login, Firestore
+pra salvar dados). O jeito de conseguir o login em si **é diferente pra cada
+provedor**, porque tentamos os caminhos "nativos" primeiro e esbarramos em
+bloqueios reais nos dois:
 
-1. O app abre uma tela de login do sistema (`WebAuthenticationBroker` —
-   um navegador embutido controlado pelo Windows, não uma WebView normal).
-2. Essa tela aponta pra um endereço que o próprio Firebase Authentication
-   already sabe processar (o "handler" de login dele).
-3. Você faz login com Google ou Microsoft normalmente.
-4. O Firebase devolve um token pro app, que passa a usar esse token pra
-   ler/escrever no Firestore.
-
-A vantagem desse desenho: o **client secret da Microsoft nunca precisa estar
-dentro do app** — ele fica só configurado no painel do Firebase, do lado do
-servidor. Você não vai precisar me mandar nenhum segredo por aqui.
-
-**Antes de construir tudo em cima disso**, vou primeiro validar com você que
-o `WebAuthenticationBroker` realmente abre e completa esse fluxo direito no
-Lumia — telefones com Windows 10 Mobile têm histórico de implementações mais
-antigas/instáveis de WebView e navegador do sistema (o próprio app já teve
-um problema parecido: o OAuth do Google não funciona de dentro da WebView do
-APK gerado pelo Capacitor — ver seção "Por que não OAuth de verdade" no
-`README.md` principal). Se travar no Lumia especificamente, a alternativa é
-fazer login só nas outras plataformas (web/Android) e manter o Windows
-Mobile num modo "sincroniza quando eu abrir no navegador", sem login nativo.
+- **Microsoft**: tentamos WAM (`WebAuthenticationCoreManager`, reaproveitando
+  a conta já logada no aparelho, sem navegador). Só que login de conta
+  **pessoal** via WAM exige o app **associado à Microsoft Store** (conta de
+  desenvolvedor paga, ~$19, e o app ganharia uma identidade nova) — não
+  funciona com o certificado de sideload que usamos. Por enquanto o login
+  Microsoft fica pausado por causa disso.
+- **Google**: o cliente OAuth "nativo UWP" do Google **também** exige Store
+  ID, mesmo bloqueio. Por isso vamos pelo **fluxo de dispositivo** (Device
+  Authorization Grant) — o mesmo mecanismo que Smart TVs usam pra logar:
+  o app mostra um código e um link; você abre esse link em **qualquer
+  navegador, em qualquer aparelho** (o celular, o PC, não precisa ser no
+  próprio Lumia), digita o código, e o app fica esperando a confirmação.
+  Sem Store, sem redirect URI, sem depender do navegador antigo do sistema
+  renderizar nada complexo.
 
 ---
 
@@ -128,6 +122,34 @@ qualquer app cliente do Firebase os expõe, inclusive sites — o que protege
 os dados de verdade são as regras de segurança do Firestore, não esconder
 esses valores).
 
+## Parte 6 — Criar o cliente OAuth do Google (fluxo de dispositivo)
+
+1. Acesse **console.cloud.google.com** — escolha o mesmo projeto do Firebase
+   (`theartistsway`, ele já existe como projeto do Google Cloud também,
+   Firebase é construído em cima do GCP).
+2. Menu lateral → **APIs e serviços** → **Tela de consentimento OAuth**
+   (OAuth consent screen), se ainda não tiver configurado:
+   - Tipo de usuário: **Externo**.
+   - Nome do app: `Artist's Way Companion` (ou o que preferir), e-mail de
+     suporte: o seu.
+   - Escopos: pode deixar os básicos (`.../auth/userinfo.email`,
+     `.../auth/userinfo.profile`, `openid`) — não precisa adicionar nada
+     extra.
+   - Salvar e continuar até publicar (ou deixar em modo de teste, adicionando
+     seu próprio e-mail como "usuário de teste" — funciona igual pro nosso
+     caso).
+3. **APIs e serviços → Credenciais** → **Criar credenciais** → **ID do
+   cliente OAuth**.
+4. **Tipo de aplicativo**: escolha **"TVs e dispositivos de entrada
+   limitada"** (TVs and Limited Input devices) — é esse tipo específico que
+   habilita o fluxo de dispositivo, sem pedir Store ID nem redirect URI.
+5. Dê um nome (ex.: `artist-way-uwp-device`) → **Criar**.
+6. Vai aparecer um **Client ID** e um **Client Secret** — **me envie os
+   dois**. Diferente do segredo da Microsoft, o próprio Google trata esse
+   client secret como não-confidencial nesse tipo de fluxo (é feito pra ficar
+   embutido em apps instalados, sem servidor) — mas mesmo assim evite deixar
+   público em qualquer lugar além daqui.
+
 ## O que NÃO me enviar
 
 - O **segredo do cliente** da Microsoft (fica só dentro do Firebase).
@@ -135,12 +157,14 @@ esses valores).
 
 ## Resumo do que preciso de volta
 
-1. ✅ Confirmação de que os Passos 1-4 foram feitos.
-2. ✅ O bloco `firebaseConfig` da Parte 5.
-3. ✅ Confirmação de que o provedor Microsoft aparece como "Ativado" na aba
-   Sign-in method do Firebase (não preciso do ID nem do segredo, só saber que
-   está configurado).
+1. ✅ Confirmação de que os Passos 1-3 (Firebase/Firestore/login Google no
+   Firebase) foram feitos.
+2. ✅ O bloco `firebaseConfig` da Parte 5 — **já recebido**.
+3. ✅ O **Client ID** e o **Client Secret** do cliente OAuth "TVs e
+   dispositivos de entrada limitada" da Parte 6.
+4. ⏸️ Parte 4 (registro Microsoft) já feita, mas o login Microsoft por WAM
+   está pausado por enquanto (precisa de associação com a Store — ver acima).
 
-Com isso eu já consigo começar a implementar o login (primeiro um teste
-isolado só de autenticação, pra confirmar que o `WebAuthenticationBroker`
-funciona bem no Lumia antes de construir a sincronização de dados em cima).
+Com o Client ID/Secret da Parte 6 eu já implemento o login Google via fluxo
+de dispositivo — deve funcionar sem esbarrar nos bloqueios que encontramos
+com WAM.
