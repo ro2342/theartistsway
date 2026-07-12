@@ -150,6 +150,22 @@ esses valores).
    embutido em apps instalados, sem servidor) — mas mesmo assim evite deixar
    público em qualquer lugar além daqui.
 
+## Parte 7 — Cliente OAuth "Desktop app" (tela de consentimento normal)
+
+O fluxo de dispositivo (Parte 6) funciona, mas pede pra digitar um código
+num outro navegador — mais fricção do que o usuário queria. Esse aqui dá a
+experiência padrão ("ArtistWay quer acessar sua Conta Google — Permitir?"),
+sem pedir Store, usando um redirecionamento local que o próprio Windows
+intercepta antes de precisar de servidor nenhum de verdade.
+
+1. **APIs e serviços → Credenciais** → **Criar credenciais** → **ID do
+   cliente OAuth**.
+2. **Tipo de aplicativo**: **"Aplicativo para computador"** (Desktop app) —
+   **não** escolha "Universal Windows Platform" (esse exige Store ID).
+3. Nome: `artist-way-uwp-desktop` (ou o que preferir) → **Criar**.
+4. Vai aparecer um **Client ID** e um **Client Secret** — **me envie os
+   dois**, do mesmo jeito que os da Parte 6.
+
 ## O que NÃO me enviar
 
 - O **segredo do cliente** da Microsoft (fica só dentro do Firebase).
@@ -160,11 +176,12 @@ esses valores).
 1. ✅ Confirmação de que os Passos 1-3 (Firebase/Firestore/login Google no
    Firebase) foram feitos.
 2. ✅ O bloco `firebaseConfig` da Parte 5 — **já recebido**.
-3. ✅ O **Client ID** e o **Client Secret** do cliente OAuth "TVs e
-   dispositivos de entrada limitada" da Parte 6.
-4. ⏸️ Parte 4 (registro Microsoft) já feita, mas o login Microsoft por WAM
+3. ✅ Client ID/Secret do cliente "TVs e dispositivos de entrada limitada"
+   da Parte 6 — **já recebido** (fluxo de dispositivo, funcionando).
+4. 🆕 Client ID/Secret do cliente **"Desktop app"** da Parte 7 — pra dar a
+   experiência de tela de consentimento normal, sem digitar código.
+5. ⏸️ Parte 4 (registro Microsoft) já feita, mas o login Microsoft por WAM
    está pausado por enquanto (precisa de associação com a Store — ver acima).
 
-Com o Client ID/Secret da Parte 6 eu já implemento o login Google via fluxo
-de dispositivo — deve funcionar sem esbarrar nos bloqueios que encontramos
-com WAM.
+Assim que eu tiver o Client ID/Secret da Parte 7, troco o login Google pra
+essa experiência.
