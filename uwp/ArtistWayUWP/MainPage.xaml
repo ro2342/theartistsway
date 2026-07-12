@@ -8,6 +8,53 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <!--
+          O Button padrão do UWP tem um chrome arredondado/recuado no
+          estado Pressed/PointerOver — fica parecendo um botão de app
+          Android, não uma linha de lista nativa do Windows. Esse template
+          simplificado faz o destaque preencher o quadradinho inteiro
+          (mesmas brushes que ListViewItem usa pra seleção), sem cantos
+          arredondados nem margem sobrando.
+        -->
+        <Style x:Key="TabButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="RootGrid" Background="Transparent">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="RootGrid.Background" Value="{ThemeResource SystemControlBackgroundListLowBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="RootGrid.Background" Value="{ThemeResource SystemControlBackgroundListMediumBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter x:Name="ContentPresenter"
+                                              Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -38,7 +85,7 @@
             </Grid.ColumnDefinitions>
 
             <Button x:Name="TabHome" Grid.Column="0" Tag="Home" Click="TabButton_Click"
-                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                    Style="{StaticResource TabButtonStyle}">
                 <StackPanel HorizontalAlignment="Center">
                     <SymbolIcon x:Name="TabHomeIcon" Symbol="Home" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabHomeLabel" Text="Início" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
@@ -46,7 +93,7 @@
             </Button>
 
             <Button x:Name="TabProgress" Grid.Column="1" Tag="Progress" Click="TabButton_Click"
-                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                    Style="{StaticResource TabButtonStyle}">
                 <StackPanel HorizontalAlignment="Center">
                     <SymbolIcon x:Name="TabProgressIcon" Symbol="List" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabProgressLabel" Text="Jornada" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
@@ -54,7 +101,7 @@
             </Button>
 
             <Button x:Name="TabArtistDate" Grid.Column="2" Tag="ArtistDate" Click="TabButton_Click"
-                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                    Style="{StaticResource TabButtonStyle}">
                 <StackPanel HorizontalAlignment="Center">
                     <SymbolIcon x:Name="TabArtistDateIcon" Symbol="Favorite" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabArtistDateLabel" Text="Date" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
@@ -62,7 +109,7 @@
             </Button>
 
             <Button x:Name="TabSettings" Grid.Column="3" Tag="Settings" Click="TabButton_Click"
-                    Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch">
+                    Style="{StaticResource TabButtonStyle}">
                 <StackPanel HorizontalAlignment="Center">
                     <SymbolIcon x:Name="TabSettingsIcon" Symbol="Setting" HorizontalAlignment="Center" />
                     <TextBlock x:Name="TabSettingsLabel" Text="Ajustes" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />

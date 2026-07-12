@@ -16,15 +16,10 @@ namespace ArtistWayUWP.Views
         private ArtistDateEntry _current;
         private readonly Random _rand = new Random();
         private readonly List<int> _usedIdeas = new List<int>();
-        private readonly DispatcherTimer _saveDebounceTimer;
-        private bool _loaded;
 
         public ArtistDatePage()
         {
             this.InitializeComponent();
-            _saveDebounceTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
-            _saveDebounceTimer.Tick += SaveDebounceTimer_Tick;
-            IdeaBox.TextChanged += IdeaBox_TextChanged;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -33,58 +28,22 @@ namespace ArtistWayUWP.Views
             _ = LoadAsync();
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            base.OnNavigatedFrom(e);
-            // Garante que a ideia digitada não se perde ao trocar de aba,
-            // mesmo se o usuário nunca marcar "feito" -- planejar com
-            // antecedência é um uso legítimo, não só registrar depois.
-            _saveDebounceTimer.Stop();
-            _ = SaveIdeaAsync();
-        }
-
         private async Task LoadAsync()
         {
-            _loaded = false;
             ProfileSettings profile = await LocalDataStore.GetProfileAsync();
             _weekId = WeekCalculator.GetCurrentWeekId(profile);
             _weekKey = WeekCalculator.WeekKeyForOffset(profile, _weekId);
             SubText.Text = $"semana {_weekId}";
 
             _current = await LocalDataStore.GetArtistDateAsync(_weekKey) ?? new ArtistDateEntry();
-            IdeaBox.Text = _current.Idea ?? "";
-            UpdateMarkButton();
-            _loaded = true;
+            UpdateSummary();
         }
 
-        private void IdeaBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void UpdateSummary()
         {
-            if (!_loaded)
-            {
-                return;
-            }
-            _saveDebounceTimer.Stop();
-            _saveDebounceTimer.Start();
-        }
-
-        private async void SaveDebounceTimer_Tick(object sender, object e)
-        {
-            _saveDebounceTimer.Stop();
-            await SaveIdeaAsync();
-        }
-
-        private async Task SaveIdeaAsync()
-        {
-            if (_current == null || string.IsNullOrEmpty(_weekKey))
-            {
-                return;
-            }
-            _current.Idea = IdeaBox.Text;
-            await LocalDataStore.SetArtistDateAsync(_weekKey, _current);
-        }
-
-        private void UpdateMarkButton()
-        {
+            SummaryIdeaText.Text = string.IsNullOrWhiteSpace(_current.Idea)
+                ? "Nenhuma ideia registrada ainda pra essa semana."
+                : _current.Idea;
             MarkDoneButton.Content = _current.Done
                 ? "✓ Artist Date dessa semana feito"
                 : "Marcar como feito essa semana";
@@ -110,12 +69,33 @@ namespace ArtistWayUWP.Views
             IdeaBox.Text = ideas[idx];
         }
 
+        private void Edit_Click(object sender, RoutedEventArgs e)
+        {
+            IdeaBox.Text = _current.Idea ?? "";
+            SummaryCard.Visibility = Visibility.Collapsed;
+            EditPanel.Visibility = Visibility.Visible;
+        }
+
+        private void CancelEdit_Click(object sender, RoutedEventArgs e)
+        {
+            EditPanel.Visibility = Visibility.Collapsed;
+            SummaryCard.Visibility = Visibility.Visible;
+        }
+
+        private async void SaveDate_Click(object sender, RoutedEventArgs e)
+        {
+            _current.Idea = IdeaBox.Text;
+            await LocalDataStore.SetArtistDateAsync(_weekKey, _current);
+            UpdateSummary();
+            EditPanel.Visibility = Visibility.Collapsed;
+            SummaryCard.Visibility = Visibility.Visible;
+        }
+
         private async void MarkDone_Click(object sender, RoutedEventArgs e)
         {
-            _saveDebounceTimer.Stop();
             _current.Done = !_current.Done;
-            await SaveIdeaAsync();
-            UpdateMarkButton();
+            await LocalDataStore.SetArtistDateAsync(_weekKey, _current);
+            UpdateSummary();
         }
 
         private async void AddNativeCalendar_Click(object sender, RoutedEventArgs e)

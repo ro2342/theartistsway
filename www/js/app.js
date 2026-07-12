@@ -451,31 +451,14 @@ route("/artist-date", async () => {
   const current = (await DB.getArtistDate(weekKey)) || { done: false, idea: "" };
 
   let usedIdeas = JSON.parse(localStorage.getItem("awUsedIdeas") || "[]");
-  window.__currentIdea = window.__currentIdea || current.idea || "";
-
-  // Salva a ideia sozinho, 700ms depois de parar de digitar, e também ao
-  // sair da tela -- mesmo comportamento do app do Windows (ArtistDatePage).
-  // Antes, a ideia só era salva ao clicar "Marcar como feito", então
-  // planejar com antecedência sem marcar nada se perdia (e não sincronizava
-  // pros outros aparelhos).
-  let saveTimer = null;
-  async function saveIdea() {
-    clearTimeout(saveTimer);
-    saveTimer = null;
-    current.idea = window.__currentIdea;
-    await DB.setArtistDate(weekKey, current);
-  }
-  function scheduleSaveIdea() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveIdea, 700);
-  }
-  // Sem "{ once: true }" de propósito -- o WebView antigo do Windows 10
-  // Mobile nem sempre honra opções de addEventListener, então remove à mão.
-  async function saveIdeaOnLeave() {
-    window.removeEventListener("hashchange", saveIdeaOnLeave);
-    await saveIdea();
-  }
-  window.addEventListener("hashchange", saveIdeaOnLeave);
+  // Só o botão "Salvar Date" grava/sincroniza a ideia -- entrar e sair
+  // dessa tela sem clicar em nada não muda nada. Espelha o ArtistDatePage
+  // do app do Windows: antes salvava sozinho ao digitar e ao sair da
+  // tela, e um "toque" sem edição real podia carimbar um updatedAt mais
+  // novo que uma edição de verdade feita em outro aparelho e ainda não
+  // sincronizada, apagando ela na mesclagem.
+  let editing = false;
+  let draftIdea = current.idea || "";
 
   function pickIdea() {
     if (usedIdeas.length >= ARTIST_DATE_IDEAS.length) usedIdeas = [];
@@ -485,8 +468,7 @@ route("/artist-date", async () => {
     } while (usedIdeas.includes(idx));
     usedIdeas.push(idx);
     localStorage.setItem("awUsedIdeas", JSON.stringify(usedIdeas));
-    window.__currentIdea = ARTIST_DATE_IDEAS[idx];
-    scheduleSaveIdea();
+    draftIdea = ARTIST_DATE_IDEAS[idx];
     renderScreen();
   }
 
@@ -497,14 +479,30 @@ route("/artist-date", async () => {
         <div class="logo" style="text-align:right">Artist Date<span class="sub">semana ${weekId}</span></div>
       </div>
       <p class="muted text-center">Um encontro solo, só por prazer — sem culpa, sem produtividade.</p>
-      <div class="idea-card">
-        <textarea id="ideaText" placeholder="Toque em 'sortear' ou escreva aqui o seu próprio plano...">${window.__currentIdea || ""}</textarea>
-      </div>
-      <button class="btn secondary block" id="shuffle">🎲 Sortear outra ideia</button>
-      <div class="spacer"></div>
-      <button class="btn ${current.done ? "secondary" : "moss"} block" id="markDone">
-        ${current.done ? "✓ Artist Date dessa semana feito" : "Marcar como feito essa semana"}
-      </button>
+      ${
+        editing
+          ? `
+        <div class="idea-card">
+          <textarea id="ideaText" placeholder="Toque em 'sortear' ou escreva aqui o seu próprio plano...">${draftIdea}</textarea>
+        </div>
+        <button class="btn secondary block" id="shuffle">🎲 Sortear outra ideia</button>
+        <div class="spacer"></div>
+        <button class="btn brass block" id="saveDate">Salvar Date</button>
+        <div class="spacer-sm"></div>
+        <button class="btn secondary block" id="cancelEdit">Cancelar</button>
+      `
+          : `
+        <div class="card">
+          <div class="card-title" style="font-size:1.05rem;">Sua ideia pra essa semana</div>
+          <p class="muted">${current.idea ? current.idea : "Nenhuma ideia registrada ainda pra essa semana."}</p>
+          <button class="btn ${current.done ? "secondary" : "moss"} block" id="markDone">
+            ${current.done ? "✓ Artist Date dessa semana feito" : "Marcar como feito essa semana"}
+          </button>
+          <div class="spacer-sm"></div>
+          <button class="btn secondary block" id="editDate">Editar date</button>
+        </div>
+      `
+      }
       <div class="spacer"></div>
       <div class="card dotted text-center">
         <p class="muted">Quer que apareça no seu Google Calendar toda semana?</p>
@@ -512,17 +510,37 @@ route("/artist-date", async () => {
       </div>
     `;
     document.getElementById("back").addEventListener("click", () => history.back());
-    document.getElementById("ideaText").addEventListener("input", (e) => {
-      window.__currentIdea = e.target.value;
-      scheduleSaveIdea();
-    });
-    document.getElementById("shuffle").addEventListener("click", pickIdea);
-    document.getElementById("markDone").addEventListener("click", async () => {
-      current.done = !current.done;
-      await saveIdea();
-      toast(current.done ? "Aproveite seu Artist Date! 🎨" : "Desmarcado");
-      renderScreen();
-    });
+
+    if (editing) {
+      document.getElementById("ideaText").addEventListener("input", (e) => {
+        draftIdea = e.target.value;
+      });
+      document.getElementById("shuffle").addEventListener("click", pickIdea);
+      document.getElementById("saveDate").addEventListener("click", async () => {
+        current.idea = draftIdea;
+        await DB.setArtistDate(weekKey, current);
+        editing = false;
+        toast("Date salvo 🎨");
+        renderScreen();
+      });
+      document.getElementById("cancelEdit").addEventListener("click", () => {
+        editing = false;
+        renderScreen();
+      });
+    } else {
+      document.getElementById("markDone").addEventListener("click", async () => {
+        current.done = !current.done;
+        await DB.setArtistDate(weekKey, current);
+        toast(current.done ? "Aproveite seu Artist Date! 🎨" : "Desmarcado");
+        renderScreen();
+      });
+      document.getElementById("editDate").addEventListener("click", () => {
+        draftIdea = current.idea || "";
+        editing = true;
+        renderScreen();
+      });
+    }
+
     document.getElementById("addCal").addEventListener("click", async () => {
       const s = await DB.getSetting("profile", null);
       const url = GCAL.artistDateUrl(Number(s.artistDateDay), s.artistDateTime);
