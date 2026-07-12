@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,16 @@ namespace ArtistWayUWP.Services
 
         // apiKey público do projeto Firebase (uwp/ArtistWayUWP/Data/firebase-config.json).
         private const string FirebaseApiKey = "AIzaSyD8xvN_LU11KY51em_RsCaksRmXDmlXF48";
+
+        // Cliente OAuth "TVs e dispositivos de entrada limitada" (Device
+        // Authorization Grant) -- ver sincronizacao-nuvem-setup.md, Parte 6.
+        // O Client ID não é sensível (é público em qualquer app instalado),
+        // mas o Client Secret NUNCA fica em texto puro aqui -- o workflow
+        // 02-build-appx.yml substitui o placeholder abaixo pelo valor real
+        // (guardado como GitHub Actions secret) só no momento do build,
+        // então nunca aparece no histórico do git deste repositório público.
+        private const string GoogleClientId = "431486750791-e914tsjikjlp9e3vlaehlr8a86dj69lg.apps.googleusercontent.com";
+        private const string GoogleClientSecret = "__GOOGLE_OAUTH_CLIENT_SECRET__";
 
         public static async Task<AuthResult> SignInWithMicrosoftAsync()
         {
@@ -80,7 +91,7 @@ namespace ArtistWayUWP.Services
                     return new AuthResult { Success = false, ErrorMessage = "WAM não devolveu id_token nem access token." };
                 }
 
-                return await ExchangeWithFirebaseAsync(idToken, "microsoft.com");
+                return await ExchangeWithFirebaseAsync(idToken, "microsoft.com", "id_token");
             }
             catch (Exception ex)
             {
@@ -88,14 +99,107 @@ namespace ArtistWayUWP.Services
             }
         }
 
-        private static async Task<AuthResult> ExchangeWithFirebaseAsync(string idToken, string providerId)
+        // Fluxo de dispositivo (Device Authorization Grant) -- o mesmo que
+        // Smart TVs usam: mostra um código e um link, o usuário confirma em
+        // QUALQUER navegador (não precisa ser nesse aparelho), e o app fica
+        // esperando. Sem Store, sem redirect URI -- diferente do WAM, que
+        // esbarrou na exigência de associação com a Store.
+        //
+        // onCodeReady é chamado assim que o código chega, ANTES de começar a
+        // esperar a confirmação, pra UI poder mostrar o código pro usuário.
+        public static async Task<AuthResult> SignInWithGoogleAsync(Action<string, string> onCodeReady)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    FormUrlEncodedContent deviceCodeRequest = new FormUrlEncodedContent(new Dictionary<string, string>
+                    {
+                        ["client_id"] = GoogleClientId,
+                        ["scope"] = "openid email profile",
+                    });
+
+                    HttpResponseMessage deviceResponse = await client.PostAsync("https://oauth2.googleapis.com/device/code", deviceCodeRequest);
+                    string deviceResponseText = await deviceResponse.Content.ReadAsStringAsync();
+                    if (!deviceResponse.IsSuccessStatusCode)
+                    {
+                        return new AuthResult { Success = false, ErrorMessage = $"Google device/code {(int)deviceResponse.StatusCode}: {deviceResponseText}" };
+                    }
+
+                    JsonObject deviceJson = JsonObject.Parse(deviceResponseText);
+                    string deviceCode = deviceJson["device_code"].GetString();
+                    string userCode = deviceJson["user_code"].GetString();
+                    string verificationUrl = deviceJson["verification_url"].GetString();
+                    double interval = deviceJson.ContainsKey("interval") ? deviceJson["interval"].GetNumber() : 5;
+                    double expiresIn = deviceJson.ContainsKey("expires_in") ? deviceJson["expires_in"].GetNumber() : 1800;
+
+                    onCodeReady?.Invoke(verificationUrl, userCode);
+
+                    DateTime deadline = DateTime.UtcNow.AddSeconds(expiresIn);
+                    while (DateTime.UtcNow < deadline)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(interval));
+
+                        FormUrlEncodedContent tokenRequest = new FormUrlEncodedContent(new Dictionary<string, string>
+                        {
+                            ["client_id"] = GoogleClientId,
+                            ["client_secret"] = GoogleClientSecret,
+                            ["device_code"] = deviceCode,
+                            ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+                        });
+
+                        HttpResponseMessage tokenResponse = await client.PostAsync("https://oauth2.googleapis.com/token", tokenRequest);
+                        string tokenResponseText = await tokenResponse.Content.ReadAsStringAsync();
+                        JsonObject tokenJson = JsonObject.Parse(tokenResponseText);
+
+                        if (tokenResponse.IsSuccessStatusCode)
+                        {
+                            string idToken = tokenJson.ContainsKey("id_token") ? tokenJson["id_token"].GetString() : null;
+                            string accessToken = tokenJson.ContainsKey("access_token") ? tokenJson["access_token"].GetString() : null;
+
+                            if (!string.IsNullOrEmpty(idToken))
+                            {
+                                return await ExchangeWithFirebaseAsync(idToken, "google.com", "id_token");
+                            }
+                            if (!string.IsNullOrEmpty(accessToken))
+                            {
+                                return await ExchangeWithFirebaseAsync(accessToken, "google.com", "access_token");
+                            }
+                            return new AuthResult { Success = false, ErrorMessage = "Google não devolveu id_token nem access_token." };
+                        }
+
+                        string error = tokenJson.ContainsKey("error") ? tokenJson["error"].GetString() : null;
+                        if (error == "authorization_pending")
+                        {
+                            continue;
+                        }
+                        if (error == "slow_down")
+                        {
+                            interval += 5;
+                            continue;
+                        }
+
+                        // access_denied, expired_token, ou qualquer outro erro é definitivo.
+                        return new AuthResult { Success = false, ErrorMessage = $"Google: {error}" };
+                    }
+
+                    return new AuthResult { Success = false, ErrorMessage = "Tempo esgotado esperando a confirmação do login." };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new AuthResult { Success = false, ErrorMessage = ex.Message };
+            }
+        }
+
+        private static async Task<AuthResult> ExchangeWithFirebaseAsync(string token, string providerId, string tokenParamName)
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
                     string url = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key={FirebaseApiKey}";
-                    string postBody = $"id_token={Uri.EscapeDataString(idToken)}&providerId={providerId}";
+                    string postBody = $"{tokenParamName}={Uri.EscapeDataString(token)}&providerId={providerId}";
 
                     JsonObject payload = new JsonObject
                     {

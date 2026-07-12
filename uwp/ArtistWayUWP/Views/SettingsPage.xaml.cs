@@ -284,6 +284,41 @@ namespace ArtistWayUWP.Views
             await dialog.ShowAsync();
         }
 
+        private async void TestGoogleLogin_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            string originalText = button.Content?.ToString();
+            button.IsEnabled = false;
+            button.Content = "Aguardando...";
+
+            ContentDialog codeDialog = null;
+
+            AuthResult result = await AuthService.SignInWithGoogleAsync((verificationUrl, userCode) =>
+            {
+                codeDialog = new ContentDialog
+                {
+                    Title = "Confirme o login com Google",
+                    Content = $"Abra este link em qualquer navegador (celular, PC, tanto faz) e digite o código:\n\n{verificationUrl}\n\nCódigo: {userCode}\n\nDepois de confirmar lá, volte aqui -- o app está esperando.",
+                    CloseButtonText = "Cancelar",
+                };
+                _ = codeDialog.ShowAsync();
+            });
+
+            codeDialog?.Hide();
+            button.IsEnabled = true;
+            button.Content = originalText;
+
+            ContentDialog resultDialog = new ContentDialog
+            {
+                Title = result.Success ? "Login OK" : "Login falhou",
+                Content = result.Success
+                    ? $"UID do Firebase: {result.FirebaseUid}"
+                    : result.ErrorMessage,
+                CloseButtonText = "OK",
+            };
+            await resultDialog.ShowAsync();
+        }
+
         private async void Reset_Click(object sender, RoutedEventArgs e)
         {
             ContentDialog confirm = new ContentDialog

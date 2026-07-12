@@ -39,6 +39,19 @@ jobs:
         with:
           sdk-version: 17763
 
+      - name: Injetar segredos (não ficam no histórico do git)
+        shell: pwsh
+        env:
+          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+        run: |
+          $path = "uwp/ArtistWayUWP/Services/AuthService.cs"
+          if (-not $env:GOOGLE_OAUTH_CLIENT_SECRET) {
+            Write-Error "Secret GOOGLE_OAUTH_CLIENT_SECRET não configurado no repositório (Settings > Secrets and variables > Actions)."
+            exit 1
+          }
+          (Get-Content $path -Raw) -replace '__GOOGLE_OAUTH_CLIENT_SECRET__', $env:GOOGLE_OAUTH_CLIENT_SECRET |
+            Set-Content $path -NoNewline
+
       - name: Restaurar pacotes NuGet e compilar o appxbundle
         shell: cmd
         run: |
