@@ -10,18 +10,16 @@ namespace ArtistWayUWP.Views
         {
             this.InitializeComponent();
 
-            // Títulos das seções vêm de UI_STRINGS (www/js/data.js), fonte
+            // Títulos das abas vêm de UI_STRINGS (www/js/data.js), fonte
             // única compartilhada com o PWA — ver ContentStore.S.
-            PageTitleText.Text = ContentStore.S("recursos.title");
-            PageSubtitleText.Text = ContentStore.S("recursos.subtitle");
-            ReferenceTitleText.Text = ContentStore.S("recursos.reference.title");
-            ListsTitleText.Text = ContentStore.S("recursos.lists.title");
-            DiariesTitleText.Text = ContentStore.S("recursos.diaries.title");
-            LettersTitleText.Text = ContentStore.S("recursos.letters.title");
-            PlanningTitleText.Text = ContentStore.S("recursos.planning.title");
-            BoundariesTitleText.Text = ContentStore.S("recursos.boundaries.title");
-            HistoryTitleText.Text = ContentStore.S("recursos.history.title");
-            QuizTitleText.Text = ContentStore.S("recursos.quiz.title");
+            ReferenceTab.Header = ContentStore.S("recursos.reference.title");
+            ListsTab.Header = ContentStore.S("recursos.lists.title");
+            DiariesTab.Header = ContentStore.S("recursos.diaries.title");
+            LettersTab.Header = ContentStore.S("recursos.letters.title");
+            PlanningTab.Header = ContentStore.S("recursos.planning.title");
+            BoundariesTab.Header = ContentStore.S("recursos.boundaries.title");
+            HistoryTab.Header = ContentStore.S("recursos.history.title");
+            QuizTab.Header = ContentStore.S("recursos.quiz.title");
         }
 
         // — Referência —

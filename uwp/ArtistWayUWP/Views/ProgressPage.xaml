@@ -10,8 +10,7 @@
 
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
-            <TextBlock Text="Sua Jornada" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock Text="12 semanas — toque em qualquer uma pra abrir." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.75" TextWrapping="Wrap" Margin="0,4,0,16" />
+            <TextBlock Text="12 semanas — toque em qualquer uma pra abrir." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.75" TextWrapping="Wrap" Margin="0,0,0,16" />
             <Grid x:Name="WeekGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />

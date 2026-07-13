@@ -11,13 +11,15 @@ using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP
 {
-    // Shell de navegação nativo: um Frame pro conteúdo + um botão
-    // hambúrguer (canto inferior-esquerdo, cor de destaque) que abre um
-    // SplitView deslizando por cima do conteúdo, no mesmo espírito do
-    // menu do app News nativo da Microsoft. Troca de destino fecha o
-    // painel e não empilha histórico (são pares do mesmo nível);
+    // Shell de navegação nativo: um Frame pro conteúdo + um cabeçalho fixo
+    // no topo (hambúrguer + título da seção atual, lado a lado) que abre um
+    // SplitView deslizando por cima do conteúdo, no mesmo espírito da barra
+    // de cima dos apps nativos da Microsoft (News/Forecast/Settings: "☰
+    // Nome da seção"). Troca de destino fecha o painel, atualiza o título
+    // do cabeçalho e não empilha histórico (são pares do mesmo nível);
     // navegação pra páginas de detalhe (semana, ensaio, check-in,
-    // referência) empilha normalmente no back stack do Frame.
+    // referência) empilha normalmente no back stack do Frame, sem trocar o
+    // título do cabeçalho (continua mostrando o destino de nível superior).
     public sealed partial class MainPage : Page
     {
         public static MainPage Current { get; private set; }
@@ -74,7 +76,7 @@ namespace ArtistWayUWP
                 }
                 else
                 {
-                    MenuButton.Visibility = Visibility.Visible;
+                    HeaderBar.Visibility = Visibility.Visible;
                     NavigateToTab(typeof(HomePage));
                 }
             }
@@ -86,7 +88,7 @@ namespace ArtistWayUWP
 
         public void BeginOnboarding()
         {
-            MenuButton.Visibility = Visibility.Collapsed;
+            HeaderBar.Visibility = Visibility.Collapsed;
             NavSplitView.IsPaneOpen = false;
             ContentFrame.Navigate(typeof(OnboardingPage));
             ContentFrame.BackStack.Clear();
@@ -94,7 +96,7 @@ namespace ArtistWayUWP
 
         public void CompleteOnboarding()
         {
-            MenuButton.Visibility = Visibility.Visible;
+            HeaderBar.Visibility = Visibility.Visible;
             NavigateToTab(typeof(HomePage));
         }
 
@@ -187,6 +189,15 @@ namespace ArtistWayUWP
             SetTabForeground(NavArtistDateLabel, NavArtistDateIcon, isArtistDate, accent);
             SetTabForeground(NavFerramentasLabel, NavFerramentasIcon, isFerramentas, accent);
             SetTabForeground(NavSettingsLabel, NavSettingsIcon, isSettings, accent);
+
+            // Título do cabeçalho fixo acompanha a seção atual (mesmas
+            // chaves de UI_STRINGS usadas nos rótulos do painel) — é o que
+            // troca de "Início" pra "Ajustes" etc. ao lado do hambúrguer.
+            if (isHome) HeaderTitleText.Text = ContentStore.S("nav.home");
+            else if (isProgress) HeaderTitleText.Text = ContentStore.S("nav.progress");
+            else if (isArtistDate) HeaderTitleText.Text = ContentStore.S("nav.artistDate");
+            else if (isFerramentas) HeaderTitleText.Text = ContentStore.S("nav.recursos");
+            else if (isSettings) HeaderTitleText.Text = ContentStore.S("nav.settings");
         }
 
         private static void SetTabForeground(TextBlock label, SymbolIcon icon, bool active, Brush accent)

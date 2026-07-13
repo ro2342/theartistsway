@@ -25,14 +25,14 @@ namespace ArtistWayUWP.Views
             PopulateWeekdayCombo(CheckinDayCombo);
 
             // Títulos vêm de UI_STRINGS (www/js/data.js), fonte única
-            // compartilhada com o PWA — ver ContentStore.S.
-            PageTitleText.Text = ContentStore.S("settings.title");
+            // compartilhada com o PWA — ver ContentStore.S. O título grande
+            // da página não repete mais aqui: o shell (MainPage) já mostra
+            // "Ajustes" no cabeçalho fixo junto do hambúrguer.
             PageSubtitleText.Text = ContentStore.S("settings.subtitle");
             ProfileTab.Header = ContentStore.S("settings.tabs.profile");
             AppearanceTab.Header = ContentStore.S("settings.tabs.appearance");
             DataSyncTab.Header = ContentStore.S("settings.tabs.dataSync");
             AdvancedTab.Header = ContentStore.S("settings.tabs.advanced");
-            AppearanceTitleText.Text = ContentStore.S("settings.appearance.title");
             DataTitleText.Text = ContentStore.S("settings.data.title");
             UpdatesTitleText.Text = ContentStore.S("settings.updates.title");
             SyncTitleText.Text = ContentStore.S("settings.sync.title");

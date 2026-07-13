@@ -8,78 +8,79 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <ScrollViewer Padding="16,16,16,24">
-        <StackPanel>
-            <TextBlock x:Name="PageTitleText" Text="Recursos" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock x:Name="PageSubtitleText" Text="ferramentas e exercícios vivos do livro" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
-
-            <Border Style="{StaticResource CardBorderStyle}">
+    <Pivot x:Name="RecursosPivot">
+        <PivotItem x:Name="ReferenceTab" Header="Referência">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="ReferenceTitleText" Text="Referência" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Sempre à mão, pra reler quando bater a dúvida."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Regras da Estrada" Click="OpenRoadRules_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Princípios Básicos" Click="OpenPrinciples_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Crença → Positiva" Click="OpenBeliefTable_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
+        </PivotItem>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+        <PivotItem x:Name="ListsTab" Header="Listas e mapas">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="ListsTitleText" Text="Listas e mapas" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Crescem com o tempo, não somem depois de uma semana."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Vidas Imaginárias" Click="OpenImaginaryLives_Click" HorizontalAlignment="Stretch" />
                     <Button Content="20 Coisas que Gosto de Fazer" Click="OpenThingsILike_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Mapa do Ciúme" Click="OpenJealousyMap_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Círculo de Segurança" Click="OpenSafetyCircle_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Life Pie" Click="OpenLifePie_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
+        </PivotItem>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+        <PivotItem x:Name="DiariesTab" Header="Diários">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="DiariesTitleText" Text="Diários" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Registros contínuos, não presos a nenhuma semana específica."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Diário de Sincronicidade" Click="OpenSincronicidade_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Registro do Poço Criativo" Click="OpenPocoCriativo_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Diário de Resistência" Click="OpenDiarioResistencia_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Cartas para o Crítico Interno" Click="OpenCartaCriticoInterno_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Diário de Leitura Complementar" Click="OpenDiarioLeitura_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
+        </PivotItem>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+        <PivotItem x:Name="LettersTab" Header="Cartas">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="LettersTitleText" Text="Cartas" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Escritas uma vez, guardadas pra reler exatamente quando o livro pede."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Carta de Você aos 80 Anos" Click="OpenCarta80_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Carta de Você aos 8 Anos" Click="OpenCarta8_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Oração do Artista" Click="OpenOracaoArtista_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Carta de Encorajamento à Criança-Artista" Click="OpenCartaEncorajamento_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
+        </PivotItem>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+        <PivotItem x:Name="PlanningTab" Header="Planejamento">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="PlanningTitleText" Text="Planejamento" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Formulários estruturados de metas, estilo e dia ideal."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Busca de Metas / Norte Verdadeiro" Click="OpenMetasNorteVerdadeiro_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Busca de Estilo" Click="OpenBuscaEstilo_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Dia Ideal" Click="OpenDiaIdeal_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Caderno de Desejos" Click="OpenCadernoDesejos_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Plano de Continuidade" Click="OpenPlanoContinuidade_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
+        </PivotItem>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+        <PivotItem x:Name="BoundariesTab" Header="Limites e memórias">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="BoundariesTitleText" Text="Limites e memórias" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Bottom line, pontos de felicidade, totem e memórias de projetos."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Resentimentos, Medos e Ganho Oculto" Click="OpenResentimentosMedos_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Registro de Retornos em U" Click="OpenRetornosEmU_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Arqueologia" Click="OpenArqueologia_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
@@ -87,26 +88,28 @@
                     <Button Content="Pontos de Referência de Felicidade" Click="OpenPontosFelicidade_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                     <Button Content="Totem do Artista" Click="OpenTotemArtista_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
+        </PivotItem>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+        <PivotItem x:Name="HistoryTab" Header="Histórico">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="HistoryTitleText" Text="Histórico" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Reveja Artist Dates e check-ins de semanas passadas."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Histórico de Artist Dates" Click="OpenArtistDateHistory_Click" HorizontalAlignment="Stretch" />
                     <Button Content="Reler Check-ins Antigos" Click="OpenCheckinHistory_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
+        </PivotItem>
 
-            <Border Style="{StaticResource CardBorderStyle}">
+        <PivotItem x:Name="QuizTab" Header="Quiz">
+            <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
-                    <TextBlock x:Name="QuizTitleText" Text="Quiz" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Um teste rápido de autoavaliação do livro."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <Button Content="Quiz do Vício em Trabalho" Click="OpenWorkaholismQuiz_Click" HorizontalAlignment="Stretch" />
                 </StackPanel>
-            </Border>
-        </StackPanel>
-    </ScrollViewer>
+            </ScrollViewer>
+        </PivotItem>
+    </Pivot>
 </Page>

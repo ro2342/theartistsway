@@ -10,8 +10,7 @@
 
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
-            <TextBlock Text="Artist Date" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock x:Name="SubText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
+            <TextBlock x:Name="SubText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,0,0,16" />
             <TextBlock Text="Um encontro solo, só por prazer — sem culpa, sem produtividade." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Opacity="0.85" Margin="0,0,0,16" />
 
             <!--

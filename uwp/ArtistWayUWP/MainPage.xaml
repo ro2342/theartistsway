@@ -56,14 +56,18 @@
             </Setter>
         </Style>
 
-        <!-- Botão hambúrguer: quadrado sólido na cor de destaque, flutuando
-             no canto inferior-esquerdo por cima do conteúdo — mesma
-             posição/proporção do botão de menu do app News da Microsoft. -->
+        <!-- Botão hambúrguer: quadrado sólido na cor de destaque, no canto
+             superior-esquerdo do cabeçalho fixo, ao lado do título da seção
+             atual — igual à barra de cima dos apps nativos da Microsoft
+             (News, Forecast, Settings): hambúrguer + nome da seção sempre
+             juntos no topo, não flutuando por cima do conteúdo. -->
         <Style x:Key="HamburgerButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="48" />
             <Setter Property="Height" Value="48" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
@@ -128,39 +132,63 @@
 
         <SplitView.Content>
             <Grid>
-                <Frame x:Name="ContentFrame" x:FieldModifier="public" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                <Border x:Name="ErrorPanel"
-                        Visibility="Collapsed"
-                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                        Padding="20">
-                    <TextBlock x:Name="ErrorText"
-                               TextWrapping="Wrap"
-                               Style="{StaticResource BodyTextBlockStyle}" />
-                </Border>
+                <!-- Cabeçalho fixo: hambúrguer + título da seção atual,
+                     sempre juntos no topo (nunca some, mesmo com o painel
+                     fechado) — o HeaderTitleText que troca de texto
+                     conforme a seção (Início/Jornada/Date/Recursos/Ajustes),
+                     igual ao texto "My News"/"Forecast"/"Settings" ao lado
+                     do hambúrguer nos apps nativos da Microsoft. -->
+                <Grid x:Name="HeaderBar" Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="MenuButton"
+                            Grid.Column="0"
+                            Click="MenuButton_Click"
+                            Style="{StaticResource HamburgerButtonStyle}">
+                        <!-- FontIcon com o glifo cru (Segoe MDL2 Assets) em vez de
+                             SymbolIcon Symbol="GlobalNavigationButton" — esse
+                             membro do enum Symbol não existe no runtime do
+                             Windows 10 Mobile do Lumia (SDK do build é mais novo
+                             que o sistema do aparelho), causava crash em tempo
+                             de execução ("Failed to create a SymbolIcon from
+                             the text 'GlobalNavigationButton'"). Glyph é só uma
+                             string, sem contrato de API versionado por trás. -->
+                        <FontIcon Glyph="&#xE700;" />
+                    </Button>
+                    <TextBlock x:Name="HeaderTitleText"
+                               Grid.Column="1"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="12,0,16,0" />
+                </Grid>
 
-                <!-- Fecha o painel ao tocar fora dele (light-dismiss manual
-                     — SplitView não faz isso sozinho). -->
-                <Border x:Name="PaneDismissOverlay"
-                        Background="Transparent"
-                        Visibility="Collapsed"
-                        Tapped="PaneDismissOverlay_Tapped" />
+                <Grid Grid.Row="1">
+                    <Frame x:Name="ContentFrame" x:FieldModifier="public" />
 
-                <Button x:Name="MenuButton"
-                        Click="MenuButton_Click"
-                        Style="{StaticResource HamburgerButtonStyle}"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Bottom">
-                    <!-- FontIcon com o glifo cru (Segoe MDL2 Assets) em vez de
-                         SymbolIcon Symbol="GlobalNavigationButton" — esse
-                         membro do enum Symbol não existe no runtime do
-                         Windows 10 Mobile do Lumia (SDK do build é mais novo
-                         que o sistema do aparelho), causava crash em tempo
-                         de execução ("Failed to create a SymbolIcon from
-                         the text 'GlobalNavigationButton'"). Glyph é só uma
-                         string, sem contrato de API versionado por trás. -->
-                    <FontIcon Glyph="&#xE700;" />
-                </Button>
+                    <Border x:Name="ErrorPanel"
+                            Visibility="Collapsed"
+                            Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                            Padding="20">
+                        <TextBlock x:Name="ErrorText"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource BodyTextBlockStyle}" />
+                    </Border>
+
+                    <!-- Fecha o painel ao tocar fora dele (light-dismiss manual
+                         — SplitView não faz isso sozinho). -->
+                    <Border x:Name="PaneDismissOverlay"
+                            Background="Transparent"
+                            Visibility="Collapsed"
+                            Tapped="PaneDismissOverlay_Tapped" />
+                </Grid>
             </Grid>
         </SplitView.Content>
     </SplitView>

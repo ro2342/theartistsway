@@ -25,9 +25,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Padding="16,16,16,0">
-            <TextBlock x:Name="PageTitleText" Text="Ajustes" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock x:Name="PageSubtitleText" Text="seus rituais" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,0" />
+        <StackPanel Grid.Row="0" Padding="16,12,16,0">
+            <TextBlock x:Name="PageSubtitleText" Text="seus rituais" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
         </StackPanel>
 
         <Pivot x:Name="SettingsPivot" Grid.Row="1" Margin="0,4,0,0">
@@ -71,7 +70,6 @@
             <PivotItem x:Name="AppearanceTab" Header="Aparência">
                 <ScrollViewer Padding="16,12,16,24">
                     <StackPanel>
-                        <TextBlock x:Name="AppearanceTitleText" Text="Aparência" Style="{StaticResource SubtitleTextBlockStyle}" />
                         <TextBlock Text="Tema claro, escuro ou automático (segue o sistema) — sincronizado com o PWA no mesmo login."
                                    Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <Grid>
