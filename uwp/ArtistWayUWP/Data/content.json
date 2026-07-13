@@ -743,7 +743,7 @@
     "settings.profile.title": "Seu perfil",
     "settings.profile.saveButton": "Salvar e reativar lembretes",
     "settings.appearance.title": "Aparência",
-    "settings.appearance.description": "Tema claro, escuro ou automático (segue o sistema) — sincronizado entre aparelhos.",
+    "settings.appearance.description": "Defina o tema do seu aplicativo. Ele será sincronizado em todos os seus dispositivos.",
     "settings.calendar.title": "Calendário do Windows",
     "settings.data.title": "Seus dados",
     "settings.data.description": "Tudo fica só no seu aparelho. Faça backup de vez em quando.",

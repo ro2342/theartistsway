@@ -50,6 +50,19 @@ function startOfWeek(d) {
   return r;
 }
 
+// Início da semana corrente pra faixa de Morning Pages da Home,
+// ancorado no dia da semana escolhido em settings.startDate (não
+// necessariamente domingo) — mesma lógica do WeekCalculator.cs no UWP.
+function currentStreakWeekStart(settings, today) {
+  let startDow = 0;
+  if (settings && settings.startDate) {
+    const parsed = new Date(settings.startDate + "T00:00:00");
+    if (!isNaN(parsed.getTime())) startDow = parsed.getDay();
+  }
+  const diff = (today.getDay() - startDow + 7) % 7;
+  return addDays(today, -diff);
+}
+
 // Afirmação do dia: escolha determinística pelo dia do ano, sem precisar
 // guardar nenhum dado novo -- mesmo cálculo no app do Windows
 // (HomePage.xaml.cs), pra mostrar a mesma frase nos dois aparelhos no
@@ -375,10 +388,12 @@ route("/home", async () => {
   const week = WEEKS.find((w) => w.id === weekId);
   const weekKey = weekKeyForOffset(settings, weekId);
 
-  // streak morning pages últimos 7 dias
+  // streak morning pages da semana corrente, ancorada no dia escolhido
+  // como início do programa (não um "últimos 7 dias" genérico)
   const today = new Date();
+  const streakWeekStart = currentStreakWeekStart(settings, today);
   const days = [];
-  for (let i = 6; i >= 0; i--) days.push(dateToStr(addDays(today, -i)));
+  for (let i = 0; i <= 6; i++) days.push(dateToStr(addDays(streakWeekStart, i)));
   const allMP = await DB.getAllMorningPages();
   const mpMap = allMP.reduce((acc, r) => {
     acc[r.date] = r.done;
@@ -407,7 +422,7 @@ route("/home", async () => {
   const morningPagesCard = `
     <div class="card">
       <div class="card-title" style="font-size:1.1rem;">Morning Pages</div>
-      <p class="muted">Últimos 7 dias</p>
+      <p class="muted">Esta semana</p>
       <div class="streak-row">
         ${days
           .map((d) => {

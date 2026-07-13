@@ -22,11 +22,17 @@ namespace ArtistWayUWP.Views
         {
             this.InitializeComponent();
 
+            // Cache a instância no Frame em vez de recriar a página a cada
+            // navegação — mesmo motivo do FerramentasPage: preserva a aba
+            // do Pivot selecionada entre navegações.
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
+
             // Títulos vêm de UI_STRINGS (www/js/data.js), fonte única
             // compartilhada com o PWA — ver ContentStore.S. O título grande
             // da página não repete mais aqui: o shell (MainPage) já mostra
             // "Ajustes" no cabeçalho fixo junto do hambúrguer.
             AppearanceTab.Header = ContentStore.S("settings.tabs.appearance");
+            AppearanceDescriptionText.Text = ContentStore.S("settings.appearance.description");
             DataSyncTab.Header = ContentStore.S("settings.tabs.dataSync");
             AdvancedTab.Header = ContentStore.S("settings.tabs.advanced");
             DataTitleText.Text = ContentStore.S("settings.data.title");

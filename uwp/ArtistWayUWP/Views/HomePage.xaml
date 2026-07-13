@@ -52,7 +52,7 @@
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="Morning Pages" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Últimos 7 dias" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,0" />
+                    <TextBlock Text="Esta semana" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,0" />
                     <StackPanel x:Name="StreakPanel" Orientation="Horizontal" Margin="0,8,0,0" />
                     <Button x:Name="ToggleMpButton" Click="ToggleMp_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
                 </StackPanel>

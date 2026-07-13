@@ -1,6 +1,7 @@
 using ArtistWayUWP.Services;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP.Views
 {
@@ -9,6 +10,13 @@ namespace ArtistWayUWP.Views
         public FerramentasPage()
         {
             this.InitializeComponent();
+
+            // Cache a instância no Frame em vez de recriar a página a cada
+            // navegação — sem isso, ao voltar de uma ferramenta (ex.:
+            // Diário de Sincronicidade) o Pivot esquecia a aba selecionada
+            // e voltava sempre pra primeira ("Referência") em vez de
+            // manter a aba de onde a pessoa veio (ex.: "Diários").
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
             // Títulos das abas vêm de UI_STRINGS (www/js/data.js), fonte
             // única compartilhada com o PWA — ver ContentStore.S.

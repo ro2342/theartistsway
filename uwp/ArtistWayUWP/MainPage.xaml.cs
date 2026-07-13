@@ -3,6 +3,7 @@ using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
 using ArtistWayUWP.Views;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -24,6 +25,13 @@ namespace ArtistWayUWP
     {
         public static MainPage Current { get; private set; }
 
+        // Só pra reaplicar a cor de destaque quando ela muda em tempo real
+        // (ver UiSettings_ColorValuesChanged) — não é o tipo da página
+        // "de detalhe" que porventura esteja empilhada no Frame, é sempre
+        // o último destino de nível superior (Início/Jornada/.../Ajustes).
+        private Type _currentTabPageType;
+        private readonly UISettings _uiSettings = new UISettings();
+
         public MainPage()
         {
             try
@@ -35,11 +43,35 @@ namespace ArtistWayUWP
                 this.Loaded += MainPage_Loaded;
                 ContentFrame.Navigated += ContentFrame_Navigated;
                 SystemNavigationManager.GetForCurrentView().BackRequested += OnBackRequested;
+
+                // SystemAccentColor já é {ThemeResource} em tudo que a gente
+                // não copia manualmente, então atualiza sozinho — mas o
+                // MenuButton e o item ativo do painel usam SolidColorBrush
+                // copiado uma vez (ThemeHelper.AccentBrush), que não
+                // acompanha a troca ao vivo. UISettings.ColorValuesChanged
+                // dispara assim que o usuário troca a cor de destaque do
+                // sistema (mesmo sem reiniciar o app) — só reaplica os
+                // dois pontos que dependem dessa cópia.
+                _uiSettings.ColorValuesChanged += UiSettings_ColorValuesChanged;
             }
             catch (Exception ex)
             {
                 ShowFatalError("Erro ao iniciar a página: " + ex.Message);
             }
+        }
+
+        private async void UiSettings_ColorValuesChanged(UISettings sender, object args)
+        {
+            // Dispara numa thread de fundo — precisa voltar pra UI thread
+            // antes de tocar em qualquer elemento visual.
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                StyleMenuButton();
+                if (_currentTabPageType != null)
+                {
+                    UpdateActiveTab(_currentTabPageType);
+                }
+            });
         }
 
         // Rótulos da nav vêm de UI_STRINGS (www/js/data.js), fonte única
@@ -168,6 +200,7 @@ namespace ArtistWayUWP
         {
             ContentFrame.Navigate(pageType, parameter);
             ContentFrame.BackStack.Clear();
+            _currentTabPageType = pageType;
             UpdateActiveTab(pageType);
         }
 

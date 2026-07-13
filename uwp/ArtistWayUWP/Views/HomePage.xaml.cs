@@ -62,13 +62,14 @@ namespace ArtistWayUWP.Views
             StreakPanel.Children.Clear();
             string[] weekdayLetters = { "D", "S", "T", "Q", "Q", "S", "S" };
             DateTime today = DateTime.Now.Date;
+            DateTime weekStart = WeekCalculator.CurrentStreakWeekStart(profile, today);
             bool todayDone = false;
-            for (int i = 6; i >= 0; i--)
+            for (int i = 0; i <= 6; i++)
             {
-                DateTime d = today.AddDays(-i);
+                DateTime d = weekStart.AddDays(i);
                 string key = WeekCalculator.DateToStr(d);
                 bool done = allMp.ContainsKey(key) && allMp[key];
-                if (i == 0)
+                if (d == today)
                 {
                     todayDone = done;
                 }

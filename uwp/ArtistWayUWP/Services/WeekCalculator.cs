@@ -18,6 +18,24 @@ namespace ArtistWayUWP.Services
             return d.ToString("yyyy-MM-dd");
         }
 
+        // Início da semana corrente pra faixa de Morning Pages da Home,
+        // ancorado no dia da semana escolhido em profile.StartDate (não
+        // necessariamente domingo) — as Morning Pages podem começar em
+        // qualquer dia, então a primeira bolinha da faixa tem que ser o
+        // mesmo dia da semana marcado como início do programa nos
+        // Ajustes/Meu Perfil, não um "últimos 7 dias" genérico.
+        public static DateTime CurrentStreakWeekStart(ProfileSettings profile, DateTime today)
+        {
+            DayOfWeek startDow = DayOfWeek.Sunday;
+            if (profile != null && !string.IsNullOrEmpty(profile.StartDate) &&
+                DateTime.TryParse(profile.StartDate, out DateTime startDate))
+            {
+                startDow = startDate.DayOfWeek;
+            }
+            int diff = ((int)today.DayOfWeek - (int)startDow + 7) % 7;
+            return today.AddDays(-diff);
+        }
+
         public static int GetCurrentWeekId(ProfileSettings profile)
         {
             if (profile == null || string.IsNullOrEmpty(profile.StartDate) ||

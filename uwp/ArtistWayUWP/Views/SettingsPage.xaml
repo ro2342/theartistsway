@@ -20,7 +20,7 @@
             <PivotItem x:Name="AppearanceTab" Header="Aparência">
                 <ScrollViewer Padding="16,12,16,24">
                     <StackPanel>
-                        <TextBlock Text="Tema claro, escuro ou automático (segue o sistema) — sincronizado com o PWA no mesmo login."
+                        <TextBlock x:Name="AppearanceDescriptionText"
                                    Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <Grid>
                             <Grid.ColumnDefinitions>

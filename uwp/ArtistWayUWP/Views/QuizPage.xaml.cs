@@ -53,7 +53,12 @@ namespace ArtistWayUWP.Views
                     Margin = new Thickness(0, qi == 0 ? 0 : 16, 0, 4),
                 });
 
-                StackPanel optionsPanel = new StackPanel { Orientation = Orientation.Horizontal };
+                // Vertical, não horizontal: com 4-5 opções de texto (ex.:
+                // "Frequentemente", "Sempre"), um StackPanel horizontal
+                // estoura a largura da tela do celular sem quebrar linha —
+                // o texto ficava cortado, só sobrava a bolinha do
+                // RadioButton e a primeira letra.
+                StackPanel optionsPanel = new StackPanel { Orientation = Orientation.Vertical };
                 List<RadioButton> buttons = new List<RadioButton>();
                 foreach (QuizOption option in question.Options)
                 {
@@ -62,7 +67,7 @@ namespace ArtistWayUWP.Views
                         Content = option.Label,
                         GroupName = groupName,
                         Tag = option.Value,
-                        Margin = new Thickness(0, 0, 12, 0),
+                        Margin = new Thickness(0, 4, 0, 4),
                     };
                     optionsPanel.Children.Add(radio);
                     buttons.Add(radio);
