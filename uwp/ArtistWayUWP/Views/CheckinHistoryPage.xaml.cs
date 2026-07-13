@@ -6,7 +6,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP.Views
 {
-    // Índice das 12 semanas -- toca numa que já tem check-in salvo e abre
+    // Índice das 12 semanas — toca numa que já tem check-in salvo e abre
     // a CheckinPage já existente, que pré-preenche as respostas sozinha.
     // Não guarda nada novo, só lê LocalDataStore.GetWeeksWithCheckinAsync.
     public sealed partial class CheckinHistoryPage : Page

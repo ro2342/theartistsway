@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP.Views
 {
-    // Só leitura -- lê o store artistDates já existente, sem escrever nada
+    // Só leitura — lê o store artistDates já existente, sem escrever nada
     // novo. Ver LocalDataStore.GetAllArtistDatesAsync.
     public sealed partial class ArtistDateHistoryPage : Page
     {

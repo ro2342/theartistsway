@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ArtistWayUWP.Models
 {
-    // Espelha o conteúdo de www/js/data.js -- gerado por
+    // Espelha o conteúdo de www/js/data.js — gerado por
     // scripts/generate-content-json.js (não editado à mão; o workflow
     // 02-build-appx.yml falha o build se esquecerem de regenerar depois
     // de mudar data.js).

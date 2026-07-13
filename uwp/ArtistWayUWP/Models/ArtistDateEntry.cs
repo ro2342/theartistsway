@@ -6,7 +6,7 @@ namespace ArtistWayUWP.Models
         public string Idea { get; set; } = "";
     }
 
-    // Uma linha do histórico de Artist Dates (Recursos -> Histórico) --
+    // Uma linha do histórico de Artist Dates (Recursos -> Histórico) —
     // igual ArtistDateEntry, mas com a semana (WeekStart) junto, já que o
     // histórico lista várias semanas de uma vez.
     public sealed class ArtistDateHistoryItem

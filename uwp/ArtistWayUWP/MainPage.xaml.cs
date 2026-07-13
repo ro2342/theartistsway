@@ -41,7 +41,7 @@ namespace ArtistWayUWP
         }
 
         // Rótulos da nav vêm de UI_STRINGS (www/js/data.js), fonte única
-        // compartilhada com o PWA -- ver ContentStore.S.
+        // compartilhada com o PWA — ver ContentStore.S.
         private void ApplyNavLabels()
         {
             NavHomeLabel.Text = ContentStore.S("nav.home");
@@ -53,7 +53,7 @@ namespace ArtistWayUWP
         }
 
         // Quadrado sólido na cor de destaque, igual ao botão de menu do
-        // News -- precisa ser aplicado em código porque a cor de destaque
+        // News — precisa ser aplicado em código porque a cor de destaque
         // do sistema não muda com o tema (então não há risco do bug de
         // ícone sumindo que já pegamos antes com brushes de tema).
         private void StyleMenuButton()
@@ -98,7 +98,7 @@ namespace ArtistWayUWP
             NavigateToTab(typeof(HomePage));
         }
 
-        // ---------- painel de navegação ----------
+        // — painel de navegação —
 
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
@@ -170,7 +170,7 @@ namespace ArtistWayUWP
             // Nunca calcula um brush "padrão" na mão aqui: um lookup via
             // Application.Current.Resources[...] não acompanha a troca de
             // tema em tempo real (RequestedTheme mudado por ThemeModeService),
-            // sempre resolve pro tema com que o app abriu -- foi exatamente
+            // sempre resolve pro tema com que o app abriu — foi exatamente
             // isso que sumiu com os ícones no tema Claro antes. Em vez disso,
             // limpa o valor local (ClearValue) pra herdar o Foreground padrão
             // do Button, que É theme-aware de verdade via {ThemeResource}.
@@ -203,7 +203,7 @@ namespace ArtistWayUWP
             }
         }
 
-        // ---------- navegação/voltar ----------
+        // — navegação/voltar —
 
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
@@ -226,7 +226,7 @@ namespace ArtistWayUWP
             }
         }
 
-        // ---------- erro fatal ----------
+        // — erro fatal —
 
         private void ShowFatalError(string message)
         {

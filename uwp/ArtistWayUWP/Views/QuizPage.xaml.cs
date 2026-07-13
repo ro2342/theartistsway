@@ -12,7 +12,7 @@ namespace ArtistWayUWP.Views
     // Data/content.json -> ContentStore.Content.QuizConfigs). O parâmetro
     // de navegação é a chave do quiz (string), mesmo padrão do
     // NamedListPage. Cada tentativa vira um item novo no store "lists"
-    // (mesma chave do quiz, append-only) -- histórico de tentativas, igual
+    // (mesma chave do quiz, append-only) — histórico de tentativas, igual
     // ao Life Pie.
     public sealed partial class QuizPage : Page
     {

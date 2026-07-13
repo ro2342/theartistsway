@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ArtistWayUWP.Models
 {
-    // Espelha uma entrada de QUIZ_CONFIGS em www/js/data.js -- gerado por
+    // Espelha uma entrada de QUIZ_CONFIGS em www/js/data.js — gerado por
     // scripts/generate-content-json.js, carregado via
     // ContentStore.Content.QuizConfigs.
     public sealed class QuizConfig

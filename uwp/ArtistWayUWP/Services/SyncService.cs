@@ -12,7 +12,7 @@ namespace ArtistWayUWP.Services
     // Sincroniza os "stores" do LocalDataStore com o Firestore: puxa a
     // versão da nuvem, mescla com a local registro a registro por
     // updatedAt (quem for mais recente vence), grava o resultado local e
-    // sobe de volta -- sempre nos dois sentidos, sempre idempotente. Sem
+    // sobe de volta — sempre nos dois sentidos, sempre idempotente. Sem
     // listener em tempo real: cada chamada é só um request/response HTTP
     // curto (ver "Decisões de arquitetura" em sincronizacao-nuvem-setup.md).
     public static class SyncService
@@ -55,7 +55,7 @@ namespace ArtistWayUWP.Services
             }
         }
 
-        // Apaga os dados da nuvem (todos os stores) sem mexer no login --
+        // Apaga os dados da nuvem (todos os stores) sem mexer no login —
         // usado pelo reset "Apagar meus dados" (mantém o aparelho logado).
         // A conta em si nunca é apagada, só o que está guardado nela.
         public static async Task<bool> ClearCloudDataAsync()
@@ -113,7 +113,7 @@ namespace ArtistWayUWP.Services
 
         private static string TimestampFieldFor(string storeName) => storeName == "checkins" ? "savedAt" : "updatedAt";
 
-        // ---------- mesclagem ----------
+        // — mesclagem —
 
         private static JsonObject MergeWholeBlob(JsonObject local, JsonObject remote)
         {
@@ -168,7 +168,7 @@ namespace ArtistWayUWP.Services
         }
 
         // Registros de antes da sincronização existir vinham como booleano
-        // solto (sem updatedAt) -- normaliza pro formato novo, tratado como
+        // solto (sem updatedAt) — normaliza pro formato novo, tratado como
         // "o mais antigo possível" na comparação (ParseTimestamp devolve
         // DateTimeOffset.MinValue quando falta o campo).
         private static JsonObject NormalizeRecord(IJsonValue value)
@@ -195,9 +195,9 @@ namespace ArtistWayUWP.Services
             return DateTimeOffset.MinValue;
         }
 
-        // ---------- Firestore REST ----------
+        // — Firestore REST —
         // Cada store vira um documento com um único campo "data" (o JSON
-        // inteiro do store, como string) -- evita ter que traduzir pro
+        // inteiro do store, como string) — evita ter que traduzir pro
         // formato de tipos nativos do Firestore (mapValue/arrayValue/etc.)
         // pra estruturas que, na prática, o app só lê/escreve como blob.
 
@@ -252,7 +252,7 @@ namespace ArtistWayUWP.Services
             }
         }
 
-        // ---------- renovação de token ----------
+        // — renovação de token —
 
         private static async Task<string> RefreshIdTokenAsync(FirebaseSession session)
         {

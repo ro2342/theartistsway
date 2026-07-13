@@ -21,7 +21,7 @@ namespace ArtistWayUWP.Services
     }
 
     // Guarda a sessão do login (uid/tokens do Firebase) no cofre de
-    // credenciais do Windows (PasswordVault) -- criptografado pelo sistema,
+    // credenciais do Windows (PasswordVault) — criptografado pelo sistema,
     // diferente do resto dos dados do app (JSON simples em LocalDataStore),
     // porque um refresh token equivale a uma senha.
     public static class SessionService
@@ -116,7 +116,7 @@ namespace ArtistWayUWP.Services
             }
             catch (Exception)
             {
-                // não tinha sessão salva -- nada a limpar.
+                // não tinha sessão salva — nada a limpar.
             }
         }
     }

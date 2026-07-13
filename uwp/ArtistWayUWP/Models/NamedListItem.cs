@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ArtistWayUWP.Models
 {
-    // Um item genérico de "lista nomeada" -- usado por Vidas Imaginárias,
+    // Um item genérico de "lista nomeada" — usado por Vidas Imaginárias,
     // 20 Coisas que Gosto de Fazer, Mapa do Ciúme, Círculo de Segurança e
     // Life Pie. Fields fica solto (não uma classe por funcionalidade) de
     // propósito: cada tela sabe quais chaves ler/escrever, e o mecanismo

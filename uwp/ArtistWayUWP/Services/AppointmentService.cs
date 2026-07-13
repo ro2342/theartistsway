@@ -7,10 +7,10 @@ namespace ArtistWayUWP.Services
 {
     // Alternativa nativa ao link do Google Calendar: adiciona o compromisso
     // recorrente direto no app de Calendário do próprio Windows via
-    // AppointmentManager.ShowAddAppointmentAsync -- é um fluxo de composição
+    // AppointmentManager.ShowAddAppointmentAsync — é um fluxo de composição
     // mediado pelo sistema (o usuário confirma antes de salvar). Precisa da
     // capability "appointmentsSystem" declarada no manifesto (ver
-    // Package.appxmanifest) -- sem ela a chamada falha.
+    // Package.appxmanifest) — sem ela a chamada falha.
     public static class AppointmentService
     {
         public static async Task<bool> AddDailyAsync(string subject, string details, TimeSpan time, int durationMinutes, Rect selection)

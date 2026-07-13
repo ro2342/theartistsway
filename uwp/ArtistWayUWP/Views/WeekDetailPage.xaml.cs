@@ -46,7 +46,7 @@ namespace ArtistWayUWP.Views
                 ChecklistItem item = _week.Checklist[i];
 
                 // Borda à esquerda no detalhe da tarefa, mesmo espírito da
-                // "citação" (.item-note) do PWA -- marca visualmente que
+                // "citação" (.item-note) do PWA — marca visualmente que
                 // aquele texto é o detalhamento da tarefa acima, não uma
                 // frase solta.
                 Border detailBorder = new Border

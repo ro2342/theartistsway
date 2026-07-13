@@ -25,7 +25,7 @@ namespace ArtistWayUWP.Views
             PopulateWeekdayCombo(CheckinDayCombo);
 
             // Títulos vêm de UI_STRINGS (www/js/data.js), fonte única
-            // compartilhada com o PWA -- ver ContentStore.S.
+            // compartilhada com o PWA — ver ContentStore.S.
             PageTitleText.Text = ContentStore.S("settings.title");
             PageSubtitleText.Text = ContentStore.S("settings.subtitle");
             ProfileTab.Header = ContentStore.S("settings.tabs.profile");
@@ -162,7 +162,7 @@ namespace ArtistWayUWP.Views
             SignOutButton.Visibility = Visibility.Visible;
         }
 
-        // Sincroniza uma vez, na hora, logo depois do login -- as próximas
+        // Sincroniza uma vez, na hora, logo depois do login — as próximas
         // sincronizações acontecem sozinhas em segundo plano (debounce nas
         // mudanças locais + ao reabrir o app), sem precisar de outro botão.
         private async System.Threading.Tasks.Task RunInitialSyncAsync()
@@ -351,8 +351,8 @@ namespace ArtistWayUWP.Views
         }
 
         // Login com a tela de consentimento normal do Google ("ArtistWay quer
-        // acessar sua Conta Google -- Permitir?"). Ao ter sucesso, guarda a
-        // sessão no PasswordVault (SessionService) e atualiza o card -- é
+        // acessar sua Conta Google — Permitir?"). Ao ter sucesso, guarda a
+        // sessão no PasswordVault (SessionService) e atualiza o card — é
         // essa persistência que faltava no teste anterior (fluxo de
         // dispositivo): antes o login funcionava mas nada ficava salvo.
         private async void GoogleLogin_Click(object sender, RoutedEventArgs e)
@@ -392,7 +392,7 @@ namespace ArtistWayUWP.Views
         }
 
         // Apaga o progresso (aparelho + nuvem, se logado) mas mantém a
-        // sessão -- útil pra recomeçar o programa do zero sem precisar
+        // sessão — útil pra recomeçar o programa do zero sem precisar
         // logar de novo. A conta continua existindo, só fica vazia.
         private async void ClearData_Click(object sender, RoutedEventArgs e)
         {
@@ -421,7 +421,7 @@ namespace ArtistWayUWP.Views
         }
 
         // Reset completo: apaga o progresso (aparelho + nuvem) E sai da
-        // conta -- pra quem quer entregar o aparelho pra outra pessoa ou
+        // conta — pra quem quer entregar o aparelho pra outra pessoa ou
         // simplesmente começar com outro login.
         private async void FullReset_Click(object sender, RoutedEventArgs e)
         {

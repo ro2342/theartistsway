@@ -6,7 +6,7 @@ using Windows.UI.Notifications;
 namespace ArtistWayUWP.Services
 {
     // Mesma lógica de agendamento de toasts que existia em
-    // MainPage.xaml.cs (ScheduleNotifications) na versão WebView -- só que
+    // MainPage.xaml.cs (ScheduleNotifications) na versão WebView — só que
     // agora chamada direto com um ProfileSettings, sem round-trip de JSON
     // vindo de uma ponte JS que não existe mais.
     public static class NotificationService

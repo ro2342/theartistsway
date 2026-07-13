@@ -6,7 +6,7 @@ namespace ArtistWayUWP.Services
 {
     public static class UiHelper
     {
-        // Retângulo do elemento na tela, relativo à janela do app -- usado
+        // Retângulo do elemento na tela, relativo à janela do app — usado
         // como âncora pra APIs de composição do sistema (ex.:
         // AppointmentManager.ShowAddAppointmentAsync), que documentam
         // esperar o retângulo de quem disparou a ação, não um Rect vazio.

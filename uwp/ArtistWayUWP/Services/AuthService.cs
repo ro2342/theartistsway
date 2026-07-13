@@ -23,7 +23,7 @@ namespace ArtistWayUWP.Services
 
     // Login com Google, trocado pelo login do Firebase via REST (Identity
     // Toolkit), já que não existe SDK oficial do Firebase pra UWP. (Login
-    // Microsoft via WAM foi removido -- exigia associação com a Microsoft
+    // Microsoft via WAM foi removido — exigia associação com a Microsoft
     // Store, incompatível com o certificado de sideload deste app.)
     public static class AuthService
     {
@@ -33,16 +33,16 @@ namespace ArtistWayUWP.Services
         public const string FirebaseApiKey = "AIzaSyD8xvN_LU11KY51em_RsCaksRmXDmlXF48";
 
         // Cliente OAuth "TVs e dispositivos de entrada limitada" (Device
-        // Authorization Grant) -- ver sincronizacao-nuvem-setup.md, Parte 6.
+        // Authorization Grant) — ver sincronizacao-nuvem-setup.md, Parte 6.
         // O Client ID não é sensível (é público em qualquer app instalado),
-        // mas o Client Secret NUNCA fica em texto puro aqui -- o workflow
+        // mas o Client Secret NUNCA fica em texto puro aqui — o workflow
         // 02-build-appx.yml substitui o placeholder abaixo pelo valor real
         // (guardado como GitHub Actions secret) só no momento do build,
         // então nunca aparece no histórico do git deste repositório público.
         private const string GoogleClientId = "431486750791-e914tsjikjlp9e3vlaehlr8a86dj69lg.apps.googleusercontent.com";
         private const string GoogleClientSecret = "__GOOGLE_OAUTH_CLIENT_SECRET__";
 
-        // Cliente OAuth "Desktop app" -- dá a tela de consentimento normal do
+        // Cliente OAuth "Desktop app" — dá a tela de consentimento normal do
         // Google (nome do app, botão Permitir), via WebAuthenticationBroker +
         // redirecionamento loopback. Mesmo esquema de segredo: placeholder
         // substituído só no build (ver sincronizacao-nuvem-setup.md, Parte 7).
@@ -50,17 +50,17 @@ namespace ArtistWayUWP.Services
         private const string GoogleDesktopClientSecret = "__GOOGLE_OAUTH_DESKTOP_CLIENT_SECRET__";
         private const string GoogleDesktopRedirectUri = "http://127.0.0.1";
 
-        // Fluxo de dispositivo (Device Authorization Grant) -- o mesmo que
+        // Fluxo de dispositivo (Device Authorization Grant) — o mesmo que
         // Smart TVs usam: mostra um código e um link, o usuário confirma em
         // QUALQUER navegador (não precisa ser nesse aparelho), e o app fica
-        // esperando. Sem Store, sem redirect URI -- diferente do WAM, que
+        // esperando. Sem Store, sem redirect URI — diferente do WAM, que
         // esbarrou na exigência de associação com a Store.
         //
         // onCodeReady é chamado assim que o código chega, ANTES de começar a
         // esperar a confirmação, pra UI poder mostrar o código e/ou abrir o
         // navegador. Parâmetros: (verificationUrl, userCode, completeUrl).
         // completeUrl é a variante com o código já embutido (quando o Google
-        // devolve verification_url_complete) -- pode vir null, nesse caso só
+        // devolve verification_url_complete) — pode vir null, nesse caso só
         // dá pra abrir a URL base e o usuário digita o código à mão.
         public static async Task<AuthResult> SignInWithGoogleAsync(Action<string, string, string> onCodeReady)
         {
@@ -87,7 +87,7 @@ namespace ArtistWayUWP.Services
                     string verificationUrl = deviceJson["verification_url"].GetString();
                     // O nome exato desse campo varia entre "_url_" (como o
                     // resto da resposta do Google) e "_uri_" (como no RFC
-                    // 8628) -- checa os dois pra não depender de qual dos
+                    // 8628) — checa os dois pra não depender de qual dos
                     // dois o Google realmente devolve.
                     string completeUrl = null;
                     if (deviceJson.ContainsKey("verification_url_complete"))
@@ -161,7 +161,7 @@ namespace ArtistWayUWP.Services
         }
 
         // Tela de consentimento normal do Google ("ArtistWay quer acessar sua
-        // Conta Google -- Permitir?"), via WebAuthenticationBroker + redirect
+        // Conta Google — Permitir?"), via WebAuthenticationBroker + redirect
         // loopback (127.0.0.1). O broker do Windows intercepta essa URL de
         // volta sozinho, sem precisar de nenhum servidor local de verdade.
         public static async Task<AuthResult> SignInWithGoogleConsentAsync()

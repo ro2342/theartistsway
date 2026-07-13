@@ -45,7 +45,7 @@ namespace ArtistWayUWP.Services
 
         public const int ProgramLengthDays = 84; // 12 semanas x 7 dias
 
-        // Contador de dias (Home) -- mesmo cálculo do PWA (dayCountSinceStart
+        // Contador de dias (Home) — mesmo cálculo do PWA (dayCountSinceStart
         // em app.js), sem guardar nenhum dado novo.
         public static int? GetDayCount(ProfileSettings profile)
         {

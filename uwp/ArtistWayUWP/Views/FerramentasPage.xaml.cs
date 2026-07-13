@@ -11,7 +11,7 @@ namespace ArtistWayUWP.Views
             this.InitializeComponent();
 
             // Títulos das seções vêm de UI_STRINGS (www/js/data.js), fonte
-            // única compartilhada com o PWA -- ver ContentStore.S.
+            // única compartilhada com o PWA — ver ContentStore.S.
             PageTitleText.Text = ContentStore.S("recursos.title");
             PageSubtitleText.Text = ContentStore.S("recursos.subtitle");
             ReferenceTitleText.Text = ContentStore.S("recursos.reference.title");
@@ -24,7 +24,7 @@ namespace ArtistWayUWP.Views
             QuizTitleText.Text = ContentStore.S("recursos.quiz.title");
         }
 
-        // ---------- Referência ----------
+        // — Referência —
 
         private void OpenRoadRules_Click(object sender, RoutedEventArgs e)
         {
@@ -41,7 +41,7 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage));
         }
 
-        // ---------- Listas e mapas ----------
+        // — Listas e mapas —
 
         private void OpenImaginaryLives_Click(object sender, RoutedEventArgs e)
         {
@@ -68,7 +68,7 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage));
         }
 
-        // ---------- Diários ----------
+        // — Diários —
 
         private void OpenSincronicidade_Click(object sender, RoutedEventArgs e)
         {
@@ -95,7 +95,7 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "diarioLeitura");
         }
 
-        // ---------- Cartas ----------
+        // — Cartas —
 
         private void OpenCarta80_Click(object sender, RoutedEventArgs e)
         {
@@ -117,7 +117,7 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "cartaEncorajamento");
         }
 
-        // ---------- Planejamento ----------
+        // — Planejamento —
 
         private void OpenMetasNorteVerdadeiro_Click(object sender, RoutedEventArgs e)
         {
@@ -144,7 +144,7 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "planoContinuidade");
         }
 
-        // ---------- Limites e memórias ----------
+        // — Limites e memórias —
 
         private void OpenResentimentosMedos_Click(object sender, RoutedEventArgs e)
         {
@@ -176,7 +176,7 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "totemArtista");
         }
 
-        // ---------- Histórico ----------
+        // — Histórico —
 
         private void OpenArtistDateHistory_Click(object sender, RoutedEventArgs e)
         {
@@ -188,7 +188,7 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(CheckinHistoryPage));
         }
 
-        // ---------- Quiz ----------
+        // — Quiz —
 
         private void OpenWorkaholismQuiz_Click(object sender, RoutedEventArgs e)
         {

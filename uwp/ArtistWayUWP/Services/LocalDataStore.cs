@@ -9,7 +9,7 @@ using Windows.Storage;
 namespace ArtistWayUWP.Services
 {
     // Substitui a IndexedDB do PWA (www/js/db.js) por arquivos JSON dentro
-    // de ApplicationData.Current.LocalFolder -- um arquivo por "store", no
+    // de ApplicationData.Current.LocalFolder — um arquivo por "store", no
     // mesmo desenho de STORES em db.js. Isso deixa export/import de backup
     // trivial: é literalmente empacotar/desempacotar esses arquivos.
     public static class LocalDataStore
@@ -21,7 +21,7 @@ namespace ArtistWayUWP.Services
         private const string CheckinsFile = "checkins.json";
         private const string ListsFile = "lists.json";
 
-        // ---------- infraestrutura ----------
+        // — infraestrutura —
 
         private static async Task<JsonObject> ReadStoreAsync(string fileName)
         {
@@ -48,7 +48,7 @@ namespace ArtistWayUWP.Services
             await FileIO.WriteTextAsync(file, obj.Stringify());
         }
 
-        // ---------- atividade (pro lembrete de Regras da Estrada) ----------
+        // — atividade (pro lembrete de Regras da Estrada) —
 
         public static async Task TouchActivityAsync()
         {
@@ -68,7 +68,7 @@ namespace ArtistWayUWP.Services
             return null;
         }
 
-        // ---------- perfil ----------
+        // — perfil —
 
         public static async Task<ProfileSettings> GetProfileAsync()
         {
@@ -124,7 +124,7 @@ namespace ArtistWayUWP.Services
             SyncScheduler.ScheduleSync();
         }
 
-        // ---------- morning pages ----------
+        // — morning pages —
 
         public static async Task<bool> ToggleMorningPageAsync(string dateStr)
         {
@@ -159,7 +159,7 @@ namespace ArtistWayUWP.Services
 
         // Lê o campo "done" de um registro, aceitando tanto o formato novo
         // ({ done, updatedAt }) quanto o booleano solto de versões antigas
-        // do app (antes da sincronização existir) -- não precisa de
+        // do app (antes da sincronização existir) — não precisa de
         // migração ativa, só compatibilidade na leitura.
         private static bool ReadDoneFlag(JsonObject store, string key)
         {
@@ -176,7 +176,7 @@ namespace ArtistWayUWP.Services
             return entry.ContainsKey("done") && entry["done"].GetBoolean();
         }
 
-        // ---------- artist date ----------
+        // — artist date —
 
         public static async Task<ArtistDateEntry> GetArtistDateAsync(string weekStart)
         {
@@ -207,7 +207,7 @@ namespace ArtistWayUWP.Services
             SyncScheduler.ScheduleSync();
         }
 
-        // Pro histórico de Artist Dates (Recursos -> Histórico) -- só leitura,
+        // Pro histórico de Artist Dates (Recursos -> Histórico) — só leitura,
         // não adiciona nenhum store novo.
         public static async Task<List<ArtistDateHistoryItem>> GetAllArtistDatesAsync()
         {
@@ -237,7 +237,7 @@ namespace ArtistWayUWP.Services
             return result;
         }
 
-        // ---------- checklist ----------
+        // — checklist —
 
         private static string ChecklistKey(int weekId, int itemIndex) => $"w{weekId}-i{itemIndex}";
 
@@ -277,7 +277,7 @@ namespace ArtistWayUWP.Services
             return result;
         }
 
-        // ---------- check-ins ----------
+        // — check-ins —
 
         public static async Task<CheckinEntry> GetCheckinAsync(int weekId)
         {
@@ -303,7 +303,7 @@ namespace ArtistWayUWP.Services
         }
 
         // Pra tela de índice "Reler check-ins antigos" (Recursos -> Histórico)
-        // -- só precisa saber quais semanas já têm check-in salvo, não o
+        // — só precisa saber quais semanas já têm check-in salvo, não o
         // conteúdo (a tela de check-in já pré-preenche as respostas
         // existentes sozinha quando o usuário abre uma semana específica).
         public static async Task<HashSet<int>> GetWeeksWithCheckinAsync()
@@ -338,7 +338,7 @@ namespace ArtistWayUWP.Services
             SyncScheduler.ScheduleSync();
         }
 
-        // ---------- backup: exportar/importar ----------
+        // — backup: exportar/importar —
 
         public static async Task<string> ExportAllDataAsync()
         {
@@ -384,9 +384,9 @@ namespace ArtistWayUWP.Services
             }
         }
 
-        // ---------- listas nomeadas (Vidas Imaginárias, 20 Coisas, Mapa do
-        // Ciúme, Círculo de Segurança, Life Pie) ----------
-        // Um arquivo só (lists.json), chave "<listName>/<itemId>" -- assim
+        // — listas nomeadas (Vidas Imaginárias, 20 Coisas, Mapa do
+        // Ciúme, Círculo de Segurança, Life Pie) —
+        // Um arquivo só (lists.json), chave "<listName>/<itemId>" — assim
         // toda funcionalidade nova desse tipo usa o mesmo mecanismo de
         // guardar/sincronizar, em vez de um arquivo/loja por
         // funcionalidade. Itens só são adicionados/editados, nunca
@@ -448,7 +448,7 @@ namespace ArtistWayUWP.Services
 
         private static string ListItemKey(string listName, string itemId) => listName + "/" + itemId;
 
-        // ---------- resetar ----------
+        // — resetar —
 
         // Apaga todos os dados do usuário do aparelho (perfil, Morning
         // Pages, Artist Dates, checklist, check-ins, listas). Não afeta
@@ -465,12 +465,12 @@ namespace ArtistWayUWP.Services
                 }
                 catch (FileNotFoundException)
                 {
-                    // já não existia -- nada a apagar.
+                    // já não existia — nada a apagar.
                 }
             }
         }
 
-        // ---------- acesso genérico por nome (usado pelo SyncService) ----------
+        // — acesso genérico por nome (usado pelo SyncService) —
 
         public static readonly string[] SyncStoreNames = { "settings", "morningPages", "artistDates", "checklist", "checkins", "lists" };
 
@@ -492,7 +492,7 @@ namespace ArtistWayUWP.Services
 
         public static Task WriteStoreForSyncAsync(string storeName, JsonObject obj) => WriteStoreAsync(FileNameFor(storeName), obj);
 
-        // ---------- helpers ----------
+        // — helpers —
 
         private static string GetStringOrDefault(JsonObject obj, string key, string fallback)
         {

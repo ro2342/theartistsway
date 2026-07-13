@@ -9,7 +9,7 @@ namespace ArtistWayUWP.Models
         public bool Multiline { get; set; }
     }
 
-    // Espelha uma entrada de TOOL_CONFIGS em www/js/data.js -- gerado por
+    // Espelha uma entrada de TOOL_CONFIGS em www/js/data.js — gerado por
     // scripts/generate-content-json.js dentro de Data/content.json e
     // carregado via ContentStore.Content.ToolConfigs. "Singleton" marca um
     // formulário de um registro só (editável/sobrescrito, ver

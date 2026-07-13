@@ -10,13 +10,13 @@ namespace ArtistWayUWP.Views
 {
     // Página genérica reaproveitada por qualquer ferramenta descrita em
     // TOOL_CONFIGS (www/js/data.js -> Data/content.json ->
-    // ContentStore.Content.ToolConfigs) -- só muda o esquema de campos
+    // ContentStore.Content.ToolConfigs) — só muda o esquema de campos
     // (ver Models/NamedListConfig.cs). O parâmetro de navegação é a
     // chave da lista (string), não a config em si, pra manter o
     // parâmetro simples de serializar. Quando a config tem
     // Singleton=true, a tela vira um formulário de UM registro só
     // (carregado/sobrescrito na chave fixa "singleton"), em vez de uma
-    // lista que só cresce -- mesmo mecanismo de armazenamento embaixo.
+    // lista que só cresce — mesmo mecanismo de armazenamento embaixo.
     public sealed partial class NamedListPage : Page
     {
         private const string SingletonItemId = "singleton";

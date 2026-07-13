@@ -94,7 +94,7 @@ namespace ArtistWayUWP.Views
             List<string> affirmations = ContentStore.Content.Affirmations;
             if (affirmations.Count > 0)
             {
-                // Mesmo cálculo do PWA (dia do ano) -- mostra a mesma frase
+                // Mesmo cálculo do PWA (dia do ano) — mostra a mesma frase
                 // nos dois aparelhos no mesmo dia, sem precisar sincronizar
                 // nada novo pra isso.
                 int index = DateTime.Now.DayOfYear % affirmations.Count;

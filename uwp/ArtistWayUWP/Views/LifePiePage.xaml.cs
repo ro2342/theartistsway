@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Shapes;
 
 namespace ArtistWayUWP.Views
 {
-    // Gráfico de radar desenhado à mão com Polygon/Line/Ellipse -- sem
+    // Gráfico de radar desenhado à mão com Polygon/Line/Ellipse — sem
     // WebView (app 100% nativo) e sem Win2D (nenhuma dependência nova),
     // mesma trigonometria usada no /life-pie do PWA (app.js).
     public sealed partial class LifePiePage : Page

@@ -79,7 +79,7 @@ namespace ArtistWayUWP.Views
                 content.Children.Add(textStack);
                 if (complete)
                 {
-                    // Selo de semana concluída -- um "carimbo" decorativo no
+                    // Selo de semana concluída — um "carimbo" decorativo no
                     // canto, mesmo espírito visual do PWA (.week-chip.complete::after).
                     Border stamp = new Border
                     {

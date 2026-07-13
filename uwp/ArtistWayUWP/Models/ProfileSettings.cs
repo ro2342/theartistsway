@@ -20,11 +20,11 @@ namespace ArtistWayUWP.Models
         public string ThemeMode { get; set; } = "auto";
 
         // Desliga o checklist/check-in semanal, deixando só Morning Pages e
-        // Artist Date -- ativado manualmente aqui ou automaticamente quando
+        // Artist Date — ativado manualmente aqui ou automaticamente quando
         // a semana calculada passa de 12 (ver WeekCalculator/HomePage).
         public bool MaintenanceMode { get; set; } = false;
 
-        // Contrato Inicial assinável (onboarding) -- o nome digitado como
+        // Contrato Inicial assinável (onboarding) — o nome digitado como
         // "assinatura" e quando foi assinado.
         public string ContractSignedName { get; set; } = "";
         public string ContractSignedAt { get; set; } = "";

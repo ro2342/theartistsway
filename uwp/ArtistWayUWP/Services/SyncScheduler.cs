@@ -3,7 +3,7 @@ using Windows.UI.Xaml;
 
 namespace ArtistWayUWP.Services
 {
-    // Agenda uma sincronização ~5s depois da última mudança local -- espera
+    // Agenda uma sincronização ~5s depois da última mudança local — espera
     // a "rajada" de toques parar antes de gastar uma chamada de rede (ver
     // "Decisões de arquitetura" em sincronizacao-nuvem-setup.md). Chamado
     // pelos métodos do LocalDataStore que gravam dado do usuário. Não faz
