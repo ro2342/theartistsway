@@ -8,65 +8,15 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Page.Resources>
-        <!-- Linha fina separando seções dentro da mesma aba — substitui
-             os Border com CardBorderStyle por um traço só, mais perto de
-             uma lista de configurações nativa do que de cartões. -->
-        <Style x:Key="SectionDividerStyle" TargetType="Border">
-            <Setter Property="Height" Value="1" />
-            <Setter Property="Margin" Value="0,20,0,20" />
-            <Setter Property="Background" Value="{ThemeResource SystemControlForegroundBaseLowBrush}" />
-        </Style>
-    </Page.Resources>
-
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <!-- Faixa cinza atrás do cabeçalho de abas do Pivot (mesma brush da
+             HeaderBar do shell), pra continuar a barra cinza que já vem
+             do título "Ajustes" — igual ao Settings nativo da Microsoft,
+             onde a barra de trás do título e das abas é uma coisa só. -->
+        <Border VerticalAlignment="Top" Height="48"
+                Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" />
 
-        <StackPanel Grid.Row="0" Padding="16,12,16,0">
-            <TextBlock x:Name="PageSubtitleText" Text="seus rituais" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
-        </StackPanel>
-
-        <Pivot x:Name="SettingsPivot" Grid.Row="1" Margin="0,4,0,0">
-            <PivotItem x:Name="ProfileTab" Header="Perfil">
-                <ScrollViewer Padding="16,12,16,24">
-                    <StackPanel>
-                        <TextBlock Text="Nome" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,0,0,4" />
-                        <TextBox x:Name="NameBox" />
-
-                        <TextBlock Text="Início da Semana 1" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                        <DatePicker x:Name="StartDatePicker" HorizontalAlignment="Stretch" />
-
-                        <TextBlock Text="Horário das Morning Pages" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                        <TimePicker x:Name="MorningPagesTimePicker" HorizontalAlignment="Stretch" />
-
-                        <TextBlock Text="Dia do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                        <ComboBox x:Name="ArtistDateDayCombo" HorizontalAlignment="Stretch" />
-
-                        <TextBlock Text="Horário do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                        <TimePicker x:Name="ArtistDateTimePicker" HorizontalAlignment="Stretch" />
-
-                        <TextBlock Text="Dia do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                        <ComboBox x:Name="CheckinDayCombo" HorizontalAlignment="Stretch" />
-
-                        <TextBlock Text="Horário do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                        <TimePicker x:Name="CheckinTimePicker" HorizontalAlignment="Stretch" />
-
-                        <Button Content="Salvar e reativar lembretes" Click="SaveProfile_Click" HorizontalAlignment="Stretch" Margin="0,16,0,0" />
-
-                        <Border Style="{StaticResource SectionDividerStyle}" />
-
-                        <TextBlock Text="Calendário do Windows" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <TextBlock Text="Adiciona o compromisso recorrente direto no app de Calendário do aparelho." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                        <Button Content="+ Morning Pages diário" Click="NativeCalMp_Click" HorizontalAlignment="Stretch" />
-                        <Button Content="+ Artist Date semanal" Click="NativeCalAd_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                        <Button Content="+ Check-in semanal" Click="NativeCalCi_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    </StackPanel>
-                </ScrollViewer>
-            </PivotItem>
-
+        <Pivot x:Name="SettingsPivot">
             <PivotItem x:Name="AppearanceTab" Header="Aparência">
                 <ScrollViewer Padding="16,12,16,24">
                     <StackPanel>

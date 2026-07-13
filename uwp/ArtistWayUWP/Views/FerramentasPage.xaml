@@ -8,7 +8,14 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Pivot x:Name="RecursosPivot">
+    <Grid>
+        <!-- Faixa cinza atrás do cabeçalho de abas (mesma brush da
+             HeaderBar do shell) — continua a barra cinza que já vem do
+             título "Recursos", igual ao Settings nativo da Microsoft. -->
+        <Border VerticalAlignment="Top" Height="48"
+                Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" />
+
+        <Pivot x:Name="RecursosPivot">
         <PivotItem x:Name="ReferenceTab" Header="Referência">
             <ScrollViewer Padding="16,12,16,24">
                 <StackPanel>
@@ -111,5 +118,6 @@
                 </StackPanel>
             </ScrollViewer>
         </PivotItem>
-    </Pivot>
+        </Pivot>
+    </Grid>
 </Page>

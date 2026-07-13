@@ -73,107 +73,126 @@
         </Style>
     </Page.Resources>
 
-    <SplitView x:Name="NavSplitView"
-               DisplayMode="Overlay"
-               PanePlacement="Left"
-               OpenPaneLength="248"
-               IsPaneOpen="False">
-        <SplitView.Pane>
-            <Grid Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+    <!-- O cabeçalho (HeaderBar) fica FORA do SplitView, como irmão dele
+         numa linha própria acima — assim ele nunca é coberto pelo painel
+         deslizante (que só cobre a área abaixo, onde está o SplitView) e o
+         hambúrguer continua sempre visível/clicável pra fechar o painel,
+         mesmo com ele aberto. -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Margin="0,32,0,0">
-                    <Button x:Name="NavHome" Tag="Home" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon x:Name="NavHomeIcon" Symbol="Home" />
-                            <TextBlock x:Name="NavHomeLabel" Text="Início" Margin="20,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="NavProgress" Tag="Progress" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon x:Name="NavProgressIcon" Symbol="List" />
-                            <TextBlock x:Name="NavProgressLabel" Text="Jornada" Margin="20,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="NavArtistDate" Tag="ArtistDate" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon x:Name="NavArtistDateIcon" Symbol="Favorite" />
-                            <TextBlock x:Name="NavArtistDateLabel" Text="Date" Margin="20,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="NavFerramentas" Tag="Ferramentas" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon x:Name="NavFerramentasIcon" Symbol="Repair" />
-                            <TextBlock x:Name="NavFerramentasLabel" Text="Recursos" Margin="20,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="NavSettings" Tag="Settings" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon x:Name="NavSettingsIcon" Symbol="Setting" />
-                            <TextBlock x:Name="NavSettingsLabel" Text="Ajustes" Margin="20,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+        <!-- Cabeçalho fixo: barra cinza no topo com hambúrguer + título da
+             seção atual, sempre juntos (nunca some, mesmo com o painel
+             aberto) — o HeaderTitleText troca de texto conforme a seção
+             (Início/Jornada/Date/Recursos/Meu Perfil/Ajustes), em fonte
+             pequena (não do tamanho de título de página), igual à barra
+             "☰ msn sports" dos apps nativos da Microsoft. -->
+        <Grid x:Name="HeaderBar" Grid.Row="0"
+              Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="MenuButton"
+                    Grid.Column="0"
+                    Click="MenuButton_Click"
+                    Style="{StaticResource HamburgerButtonStyle}">
+                <!-- FontIcon com o glifo cru (Segoe MDL2 Assets) em vez de
+                     SymbolIcon Symbol="GlobalNavigationButton" — esse
+                     membro do enum Symbol não existe no runtime do
+                     Windows 10 Mobile do Lumia (SDK do build é mais novo
+                     que o sistema do aparelho), causava crash em tempo
+                     de execução ("Failed to create a SymbolIcon from
+                     the text 'GlobalNavigationButton'"). Glyph é só uma
+                     string, sem contrato de API versionado por trás. -->
+                <FontIcon Glyph="&#xE700;" />
+            </Button>
+            <TextBlock x:Name="HeaderTitleText"
+                       Grid.Column="1"
+                       Style="{StaticResource BodyTextBlockStyle}"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"
+                       Margin="12,0,16,0" />
+        </Grid>
 
-                <StackPanel Grid.Row="1" Margin="0,0,0,8">
-                    <Border Height="1" Margin="20,0,20,8" Background="{ThemeResource SystemControlForegroundBaseLowBrush}" />
-                    <Button x:Name="NavSync" Click="SyncNowButton_Click" Style="{StaticResource NavRowStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon Symbol="Sync" />
-                            <TextBlock x:Name="NavSyncLabel" Text="Sincronizar" Margin="20,0,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
-        </SplitView.Pane>
+        <SplitView x:Name="NavSplitView"
+                   Grid.Row="1"
+                   DisplayMode="Overlay"
+                   PanePlacement="Left"
+                   OpenPaneLength="248"
+                   IsPaneOpen="False">
+            <SplitView.Pane>
+                <Grid Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-        <SplitView.Content>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="0,32,0,0">
+                        <Button x:Name="NavHome" Tag="Home" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon x:Name="NavHomeIcon" Symbol="Home" />
+                                <TextBlock x:Name="NavHomeLabel" Text="Início" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="NavProgress" Tag="Progress" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon x:Name="NavProgressIcon" Symbol="List" />
+                                <TextBlock x:Name="NavProgressLabel" Text="Jornada" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="NavArtistDate" Tag="ArtistDate" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon x:Name="NavArtistDateIcon" Symbol="Favorite" />
+                                <TextBlock x:Name="NavArtistDateLabel" Text="Date" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="NavFerramentas" Tag="Ferramentas" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon x:Name="NavFerramentasIcon" Symbol="Repair" />
+                                <TextBlock x:Name="NavFerramentasLabel" Text="Recursos" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
 
-                <!-- Cabeçalho fixo: barra cinza no topo com hambúrguer +
-                     título da seção atual, sempre juntos (nunca some, mesmo
-                     com o painel fechado) — o HeaderTitleText troca de
-                     texto conforme a seção (Início/Jornada/Date/Recursos/
-                     Ajustes), em fonte pequena (não do tamanho de título de
-                     página), igual à barra "☰ msn sports" dos apps nativos
-                     da Microsoft. -->
-                <Grid x:Name="HeaderBar" Grid.Row="0"
-                      Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Button x:Name="MenuButton"
-                            Grid.Column="0"
-                            Click="MenuButton_Click"
-                            Style="{StaticResource HamburgerButtonStyle}">
-                        <!-- FontIcon com o glifo cru (Segoe MDL2 Assets) em vez de
-                             SymbolIcon Symbol="GlobalNavigationButton" — esse
-                             membro do enum Symbol não existe no runtime do
-                             Windows 10 Mobile do Lumia (SDK do build é mais novo
-                             que o sistema do aparelho), causava crash em tempo
-                             de execução ("Failed to create a SymbolIcon from
-                             the text 'GlobalNavigationButton'"). Glyph é só uma
-                             string, sem contrato de API versionado por trás. -->
-                        <FontIcon Glyph="&#xE700;" />
-                    </Button>
-                    <TextBlock x:Name="HeaderTitleText"
-                               Grid.Column="1"
-                               Style="{StaticResource BodyTextBlockStyle}"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                               Margin="12,0,16,0" />
+                    <!-- Itens utilitários, separados por uma linha que ocupa
+                         a largura inteira do painel (sem margem lateral) —
+                         Meu Perfil, Sincronizar e Ajustes ficam juntos aqui,
+                         fora da lista principal de seções. -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,8">
+                        <Border Height="1" Margin="0,0,0,8" Background="{ThemeResource SystemControlForegroundBaseLowBrush}" />
+                        <Button x:Name="NavProfile" Tag="Profile" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <!-- FontIcon (glifo "Contact", Segoe MDL2 Assets)
+                                     em vez de SymbolIcon: depois do crash do
+                                     GlobalNavigationButton, ícone novo sempre
+                                     como glifo cru, sem depender do enum Symbol. -->
+                                <FontIcon x:Name="NavProfileIcon" Glyph="&#xE77B;" FontSize="16" />
+                                <TextBlock x:Name="NavProfileLabel" Text="Meu Perfil" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="NavSync" Click="SyncNowButton_Click" Style="{StaticResource NavRowStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Sync" />
+                                <TextBlock x:Name="NavSyncLabel" Text="Sincronizar" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="NavSettings" Tag="Settings" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon x:Name="NavSettingsIcon" Symbol="Setting" />
+                                <TextBlock x:Name="NavSettingsLabel" Text="Ajustes" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </Grid>
+            </SplitView.Pane>
 
-                <Grid Grid.Row="1">
+            <SplitView.Content>
+                <Grid>
                     <Frame x:Name="ContentFrame" x:FieldModifier="public" />
 
                     <Border x:Name="ErrorPanel"
@@ -192,7 +211,7 @@
                             Visibility="Collapsed"
                             Tapped="PaneDismissOverlay_Tapped" />
                 </Grid>
-            </Grid>
-        </SplitView.Content>
-    </SplitView>
+            </SplitView.Content>
+        </SplitView>
+    </Grid>
 </Page>

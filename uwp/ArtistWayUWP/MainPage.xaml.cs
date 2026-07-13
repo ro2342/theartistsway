@@ -50,8 +50,9 @@ namespace ArtistWayUWP
             NavProgressLabel.Text = ContentStore.S("nav.progress");
             NavArtistDateLabel.Text = ContentStore.S("nav.artistDate");
             NavFerramentasLabel.Text = ContentStore.S("nav.recursos");
-            NavSettingsLabel.Text = ContentStore.S("nav.settings");
+            NavProfileLabel.Text = ContentStore.S("nav.profile");
             NavSyncLabel.Text = ContentStore.S("nav.sync");
+            NavSettingsLabel.Text = ContentStore.S("nav.settings");
         }
 
         // Quadrado sólido na cor de destaque, igual ao botão de menu do
@@ -136,6 +137,9 @@ namespace ArtistWayUWP
                 case "Ferramentas":
                     pageType = typeof(FerramentasPage);
                     break;
+                case "Profile":
+                    pageType = typeof(ProfilePage);
+                    break;
                 case "Settings":
                     pageType = typeof(SettingsPage);
                     break;
@@ -182,12 +186,14 @@ namespace ArtistWayUWP
             bool isProgress = pageType == typeof(ProgressPage);
             bool isArtistDate = pageType == typeof(ArtistDatePage);
             bool isFerramentas = pageType == typeof(FerramentasPage);
+            bool isProfile = pageType == typeof(ProfilePage);
             bool isSettings = pageType == typeof(SettingsPage);
 
             SetTabForeground(NavHomeLabel, NavHomeIcon, isHome, accent);
             SetTabForeground(NavProgressLabel, NavProgressIcon, isProgress, accent);
             SetTabForeground(NavArtistDateLabel, NavArtistDateIcon, isArtistDate, accent);
             SetTabForeground(NavFerramentasLabel, NavFerramentasIcon, isFerramentas, accent);
+            SetTabForeground(NavProfileLabel, NavProfileIcon, isProfile, accent);
             SetTabForeground(NavSettingsLabel, NavSettingsIcon, isSettings, accent);
 
             // Título do cabeçalho fixo acompanha a seção atual (mesmas
@@ -197,10 +203,14 @@ namespace ArtistWayUWP
             else if (isProgress) HeaderTitleText.Text = ContentStore.S("nav.progress");
             else if (isArtistDate) HeaderTitleText.Text = ContentStore.S("nav.artistDate");
             else if (isFerramentas) HeaderTitleText.Text = ContentStore.S("nav.recursos");
+            else if (isProfile) HeaderTitleText.Text = ContentStore.S("nav.profile");
             else if (isSettings) HeaderTitleText.Text = ContentStore.S("nav.settings");
         }
 
-        private static void SetTabForeground(TextBlock label, SymbolIcon icon, bool active, Brush accent)
+        // IconElement (não SymbolIcon) porque NavProfileIcon é um FontIcon
+        // (glifo cru, ver comentário no MainPage.xaml) — os dois herdam de
+        // IconElement, que já tem a propriedade Foreground usada aqui.
+        private static void SetTabForeground(TextBlock label, IconElement icon, bool active, Brush accent)
         {
             if (active)
             {

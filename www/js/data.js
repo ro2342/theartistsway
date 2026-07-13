@@ -552,13 +552,14 @@ const ARTIST_DATE_IDEAS = [
 // Gerado em Data/content.json (ver scripts/generate-content-json.js) e
 // consumido no UWP por atribuição direta no code-behind (ContentStore.
 // Content.UiStrings["chave"]), já que XAML não faz bind direto contra um
-// dicionário. Só cobre texto estático e realmente duplicado -- strings
+// dicionário. Só cobre texto estático e realmente duplicado — strings
 // totalmente dinâmicas/interpoladas continuam locais em cada plataforma.
 const UI_STRINGS = {
   "nav.home": "Início",
   "nav.progress": "Jornada",
   "nav.artistDate": "Date",
   "nav.recursos": "Recursos",
+  "nav.profile": "Meu Perfil",
   "nav.settings": "Ajustes",
   "nav.sync": "Sincronizar",
 
@@ -570,7 +571,6 @@ const UI_STRINGS = {
 
   "settings.title": "Ajustes",
   "settings.subtitle": "seus rituais",
-  "settings.tabs.profile": "Perfil",
   "settings.tabs.appearance": "Aparência",
   "settings.tabs.dataSync": "Dados & Sync",
   "settings.tabs.advanced": "Avançado",
@@ -614,7 +614,7 @@ const UI_STRINGS = {
 // genérica, reaproveitada pela mesma tela em ambas plataformas
 // (NamedListPage no UWP, rota /list no PWA). `singleton: true` marca um
 // formulário de UM registro só (editável/sobrescrito) em vez de uma lista
-// que só cresce -- mesmo mecanismo de armazenamento (store "lists"), só
+// que só cresce — mesmo mecanismo de armazenamento (store "lists"), só
 // muda o comportamento de salvar.
 const TOOL_CONFIGS = {
   // já existiam antes desta leva

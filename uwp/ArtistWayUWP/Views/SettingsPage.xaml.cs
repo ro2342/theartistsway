@@ -12,24 +12,20 @@ namespace ArtistWayUWP.Views
 {
     public sealed partial class SettingsPage : Page
     {
-        private static readonly string[] WeekdayNames =
-            { "", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado" };
-
+        // Só usado aqui pra tema e modo manutenção agora — os campos
+        // editáveis de perfil (nome, datas, horários, calendário) viraram
+        // a tela própria ProfilePage (Meu Perfil, no painel de navegação).
         private ProfileSettings _profile;
         private StorageFile _downloadedUpdateFile;
 
         public SettingsPage()
         {
             this.InitializeComponent();
-            PopulateWeekdayCombo(ArtistDateDayCombo);
-            PopulateWeekdayCombo(CheckinDayCombo);
 
             // Títulos vêm de UI_STRINGS (www/js/data.js), fonte única
             // compartilhada com o PWA — ver ContentStore.S. O título grande
             // da página não repete mais aqui: o shell (MainPage) já mostra
             // "Ajustes" no cabeçalho fixo junto do hambúrguer.
-            PageSubtitleText.Text = ContentStore.S("settings.subtitle");
-            ProfileTab.Header = ContentStore.S("settings.tabs.profile");
             AppearanceTab.Header = ContentStore.S("settings.tabs.appearance");
             DataSyncTab.Header = ContentStore.S("settings.tabs.dataSync");
             AdvancedTab.Header = ContentStore.S("settings.tabs.advanced");
@@ -38,30 +34,6 @@ namespace ArtistWayUWP.Views
             SyncTitleText.Text = ContentStore.S("settings.sync.title");
             MaintenanceTitleText.Text = ContentStore.S("settings.maintenance.title");
             DangerZoneTitleText.Text = ContentStore.S("settings.dangerZone.title");
-        }
-
-        private static void PopulateWeekdayCombo(ComboBox combo)
-        {
-            for (int i = 1; i <= 7; i++)
-            {
-                combo.Items.Add(new ComboBoxItem { Content = WeekdayNames[i], Tag = i });
-            }
-        }
-
-        private static void SelectWeekday(ComboBox combo, string value)
-        {
-            if (!int.TryParse(value, out int day))
-            {
-                day = 7;
-            }
-            foreach (object item in combo.Items)
-            {
-                if (item is ComboBoxItem cbi && (int)cbi.Tag == day)
-                {
-                    combo.SelectedItem = cbi;
-                    return;
-                }
-            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -74,25 +46,6 @@ namespace ArtistWayUWP.Views
         {
             _profile = await LocalDataStore.GetProfileAsync() ?? new ProfileSettings();
 
-            NameBox.Text = _profile.Name ?? "";
-            if (DateTimeOffset.TryParse(_profile.StartDate, out DateTimeOffset startDate))
-            {
-                StartDatePicker.Date = startDate;
-            }
-            if (TimeSpan.TryParse(_profile.MorningPagesTime, out TimeSpan mpTime))
-            {
-                MorningPagesTimePicker.Time = mpTime;
-            }
-            if (TimeSpan.TryParse(_profile.ArtistDateTime, out TimeSpan adTime))
-            {
-                ArtistDateTimePicker.Time = adTime;
-            }
-            if (TimeSpan.TryParse(_profile.CheckinTime, out TimeSpan ciTime))
-            {
-                CheckinTimePicker.Time = ciTime;
-            }
-            SelectWeekday(ArtistDateDayCombo, _profile.ArtistDateDay);
-            SelectWeekday(CheckinDayCombo, _profile.CheckinDay);
             UpdateThemeButtonsVisual();
             ToggleMaintenanceButton.Content = _profile.MaintenanceMode ? ContentStore.S("settings.maintenance.toggleOff") : ContentStore.S("settings.maintenance.toggleOn");
 
@@ -237,72 +190,6 @@ namespace ArtistWayUWP.Views
                 return;
             }
             await Windows.System.Launcher.LaunchFileAsync(_downloadedUpdateFile);
-        }
-
-        private async void SaveProfile_Click(object sender, RoutedEventArgs e)
-        {
-            _profile.Name = NameBox.Text.Trim();
-            _profile.StartDate = StartDatePicker.Date.ToString("yyyy-MM-dd");
-            _profile.MorningPagesTime = MorningPagesTimePicker.Time.ToString(@"hh\:mm");
-            _profile.ArtistDateTime = ArtistDateTimePicker.Time.ToString(@"hh\:mm");
-            _profile.CheckinTime = CheckinTimePicker.Time.ToString(@"hh\:mm");
-            _profile.ArtistDateDay = ((ComboBoxItem)ArtistDateDayCombo.SelectedItem)?.Tag.ToString() ?? "7";
-            _profile.CheckinDay = ((ComboBoxItem)CheckinDayCombo.SelectedItem)?.Tag.ToString() ?? "7";
-            _profile.Onboarded = true;
-
-            await LocalDataStore.SetProfileAsync(_profile);
-            NotificationService.ApplySettings(_profile);
-
-            ContentDialog dialog = new ContentDialog
-            {
-                Title = "Tudo certo",
-                Content = "Ajustes salvos e lembretes atualizados.",
-                CloseButtonText = "OK",
-            };
-            _ = dialog.ShowAsync();
-        }
-
-        private async void NativeCalMp_Click(object sender, RoutedEventArgs e)
-        {
-            if (TimeSpan.TryParse(_profile.MorningPagesTime, out TimeSpan time))
-            {
-                await AppointmentService.AddDailyAsync(
-                    "Morning Pages",
-                    "3 páginas à mão, sem reler. Companheiro The Artist's Way.",
-                    time,
-                    30,
-                    UiHelper.GetElementRect((FrameworkElement)sender));
-            }
-        }
-
-        private async void NativeCalAd_Click(object sender, RoutedEventArgs e)
-        {
-            int.TryParse(_profile.ArtistDateDay, out int day);
-            if (TimeSpan.TryParse(_profile.ArtistDateTime, out TimeSpan time))
-            {
-                await AppointmentService.AddWeeklyAsync(
-                    "Artist Date",
-                    "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
-                    day == 0 ? 7 : day,
-                    time,
-                    90,
-                    UiHelper.GetElementRect((FrameworkElement)sender));
-            }
-        }
-
-        private async void NativeCalCi_Click(object sender, RoutedEventArgs e)
-        {
-            int.TryParse(_profile.CheckinDay, out int day);
-            if (TimeSpan.TryParse(_profile.CheckinTime, out TimeSpan time))
-            {
-                await AppointmentService.AddWeeklyAsync(
-                    "Check-in semanal",
-                    "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
-                    day == 0 ? 7 : day,
-                    time,
-                    20,
-                    UiHelper.GetElementRect((FrameworkElement)sender));
-            }
         }
 
         private async void Export_Click(object sender, RoutedEventArgs e)

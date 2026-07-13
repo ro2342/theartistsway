@@ -23,6 +23,25 @@
             <Setter Property="Padding" Value="16" />
             <Setter Property="Margin" Value="0,0,0,16" />
         </Style>
+
+        <!-- Linha fina separando seções dentro de uma mesma tela/aba —
+             substitui Border com CardBorderStyle por um traço só, mais
+             perto de uma lista de configurações nativa do que de cartões.
+             Compartilhada entre Ajustes e Meu Perfil. -->
+        <Style x:Key="SectionDividerStyle" TargetType="Border">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="Margin" Value="0,20,0,20" />
+            <Setter Property="Background" Value="{ThemeResource SystemControlForegroundBaseLowBrush}" />
+        </Style>
+
+        <!-- Sem x:Key: aplica implicitamente a QUALQUER PivotHeaderItem do
+             app (abas de Ajustes e de Recursos) — nome de aba em fonte
+             pequena, igual ao "General/Privacy statement/Terms of use"
+             do Settings nativo da Microsoft, em vez do tamanho padrão do
+             Pivot (grande demais numa tela de celular). -->
+        <Style TargetType="PivotHeaderItem">
+            <Setter Property="FontSize" Value="16" />
+        </Style>
     </Application.Resources>
 
 </Application>
