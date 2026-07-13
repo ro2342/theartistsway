@@ -137,13 +137,15 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <!-- Cabeçalho fixo: hambúrguer + título da seção atual,
-                     sempre juntos no topo (nunca some, mesmo com o painel
-                     fechado) — o HeaderTitleText que troca de texto
-                     conforme a seção (Início/Jornada/Date/Recursos/Ajustes),
-                     igual ao texto "My News"/"Forecast"/"Settings" ao lado
-                     do hambúrguer nos apps nativos da Microsoft. -->
-                <Grid x:Name="HeaderBar" Grid.Row="0">
+                <!-- Cabeçalho fixo: barra cinza no topo com hambúrguer +
+                     título da seção atual, sempre juntos (nunca some, mesmo
+                     com o painel fechado) — o HeaderTitleText troca de
+                     texto conforme a seção (Início/Jornada/Date/Recursos/
+                     Ajustes), em fonte pequena (não do tamanho de título de
+                     página), igual à barra "☰ msn sports" dos apps nativos
+                     da Microsoft. -->
+                <Grid x:Name="HeaderBar" Grid.Row="0"
+                      Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
@@ -164,7 +166,8 @@
                     </Button>
                     <TextBlock x:Name="HeaderTitleText"
                                Grid.Column="1"
-                               Style="{StaticResource TitleTextBlockStyle}"
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               FontWeight="SemiBold"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                Margin="12,0,16,0" />
