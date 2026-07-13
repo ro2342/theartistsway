@@ -570,6 +570,10 @@ const UI_STRINGS = {
 
   "settings.title": "Ajustes",
   "settings.subtitle": "seus rituais",
+  "settings.tabs.profile": "Perfil",
+  "settings.tabs.appearance": "Aparência",
+  "settings.tabs.dataSync": "Dados & Sync",
+  "settings.tabs.advanced": "Avançado",
   "settings.profile.title": "Seu perfil",
   "settings.profile.saveButton": "Salvar e reativar lembretes",
   "settings.appearance.title": "Aparência",

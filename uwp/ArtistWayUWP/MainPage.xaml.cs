@@ -5,17 +5,19 @@ using ArtistWayUWP.Views;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace ArtistWayUWP
 {
-    // Shell de navegação nativo: um Frame pro conteúdo + uma barra de abas
-    // fixa embaixo (Início/Jornada/Date/Ferramentas/Ajustes), no mesmo
-    // espírito do bottom-nav que existia no PWA — só que com controles
-    // nativos, sem WebView. Troca de aba não empilha histórico (são pares
-    // do mesmo nível); navegação pra páginas de detalhe (semana, ensaio,
-    // check-in, referência) empilha normalmente no back stack do Frame.
+    // Shell de navegação nativo: um Frame pro conteúdo + um botão
+    // hambúrguer (canto inferior-esquerdo, cor de destaque) que abre um
+    // SplitView deslizando por cima do conteúdo, no mesmo espírito do
+    // menu do app News nativo da Microsoft. Troca de destino fecha o
+    // painel e não empilha histórico (são pares do mesmo nível);
+    // navegação pra páginas de detalhe (semana, ensaio, check-in,
+    // referência) empilha normalmente no back stack do Frame.
     public sealed partial class MainPage : Page
     {
         public static MainPage Current { get; private set; }
@@ -27,6 +29,7 @@ namespace ArtistWayUWP
                 this.InitializeComponent();
                 Current = this;
                 ApplyNavLabels();
+                StyleMenuButton();
                 this.Loaded += MainPage_Loaded;
                 ContentFrame.Navigated += ContentFrame_Navigated;
                 SystemNavigationManager.GetForCurrentView().BackRequested += OnBackRequested;
@@ -41,11 +44,23 @@ namespace ArtistWayUWP
         // compartilhada com o PWA -- ver ContentStore.S.
         private void ApplyNavLabels()
         {
-            TabHomeLabel.Text = ContentStore.S("nav.home");
-            TabProgressLabel.Text = ContentStore.S("nav.progress");
-            TabArtistDateLabel.Text = ContentStore.S("nav.artistDate");
-            TabFerramentasLabel.Text = ContentStore.S("nav.recursos");
-            TabSettingsLabel.Text = ContentStore.S("nav.settings");
+            NavHomeLabel.Text = ContentStore.S("nav.home");
+            NavProgressLabel.Text = ContentStore.S("nav.progress");
+            NavArtistDateLabel.Text = ContentStore.S("nav.artistDate");
+            NavFerramentasLabel.Text = ContentStore.S("nav.recursos");
+            NavSettingsLabel.Text = ContentStore.S("nav.settings");
+            NavSyncLabel.Text = ContentStore.S("nav.sync");
+        }
+
+        // Quadrado sólido na cor de destaque, igual ao botão de menu do
+        // News -- precisa ser aplicado em código porque a cor de destaque
+        // do sistema não muda com o tema (então não há risco do bug de
+        // ícone sumindo que já pegamos antes com brushes de tema).
+        private void StyleMenuButton()
+        {
+            SolidColorBrush accent = ThemeHelper.AccentBrush();
+            MenuButton.Background = accent;
+            MenuButton.Foreground = new SolidColorBrush(Windows.UI.Colors.White);
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -59,7 +74,7 @@ namespace ArtistWayUWP
                 }
                 else
                 {
-                    TabBar.Visibility = Visibility.Visible;
+                    MenuButton.Visibility = Visibility.Visible;
                     NavigateToTab(typeof(HomePage));
                 }
             }
@@ -71,20 +86,37 @@ namespace ArtistWayUWP
 
         public void BeginOnboarding()
         {
-            TabBar.Visibility = Visibility.Collapsed;
+            MenuButton.Visibility = Visibility.Collapsed;
+            NavSplitView.IsPaneOpen = false;
             ContentFrame.Navigate(typeof(OnboardingPage));
             ContentFrame.BackStack.Clear();
         }
 
         public void CompleteOnboarding()
         {
-            TabBar.Visibility = Visibility.Visible;
+            MenuButton.Visibility = Visibility.Visible;
             NavigateToTab(typeof(HomePage));
         }
 
-        // ---------- abas ----------
+        // ---------- painel de navegação ----------
 
-        private void TabButton_Click(object sender, RoutedEventArgs e)
+        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetPaneOpen(!NavSplitView.IsPaneOpen);
+        }
+
+        private void PaneDismissOverlay_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            SetPaneOpen(false);
+        }
+
+        private void SetPaneOpen(bool open)
+        {
+            NavSplitView.IsPaneOpen = open;
+            PaneDismissOverlay.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void NavItem_Click(object sender, RoutedEventArgs e)
         {
             string tag = (string)((FrameworkElement)sender).Tag;
             Type pageType;
@@ -109,19 +141,21 @@ namespace ArtistWayUWP
                     return;
             }
             NavigateToTab(pageType);
+            SetPaneOpen(false);
         }
 
         private async void SyncNowButton_Click(object sender, RoutedEventArgs e)
         {
-            SyncNowButton.IsEnabled = false;
+            NavSync.IsEnabled = false;
             string result = await SyncService.SyncAllAsync();
-            SyncNowButton.IsEnabled = true;
+            NavSync.IsEnabled = true;
+            SetPaneOpen(false);
 
             Flyout flyout = new Flyout
             {
                 Content = new TextBlock { Text = result, TextWrapping = TextWrapping.Wrap, MaxWidth = 240 },
             };
-            flyout.ShowAt(SyncNowButton);
+            flyout.ShowAt(MenuButton);
         }
 
         public void NavigateToTab(Type pageType, object parameter = null)
@@ -148,11 +182,11 @@ namespace ArtistWayUWP
             bool isFerramentas = pageType == typeof(FerramentasPage);
             bool isSettings = pageType == typeof(SettingsPage);
 
-            SetTabForeground(TabHomeLabel, TabHomeIcon, isHome, accent);
-            SetTabForeground(TabProgressLabel, TabProgressIcon, isProgress, accent);
-            SetTabForeground(TabArtistDateLabel, TabArtistDateIcon, isArtistDate, accent);
-            SetTabForeground(TabFerramentasLabel, TabFerramentasIcon, isFerramentas, accent);
-            SetTabForeground(TabSettingsLabel, TabSettingsIcon, isSettings, accent);
+            SetTabForeground(NavHomeLabel, NavHomeIcon, isHome, accent);
+            SetTabForeground(NavProgressLabel, NavProgressIcon, isProgress, accent);
+            SetTabForeground(NavArtistDateLabel, NavArtistDateIcon, isArtistDate, accent);
+            SetTabForeground(NavFerramentasLabel, NavFerramentasIcon, isFerramentas, accent);
+            SetTabForeground(NavSettingsLabel, NavSettingsIcon, isSettings, accent);
         }
 
         private static void SetTabForeground(TextBlock label, SymbolIcon icon, bool active, Brush accent)
@@ -179,6 +213,12 @@ namespace ArtistWayUWP
 
         private void OnBackRequested(object sender, BackRequestedEventArgs e)
         {
+            if (NavSplitView.IsPaneOpen)
+            {
+                e.Handled = true;
+                SetPaneOpen(false);
+                return;
+            }
             if (ContentFrame.CanGoBack)
             {
                 e.Handled = true;

@@ -8,123 +8,139 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <ScrollViewer Padding="16,16,16,24">
-        <StackPanel>
+    <Page.Resources>
+        <!-- Linha fina separando seções dentro da mesma aba — substitui
+             os Border com CardBorderStyle por um traço só, mais perto de
+             uma lista de configurações nativa do que de cartões. -->
+        <Style x:Key="SectionDividerStyle" TargetType="Border">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="Margin" Value="0,20,0,20" />
+            <Setter Property="Background" Value="{ThemeResource SystemControlForegroundBaseLowBrush}" />
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Padding="16,16,16,0">
             <TextBlock x:Name="PageTitleText" Text="Ajustes" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock x:Name="PageSubtitleText" Text="seus rituais" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Seu perfil" Style="{StaticResource SubtitleTextBlockStyle}" />
-
-                    <TextBlock Text="Nome" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                    <TextBox x:Name="NameBox" />
-
-                    <TextBlock Text="Início da Semana 1" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                    <DatePicker x:Name="StartDatePicker" HorizontalAlignment="Stretch" />
-
-                    <TextBlock Text="Horário das Morning Pages" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                    <TimePicker x:Name="MorningPagesTimePicker" HorizontalAlignment="Stretch" />
-
-                    <TextBlock Text="Dia do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                    <ComboBox x:Name="ArtistDateDayCombo" HorizontalAlignment="Stretch" />
-
-                    <TextBlock Text="Horário do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                    <TimePicker x:Name="ArtistDateTimePicker" HorizontalAlignment="Stretch" />
-
-                    <TextBlock Text="Dia do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                    <ComboBox x:Name="CheckinDayCombo" HorizontalAlignment="Stretch" />
-
-                    <TextBlock Text="Horário do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
-                    <TimePicker x:Name="CheckinTimePicker" HorizontalAlignment="Stretch" />
-
-                    <Button Content="Salvar e reativar lembretes" Click="SaveProfile_Click" HorizontalAlignment="Stretch" Margin="0,16,0,0" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock x:Name="AppearanceTitleText" Text="Aparência" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Tema claro, escuro ou automático (segue o sistema) — sincronizado com o PWA no mesmo login."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button x:Name="ThemeLightButton" Content="Claro" Tag="light" Click="ThemeMode_Click"
-                                Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
-                        <Button x:Name="ThemeDarkButton" Content="Escuro" Tag="dark" Click="ThemeMode_Click"
-                                Grid.Column="1" HorizontalAlignment="Stretch" Margin="4,0,4,0" />
-                        <Button x:Name="ThemeAutoButton" Content="Auto" Tag="auto" Click="ThemeMode_Click"
-                                Grid.Column="2" HorizontalAlignment="Stretch" Margin="4,0,0,0" />
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="Calendário do Windows" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Adiciona o compromisso recorrente direto no app de Calendário do aparelho." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="+ Morning Pages diário" Click="NativeCalMp_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="+ Artist Date semanal" Click="NativeCalAd_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                    <Button Content="+ Check-in semanal" Click="NativeCalCi_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock x:Name="DataTitleText" Text="Seus dados" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Tudo fica só no seu aparelho. Faça backup de vez em quando." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Content="Exportar backup (.json)" Click="Export_Click" HorizontalAlignment="Stretch" />
-                    <Button Content="Importar backup (.json)" Click="Import_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock x:Name="UpdatesTitleText" Text="Atualizações" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock x:Name="UpdateStatusText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,0" />
-                    <ProgressBar x:Name="UpdateProgressBar" Minimum="0" Maximum="100" Visibility="Collapsed" Margin="0,12,0,0" />
-                    <Button x:Name="DownloadUpdateButton" Content="Baixar atualização" Visibility="Collapsed" Click="DownloadUpdate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
-                    <Button x:Name="InstallUpdateButton" Content="Instalar agora" Visibility="Collapsed" Click="InstallUpdate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock x:Name="SyncTitleText" Text="Sincronização" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o PWA, no mesmo login."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <TextBlock x:Name="SyncStatusText" Text="Não logado." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
-                    <Button x:Name="GoogleLoginButton" Content="Entrar com Google" Click="GoogleLogin_Click" HorizontalAlignment="Stretch" />
-                    <Button x:Name="SignOutButton" Content="Sair" Click="SignOut_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" Visibility="Collapsed" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock x:Name="MaintenanceTitleText" Text="Modo manutenção" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Depois das 12 semanas, desliga o checklist e o check-in semanal — fica só Morning Pages e Artist Date rodando indefinidamente."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button x:Name="ToggleMaintenanceButton" Content="Ativar modo manutenção" Click="ToggleMaintenance_Click" HorizontalAlignment="Stretch" />
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock x:Name="DangerZoneTitleText" Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa."
-                               Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                    <Button Click="ClearData_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                        <TextBlock Text="Apagar todos os dados (mantém login)" TextWrapping="Wrap" TextAlignment="Center" />
-                    </Button>
-                    <Button Click="FullReset_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,8,0,0">
-                        <TextBlock Text="Resetar o app completamente (sai da conta)" TextWrapping="Wrap" TextAlignment="Center" />
-                    </Button>
-                </StackPanel>
-            </Border>
+            <TextBlock x:Name="PageSubtitleText" Text="seus rituais" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,0" />
         </StackPanel>
-    </ScrollViewer>
+
+        <Pivot x:Name="SettingsPivot" Grid.Row="1" Margin="0,4,0,0">
+            <PivotItem x:Name="ProfileTab" Header="Perfil">
+                <ScrollViewer Padding="16,12,16,24">
+                    <StackPanel>
+                        <TextBlock Text="Nome" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,0,0,4" />
+                        <TextBox x:Name="NameBox" />
+
+                        <TextBlock Text="Início da Semana 1" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
+                        <DatePicker x:Name="StartDatePicker" HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Horário das Morning Pages" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
+                        <TimePicker x:Name="MorningPagesTimePicker" HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Dia do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
+                        <ComboBox x:Name="ArtistDateDayCombo" HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Horário do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
+                        <TimePicker x:Name="ArtistDateTimePicker" HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Dia do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
+                        <ComboBox x:Name="CheckinDayCombo" HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Horário do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,12,0,4" />
+                        <TimePicker x:Name="CheckinTimePicker" HorizontalAlignment="Stretch" />
+
+                        <Button Content="Salvar e reativar lembretes" Click="SaveProfile_Click" HorizontalAlignment="Stretch" Margin="0,16,0,0" />
+
+                        <Border Style="{StaticResource SectionDividerStyle}" />
+
+                        <TextBlock Text="Calendário do Windows" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="Adiciona o compromisso recorrente direto no app de Calendário do aparelho." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                        <Button Content="+ Morning Pages diário" Click="NativeCalMp_Click" HorizontalAlignment="Stretch" />
+                        <Button Content="+ Artist Date semanal" Click="NativeCalAd_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                        <Button Content="+ Check-in semanal" Click="NativeCalCi_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <PivotItem x:Name="AppearanceTab" Header="Aparência">
+                <ScrollViewer Padding="16,12,16,24">
+                    <StackPanel>
+                        <TextBlock x:Name="AppearanceTitleText" Text="Aparência" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="Tema claro, escuro ou automático (segue o sistema) — sincronizado com o PWA no mesmo login."
+                                   Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="ThemeLightButton" Content="Claro" Tag="light" Click="ThemeMode_Click"
+                                    Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                            <Button x:Name="ThemeDarkButton" Content="Escuro" Tag="dark" Click="ThemeMode_Click"
+                                    Grid.Column="1" HorizontalAlignment="Stretch" Margin="4,0,4,0" />
+                            <Button x:Name="ThemeAutoButton" Content="Auto" Tag="auto" Click="ThemeMode_Click"
+                                    Grid.Column="2" HorizontalAlignment="Stretch" Margin="4,0,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <PivotItem x:Name="DataSyncTab" Header="Dados &amp; Sync">
+                <ScrollViewer Padding="16,12,16,24">
+                    <StackPanel>
+                        <TextBlock x:Name="DataTitleText" Text="Seus dados" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="Tudo fica só no seu aparelho. Faça backup de vez em quando." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                        <Button Content="Exportar backup (.json)" Click="Export_Click" HorizontalAlignment="Stretch" />
+                        <Button Content="Importar backup (.json)" Click="Import_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+
+                        <Border Style="{StaticResource SectionDividerStyle}" />
+
+                        <TextBlock x:Name="SyncTitleText" Text="Sincronização" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o PWA, no mesmo login."
+                                   Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                        <TextBlock x:Name="SyncStatusText" Text="Não logado." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                        <Button x:Name="GoogleLoginButton" Content="Entrar com Google" Click="GoogleLogin_Click" HorizontalAlignment="Stretch" />
+                        <Button x:Name="SignOutButton" Content="Sair" Click="SignOut_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" Visibility="Collapsed" />
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <PivotItem x:Name="AdvancedTab" Header="Avançado">
+                <ScrollViewer Padding="16,12,16,24">
+                    <StackPanel>
+                        <TextBlock x:Name="UpdatesTitleText" Text="Atualizações" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock x:Name="UpdateStatusText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,0" />
+                        <ProgressBar x:Name="UpdateProgressBar" Minimum="0" Maximum="100" Visibility="Collapsed" Margin="0,12,0,0" />
+                        <Button x:Name="DownloadUpdateButton" Content="Baixar atualização" Visibility="Collapsed" Click="DownloadUpdate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
+                        <Button x:Name="InstallUpdateButton" Content="Instalar agora" Visibility="Collapsed" Click="InstallUpdate_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
+
+                        <Border Style="{StaticResource SectionDividerStyle}" />
+
+                        <TextBlock x:Name="MaintenanceTitleText" Text="Modo manutenção" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="Depois das 12 semanas, desliga o checklist e o check-in semanal — fica só Morning Pages e Artist Date rodando indefinidamente."
+                                   Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                        <Button x:Name="ToggleMaintenanceButton" Content="Ativar modo manutenção" Click="ToggleMaintenance_Click" HorizontalAlignment="Stretch" />
+
+                        <Border Style="{StaticResource SectionDividerStyle}" />
+
+                        <TextBlock x:Name="DangerZoneTitleText" Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa."
+                                   Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                        <Button Click="ClearData_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                            <TextBlock Text="Apagar todos os dados (mantém login)" TextWrapping="Wrap" TextAlignment="Center" />
+                        </Button>
+                        <Button Click="FullReset_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,8,0,0">
+                            <TextBlock Text="Resetar o app completamente (sai da conta)" TextWrapping="Wrap" TextAlignment="Center" />
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+        </Pivot>
+    </Grid>
 </Page>

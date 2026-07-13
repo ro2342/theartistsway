@@ -13,16 +13,17 @@
           O Button padrão do UWP tem um chrome arredondado/recuado no
           estado Pressed/PointerOver — fica parecendo um botão de app
           Android, não uma linha de lista nativa do Windows. Esse template
-          simplificado faz o destaque preencher o quadradinho inteiro
-          (mesmas brushes que ListViewItem usa pra seleção), sem cantos
-          arredondados nem margem sobrando.
+          simplificado faz o destaque preencher a linha inteira (mesmas
+          brushes que ListViewItem usa pra seleção), sem cantos
+          arredondados nem margem sobrando — usado tanto pelas linhas do
+          painel de navegação quanto pelo botão hambúrguer.
         -->
-        <Style x:Key="TabButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="0" />
+        <Style x:Key="NavRowStyle" TargetType="Button">
+            <Setter Property="Padding" Value="20,14" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -45,6 +46,7 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
                             <ContentPresenter x:Name="ContentPresenter"
+                                              Padding="{TemplateBinding Padding}"
                                               Content="{TemplateBinding Content}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -53,88 +55,105 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Botão hambúrguer: quadrado sólido na cor de destaque, flutuando
+             no canto inferior-esquerdo por cima do conteúdo — mesma
+             posição/proporção do botão de menu do app News da Microsoft. -->
+        <Style x:Key="HamburgerButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
     </Page.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <SplitView x:Name="NavSplitView"
+               DisplayMode="Overlay"
+               PanePlacement="Left"
+               OpenPaneLength="248"
+               IsPaneOpen="False">
+        <SplitView.Pane>
+            <Grid Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-        <Frame x:Name="ContentFrame" x:FieldModifier="public" Grid.Row="0" />
-
-        <Border x:Name="ErrorPanel"
-                Visibility="Collapsed"
-                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                Padding="20"
-                Grid.Row="0">
-            <TextBlock x:Name="ErrorText"
-                       TextWrapping="Wrap"
-                       Style="{StaticResource BodyTextBlockStyle}" />
-        </Border>
-
-        <Grid x:Name="TabBar"
-              Grid.Row="1"
-              Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
-              Padding="0,6,0,6">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <Button x:Name="TabHome" Grid.Column="0" Tag="Home" Click="TabButton_Click"
-                    Style="{StaticResource TabButtonStyle}">
-                <StackPanel HorizontalAlignment="Center">
-                    <SymbolIcon x:Name="TabHomeIcon" Symbol="Home" HorizontalAlignment="Center" />
-                    <TextBlock x:Name="TabHomeLabel" Text="Início" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                <StackPanel Grid.Row="0" Margin="0,32,0,0">
+                    <Button x:Name="NavHome" Tag="Home" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon x:Name="NavHomeIcon" Symbol="Home" />
+                            <TextBlock x:Name="NavHomeLabel" Text="Início" Margin="20,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="NavProgress" Tag="Progress" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon x:Name="NavProgressIcon" Symbol="List" />
+                            <TextBlock x:Name="NavProgressLabel" Text="Jornada" Margin="20,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="NavArtistDate" Tag="ArtistDate" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon x:Name="NavArtistDateIcon" Symbol="Favorite" />
+                            <TextBlock x:Name="NavArtistDateLabel" Text="Date" Margin="20,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="NavFerramentas" Tag="Ferramentas" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon x:Name="NavFerramentasIcon" Symbol="Repair" />
+                            <TextBlock x:Name="NavFerramentasLabel" Text="Recursos" Margin="20,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="NavSettings" Tag="Settings" Click="NavItem_Click" Style="{StaticResource NavRowStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon x:Name="NavSettingsIcon" Symbol="Setting" />
+                            <TextBlock x:Name="NavSettingsLabel" Text="Ajustes" Margin="20,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
 
-            <Button x:Name="TabProgress" Grid.Column="1" Tag="Progress" Click="TabButton_Click"
-                    Style="{StaticResource TabButtonStyle}">
-                <StackPanel HorizontalAlignment="Center">
-                    <SymbolIcon x:Name="TabProgressIcon" Symbol="List" HorizontalAlignment="Center" />
-                    <TextBlock x:Name="TabProgressLabel" Text="Jornada" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                <StackPanel Grid.Row="1" Margin="0,0,0,8">
+                    <Border Height="1" Margin="20,0,20,8" Background="{ThemeResource SystemControlForegroundBaseLowBrush}" />
+                    <Button x:Name="NavSync" Click="SyncNowButton_Click" Style="{StaticResource NavRowStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon Symbol="Sync" />
+                            <TextBlock x:Name="NavSyncLabel" Text="Sincronizar" Margin="20,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
+            </Grid>
+        </SplitView.Pane>
 
-            <Button x:Name="TabArtistDate" Grid.Column="2" Tag="ArtistDate" Click="TabButton_Click"
-                    Style="{StaticResource TabButtonStyle}">
-                <StackPanel HorizontalAlignment="Center">
-                    <SymbolIcon x:Name="TabArtistDateIcon" Symbol="Favorite" HorizontalAlignment="Center" />
-                    <TextBlock x:Name="TabArtistDateLabel" Text="Date" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
-                </StackPanel>
-            </Button>
+        <SplitView.Content>
+            <Grid>
+                <Frame x:Name="ContentFrame" x:FieldModifier="public" />
 
-            <Button x:Name="TabFerramentas" Grid.Column="3" Tag="Ferramentas" Click="TabButton_Click"
-                    Style="{StaticResource TabButtonStyle}">
-                <StackPanel HorizontalAlignment="Center">
-                    <SymbolIcon x:Name="TabFerramentasIcon" Symbol="Repair" HorizontalAlignment="Center" />
-                    <TextBlock x:Name="TabFerramentasLabel" Text="Recursos" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
-                </StackPanel>
-            </Button>
+                <Border x:Name="ErrorPanel"
+                        Visibility="Collapsed"
+                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                        Padding="20">
+                    <TextBlock x:Name="ErrorText"
+                               TextWrapping="Wrap"
+                               Style="{StaticResource BodyTextBlockStyle}" />
+                </Border>
 
-            <Button x:Name="TabSettings" Grid.Column="4" Tag="Settings" Click="TabButton_Click"
-                    Style="{StaticResource TabButtonStyle}">
-                <StackPanel HorizontalAlignment="Center">
-                    <SymbolIcon x:Name="TabSettingsIcon" Symbol="Setting" HorizontalAlignment="Center" />
-                    <TextBlock x:Name="TabSettingsLabel" Text="Ajustes" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
-                </StackPanel>
-            </Button>
+                <!-- Fecha o painel ao tocar fora dele (light-dismiss manual
+                     — SplitView não faz isso sozinho). -->
+                <Border x:Name="PaneDismissOverlay"
+                        Background="Transparent"
+                        Visibility="Collapsed"
+                        Tapped="PaneDismissOverlay_Tapped" />
 
-            <Border Grid.Column="5" Width="1" Margin="4,4"
-                    Background="{ThemeResource SystemControlForegroundBaseLowBrush}" />
-
-            <Button x:Name="SyncNowButton" Grid.Column="6" Tag="SyncNow" Click="SyncNowButton_Click"
-                    Style="{StaticResource TabButtonStyle}" Margin="12,0,12,0"
-                    ToolTipService.ToolTip="Sincronizar agora">
-                <SymbolIcon Symbol="Sync" HorizontalAlignment="Center" />
-            </Button>
-        </Grid>
-    </Grid>
+                <Button x:Name="MenuButton"
+                        Click="MenuButton_Click"
+                        Style="{StaticResource HamburgerButtonStyle}"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom">
+                    <SymbolIcon Symbol="GlobalNavigationButton" />
+                </Button>
+            </Grid>
+        </SplitView.Content>
+    </SplitView>
 </Page>

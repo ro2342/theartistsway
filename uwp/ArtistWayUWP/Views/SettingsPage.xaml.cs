@@ -28,6 +28,10 @@ namespace ArtistWayUWP.Views
             // compartilhada com o PWA -- ver ContentStore.S.
             PageTitleText.Text = ContentStore.S("settings.title");
             PageSubtitleText.Text = ContentStore.S("settings.subtitle");
+            ProfileTab.Header = ContentStore.S("settings.tabs.profile");
+            AppearanceTab.Header = ContentStore.S("settings.tabs.appearance");
+            DataSyncTab.Header = ContentStore.S("settings.tabs.dataSync");
+            AdvancedTab.Header = ContentStore.S("settings.tabs.advanced");
             AppearanceTitleText.Text = ContentStore.S("settings.appearance.title");
             DataTitleText.Text = ContentStore.S("settings.data.title");
             UpdatesTitleText.Text = ContentStore.S("settings.updates.title");
