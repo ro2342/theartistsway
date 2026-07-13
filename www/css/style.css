@@ -1,7 +1,7 @@
 /* ============================================================
    THE ARTIST'S WAY — COMPANION
    Direção estética: Fluent Design (a mesma identidade do app nativo do
-   Windows) -- superfícies/cores/tipografia vêm dos design tokens do
+   Windows) — superfícies/cores/tipografia vêm dos design tokens do
    @fluentui/tokens, aplicados em tempo real por js/theme.js via
    setTheme() (claro/escuro + accent color escolhidos em Ajustes). Este
    arquivo só define layout/estrutura + os valores de fallback (mesmos
@@ -49,22 +49,24 @@ h1, h2, h3, h4 {
 a { color: var(--colorBrandForeground1, #0f6cbd); }
 button { font-family: inherit; }
 
-/* ---------- Shell adaptativo ---------- */
-/* Abaixo do breakpoint: barra de navegação inferior (como o app do
-   Windows no Lumia). Acima: rail lateral fixa à esquerda -- mesmo
-   princípio adaptativo do NavigationView do WinUI (Correio, Config.). */
+/* ---------- Shell ---------- */
+/* Mesmo shell em qualquer tamanho de tela — hambúrguer + cabeçalho fixo
+   no topo, painel deslizante por cima do conteúdo (nunca cobre o
+   cabeçalho, então o hambúrguer sempre continua clicável pra fechar).
+   Igual ao app nativo UWP (MainPage.xaml) e aos apps nativos da
+   Microsoft (News/Sports/Settings) — só uma coluna de leitura mais
+   larga em telas grandes, não um layout diferente. */
 
 #app {
   max-width: 640px;
   margin: 0 auto;
-  padding: 16px 18px calc(84px + env(safe-area-inset-bottom));
+  padding: 16px 18px 28px;
   min-height: 100vh;
 }
 
 @media (min-width: 720px) {
   #app {
     max-width: 760px;
-    margin: 0 0 0 240px;
     padding: 28px 32px;
   }
 }
@@ -309,7 +311,7 @@ button { font-family: inherit; }
   border-color: var(--colorBrandBackground, #0f6cbd);
   position: relative;
 }
-/* Selo de semana concluída -- um "carimbo" decorativo, só CSS. */
+/* Selo de semana concluída — um "carimbo" decorativo, só CSS. */
 .week-chip.complete::after {
   content: "✓";
   position: absolute;
@@ -360,83 +362,170 @@ button { font-family: inherit; }
   color: #fff;
 }
 
-/* ---------- Navegação (barra inferior / rail lateral) ---------- */
+/* ---------- Navegação (cabeçalho + painel deslizante) ---------- */
 
-.bottom-nav {
-  position: fixed;
-  background: var(--colorNeutralBackground1, #fff);
-  border-top: 1px solid var(--colorNeutralStroke2, #e0e0e0);
-  z-index: 20;
-  bottom: 0; left: 0; right: 0;
-  display: flex;
+:root {
+  --shell-header-height: 48px;
+  --nav-pane-width: 260px;
 }
 
-.nav-btn {
-  background: none;
-  border: none;
-  flex: 1;
+/* Espaço reservado no topo pro cabeçalho fixo, em toda página exceto
+   onboarding (ver JS: onboarding não chama renderShell). */
+body.has-shell #app {
+  padding-top: calc(var(--shell-header-height) + 16px);
+}
+@media (min-width: 720px) {
+  body.has-shell #app { padding-top: calc(var(--shell-header-height) + 28px); }
+}
+
+.shell-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--shell-header-height);
+  background: var(--colorNeutralBackground3, #f5f5f5);
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  z-index: 30;
+}
+
+.menu-btn {
+  flex: none;
+  width: var(--shell-header-height);
+  height: var(--shell-header-height);
+  border: none;
+  background: var(--colorBrandBackground, #0f6cbd);
+  color: #fff;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  font-size: var(--fontSizeBase100, 10px);
-  font-weight: var(--fontWeightSemibold, 600);
-  color: var(--colorNeutralForeground3, #616161);
   cursor: pointer;
-  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-btn .icon { width: 20px; height: 20px; }
+
+.shell-title {
+  margin-left: 12px;
+  font-size: var(--fontSizeBase300, 14px);
+  font-weight: var(--fontWeightSemibold, 600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Painel: começa ABAIXO do cabeçalho (nunca cobre o hambúrguer, que
+   assim continua sempre clicável pra fechar) e desliza da esquerda. */
+.nav-pane {
+  position: fixed;
+  top: var(--shell-header-height);
+  bottom: 0; left: 0;
+  width: var(--nav-pane-width);
+  background: var(--colorNeutralBackground3, #f5f5f5);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+  overflow-y: auto;
+}
+.nav-pane.open { transform: translateX(0); }
+
+.nav-overlay {
+  position: fixed;
+  top: var(--shell-header-height);
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 29;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.nav-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav-pane-primary {
+  padding-top: 12px;
+}
+
+.nav-pane-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 14px 20px;
+  font-size: var(--fontSizeBase300, 14px);
+  font-family: inherit;
+  color: var(--colorNeutralForeground1, #242424);
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  outline: none;
 }
-.nav-btn:active { background: var(--colorNeutralBackground1Pressed, #e0e0e0); }
-.nav-btn .icon { width: 22px; height: 22px; }
-.nav-btn.active { color: var(--colorBrandForeground1, #0f6cbd); }
+.nav-pane-item:active { background: var(--colorNeutralBackground1Pressed, #e0e0e0); }
+.nav-pane-item .icon { width: 20px; height: 20px; flex: none; }
+.nav-pane-item.active { color: var(--colorBrandForeground1, #0f6cbd); }
 
-.nav-sync {
-  border-left: 1px solid var(--colorNeutralStroke2, #e0e0e0);
-}
-
-.nav-version {
-  display: none;
+.nav-pane-divider {
+  height: 1px;
+  background: var(--colorNeutralStroke2, #e0e0e0);
+  margin: 0;
 }
 
+.nav-pane-secondary {
+  padding-bottom: 8px;
+}
+
+.nav-pane-version {
+  margin-top: auto;
+  padding: 10px 20px 16px;
+  font-size: var(--fontSizeBase100, 10px);
+  color: var(--colorNeutralForeground3, #616161);
+}
+
+/* ---------- Abas (Ajustes/Recursos) ---------- */
+/* Igual ao Pivot do UWP: barra cinza atrás do cabeçalho de abas, nome
+   de aba em fonte menor, aba atual em negrito com traço embaixo. A
+   faixa de abas rola/arrasta na horizontal quando não cabe tudo (ex.:
+   Recursos, com 8 abas), além de dar pra tocar direto no nome. */
+.tab-header {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: var(--colorNeutralBackground3, #f5f5f5);
+  margin: 0 -18px 16px;
+  padding: 0 18px;
+}
+.tab-header::-webkit-scrollbar { display: none; }
 @media (min-width: 720px) {
-  .bottom-nav {
-    top: 0; bottom: 0; left: 0; right: auto;
-    width: 240px;
-    border-top: none;
-    border-right: 1px solid var(--colorNeutralStroke2, #e0e0e0);
-    flex-direction: column;
-    padding: 16px 8px;
-    gap: 4px;
-    justify-content: flex-start;
-  }
-  .nav-btn {
-    flex: none;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 12px;
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    font-size: var(--fontSizeBase300, 14px);
-  }
-  .nav-btn.active { background: var(--colorSubtleBackgroundSelected, var(--colorNeutralBackground3, #f5f5f5)); }
-  .nav-sync {
-    justify-content: center;
-    border-left: none;
-    border-top: 1px solid var(--colorNeutralStroke2, #e0e0e0);
-    margin-top: 8px;
-    padding-top: 12px;
-  }
-  .nav-version {
-    display: block;
-    margin-top: auto;
-    padding: 10px 14px;
-    font-size: var(--fontSizeBase100, 10px);
-    color: var(--colorNeutralForeground3, #616161);
-  }
+  .tab-header { margin: 0 -32px 16px; padding: 0 32px; }
 }
+
+.tab-header-item {
+  flex: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: var(--fontSizeBase200, 12px);
+  color: var(--colorNeutralForeground3, #616161);
+  padding: 12px 10px;
+  margin-right: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-header-item.active {
+  color: var(--colorNeutralForeground1, #242424);
+  font-weight: var(--fontWeightBold, 700);
+  border-bottom-color: var(--colorBrandForeground1, #0f6cbd);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
 /* ---------- Forms ---------- */
 
@@ -510,7 +599,7 @@ input[type="date"] {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 96px;
+  bottom: 24px;
   transform: translateX(-50%);
   background: var(--colorNeutralForeground1, #242424);
   color: var(--colorNeutralBackground1, #fff);
@@ -525,10 +614,6 @@ input[type="date"] {
   transition: opacity 0.25s ease;
 }
 .toast.show { opacity: 1; }
-
-@media (min-width: 720px) {
-  .toast { bottom: 24px; }
-}
 
 /* ---------- Misc ---------- */
 

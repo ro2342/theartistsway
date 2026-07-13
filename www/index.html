@@ -9,13 +9,13 @@
   <link rel="icon" href="./icons/icon-192.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <script>
-    // Força busca fresca de cada arquivo, sem cache -- útil enquanto o
+    // Força busca fresca de cada arquivo, sem cache — útil enquanto o
     // app muda rápido; o service worker cuida do cache "de verdade" pro
     // uso offline (ver service-worker.js).
     document.write('<link rel="stylesheet" href="./css/style.css?v=' + Date.now() + '" />');
   </script>
   <!--
-    Bundle oficial do @fluentui/web-components (vendorizado, sem CDN --
+    Bundle oficial do @fluentui/web-components (vendorizado, sem CDN —
     ver www/vendor/fluentui/VENDORED.md). Zero import/export próprio,
     carrega como script clássico igual ao resto do app; registra todos
     os <fluent-*> como efeito colateral e expõe window.Fluent.setTheme.

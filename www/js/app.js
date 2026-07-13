@@ -8,7 +8,7 @@ const WEEKDAY_NAMES = ["", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "
 const appEl = document.getElementById("app");
 
 // NodeList.prototype.forEach não existe no WebView antigo do Windows 10
-// Mobile -- Array.prototype.forEach (via .call) funciona em qualquer engine.
+// Mobile — Array.prototype.forEach (via .call) funciona em qualquer engine.
 function forEachNode(nodeList, fn) {
   Array.prototype.forEach.call(nodeList, fn);
 }
@@ -23,14 +23,14 @@ function isUwpHost() {
   }
 }
 
-// ---------- tamanho da letra ----------
+// — tamanho da letra —
 function applyFontSizePreference(size) {
   document.documentElement.classList.remove("fs-small", "fs-large");
   if (size === "small") document.documentElement.classList.add("fs-small");
   if (size === "large") document.documentElement.classList.add("fs-large");
 }
 
-// ---------- utilidades de data ----------
+// — utilidades de data —
 function todayStr() {
   return dateToStr(new Date());
 }
@@ -64,7 +64,7 @@ function currentStreakWeekStart(settings, today) {
 }
 
 // Afirmação do dia: escolha determinística pelo dia do ano, sem precisar
-// guardar nenhum dado novo -- mesmo cálculo no app do Windows
+// guardar nenhum dado novo — mesmo cálculo no app do Windows
 // (HomePage.xaml.cs), pra mostrar a mesma frase nos dois aparelhos no
 // mesmo dia.
 function dayOfYear(d) {
@@ -84,7 +84,7 @@ async function getCurrentWeekId(settings) {
 const PROGRAM_LENGTH_DAYS = 84; // 12 semanas x 7 dias
 
 // Contador de dias (Home) e detecção de fim de programa (Modo manutenção)
-// -- mesmo cálculo simples nas duas plataformas, sem guardar nada novo.
+// — mesmo cálculo simples nas duas plataformas, sem guardar nada novo.
 function dayCountSinceStart(settings) {
   if (!settings.startDate) return null;
   const start = new Date(settings.startDate + "T00:00:00");
@@ -102,7 +102,7 @@ function weekKeyForOffset(settings, weekId) {
   return dateToStr(weekStart);
 }
 
-// ---------- toast ----------
+// — toast —
 let toastTimer = null;
 function toast(msg) {
   let el = document.getElementById("toast");
@@ -118,7 +118,7 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
 }
 
-// ---------- diálogo de confirmação (fluent-dialog de verdade) ----------
+// — diálogo de confirmação (fluent-dialog de verdade) —
 function confirmDialog(title, message, confirmLabel) {
   return new Promise((resolve) => {
     const dialog = document.createElement("fluent-dialog");
@@ -144,7 +144,7 @@ function confirmDialog(title, message, confirmLabel) {
   });
 }
 
-// ---------- router ----------
+// — router —
 const routes = {};
 function route(path, handler) {
   routes[path] = handler;
@@ -158,14 +158,14 @@ async function render() {
   const routeKey = "/" + path;
   const handler = routes[routeKey] || routes["/home"];
   await handler(rest);
-  renderBottomNav(routeKey);
+  renderShell(routeKey);
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", render);
 
-// Número da versão publicada -- mesmo app/version.json que o checador de
+// Número da versão publicada — mesmo app/version.json que o checador de
 // atualização do app do Windows já usa (updates.js), só que aqui é
-// puramente informativo: aparece no rodapé da rail (desktop) e em
+// puramente informativo: aparece no rodapé do painel de navegação e em
 // Ajustes, nas duas plataformas, pra sempre dar pra conferir visualmente
 // se o build certo está no ar.
 let displayVersionPromise = null;
@@ -179,44 +179,118 @@ function getDisplayVersion() {
   return displayVersionPromise;
 }
 
-function renderBottomNav(activePath) {
-  let nav = document.getElementById("bottomNav");
+// — shell: cabeçalho + painel de navegação —
+// Mesmo shell do app UWP nativo (MainPage.xaml, 2.0.2.5/2.0.2.6):
+// hambúrguer + título da seção atual, fixos no topo; painel deslizante
+// por cima do conteúdo (nunca cobre o cabeçalho — hambúrguer sempre
+// clicável pra fechar). Início/Jornada/Date/Recursos na lista
+// principal; Meu Perfil, Sincronizar e Ajustes juntos abaixo de uma
+// divisória de largura inteira.
+const NAV_PRIMARY = [
+  { path: "/home", key: "nav.home", regular: "homeRegular", filled: "homeFilled" },
+  { path: "/progress", key: "nav.progress", regular: "bookRegular", filled: "bookFilled" },
+  { path: "/artist-date", key: "nav.artistDate", regular: "heartRegular", filled: "heartFilled" },
+  { path: "/ferramentas", key: "nav.recursos", regular: "toolsRegular", filled: "toolsFilled" },
+];
+const NAV_PROFILE_ITEM = { path: "/profile", key: "nav.profile", icon: "person" };
+const NAV_SETTINGS_ITEM = { path: "/settings", key: "nav.settings", regular: "settingsRegular", filled: "settingsFilled" };
+const NAV_ALL_ITEMS = NAV_PRIMARY.concat([NAV_PROFILE_ITEM, NAV_SETTINGS_ITEM]);
+
+// Título/destaque do painel só mudam nos 6 destinos de nível superior
+// — páginas de detalhe (semana, ensaio, ferramenta, quiz...) mantêm o
+// título/realce do destino de onde vieram, igual ao _currentTabPageType
+// do MainPage.xaml.cs no UWP.
+let lastTopLevelPath = "/home";
+
+function navPaneItemHtml(it) {
+  const ICONS = window.ArtistWayIcons;
+  const isActive = it.path === lastTopLevelPath;
+  const icon = it.icon ? ICONS[it.icon] : ICONS[isActive ? it.filled : it.regular];
+  return `<button class="nav-pane-item ${isActive ? "active" : ""}" data-nav="${it.path}">
+      <span class="icon">${icon}</span>${UI_STRINGS[it.key]}
+    </button>`;
+}
+
+function togglePane() {
+  const pane = document.getElementById("navPane");
+  const overlay = document.getElementById("navOverlay");
+  if (!pane || !overlay) return;
+  const open = !pane.classList.contains("open");
+  pane.classList.toggle("open", open);
+  overlay.classList.toggle("open", open);
+}
+function closePane() {
+  const pane = document.getElementById("navPane");
+  const overlay = document.getElementById("navOverlay");
+  if (pane) pane.classList.remove("open");
+  if (overlay) overlay.classList.remove("open");
+}
+
+function renderShell(activePath) {
   const settingsPromise = DB.getSetting("profile", null);
   settingsPromise.then(async (settings) => {
+    let header = document.getElementById("shellHeader");
+    let pane = document.getElementById("navPane");
+    let overlay = document.getElementById("navOverlay");
+
     if (!settings || !settings.onboarded) {
-      if (nav) nav.remove();
+      if (header) header.remove();
+      if (pane) pane.remove();
+      if (overlay) overlay.remove();
+      document.body.classList.remove("has-shell");
       return;
     }
-    const ICONS = window.ArtistWayIcons;
-    const items = [
-      { path: "/home", label: UI_STRINGS["nav.home"], regular: ICONS.homeRegular, filled: ICONS.homeFilled },
-      { path: "/progress", label: UI_STRINGS["nav.progress"], regular: ICONS.bookRegular, filled: ICONS.bookFilled },
-      { path: "/artist-date", label: UI_STRINGS["nav.artistDate"], regular: ICONS.heartRegular, filled: ICONS.heartFilled },
-      { path: "/ferramentas", label: UI_STRINGS["nav.recursos"], regular: ICONS.toolsRegular, filled: ICONS.toolsFilled },
-      { path: "/settings", label: UI_STRINGS["nav.settings"], regular: ICONS.settingsRegular, filled: ICONS.settingsFilled },
-    ];
-    const html = items
-      .map((it) => {
-        const isActive = it.path === activePath;
-        return `<button class="nav-btn ${isActive ? "active" : ""}" data-nav="${it.path}">
-          <span class="icon">${isActive ? it.filled : it.regular}</span>${it.label}
-        </button>`;
-      })
-      .join("");
-    if (!nav) {
-      nav = document.createElement("div");
-      nav.id = "bottomNav";
-      nav.className = "bottom-nav";
-      document.body.appendChild(nav);
+    document.body.classList.add("has-shell");
+    closePane(); // qualquer navegação fecha o painel, não só clique nos itens dele
+
+    if (NAV_ALL_ITEMS.some((it) => it.path === activePath)) {
+      lastTopLevelPath = activePath;
     }
-    nav.innerHTML =
-      html +
-      `<button class="nav-btn nav-sync" id="navSyncBtn" title="${UI_STRINGS["nav.sync"]}">
+
+    const ICONS = window.ArtistWayIcons;
+
+    if (!header) {
+      header = document.createElement("div");
+      header.id = "shellHeader";
+      header.className = "shell-header";
+      header.innerHTML = `<button class="menu-btn" id="menuBtn" aria-label="Menu"><span class="icon">${ICONS.menu}</span></button><div class="shell-title" id="shellTitle"></div>`;
+      document.body.insertBefore(header, appEl);
+      header.querySelector("#menuBtn").addEventListener("click", togglePane);
+    }
+    const titleItem = NAV_ALL_ITEMS.find((it) => it.path === lastTopLevelPath);
+    document.getElementById("shellTitle").textContent = titleItem ? UI_STRINGS[titleItem.key] : "";
+
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "navOverlay";
+      overlay.className = "nav-overlay";
+      document.body.insertBefore(overlay, appEl);
+      overlay.addEventListener("click", closePane);
+    }
+
+    if (!pane) {
+      pane = document.createElement("div");
+      pane.id = "navPane";
+      pane.className = "nav-pane";
+      document.body.insertBefore(pane, appEl);
+    }
+    pane.innerHTML = `
+      <div class="nav-pane-primary">${NAV_PRIMARY.map(navPaneItemHtml).join("")}</div>
+      <div class="nav-pane-divider"></div>
+      <div class="nav-pane-secondary">
+        ${navPaneItemHtml(NAV_PROFILE_ITEM)}
+        <button class="nav-pane-item" id="navSyncBtn">
           <span class="icon">${ICONS.sync}</span>${UI_STRINGS["nav.sync"]}
-        </button>` +
-      `<div class="nav-version" id="navVersion"></div>`;
-    forEachNode(nav.querySelectorAll("[data-nav]"), (btn) => {
-      btn.addEventListener("click", () => navigate("#" + btn.dataset.nav));
+        </button>
+        ${navPaneItemHtml(NAV_SETTINGS_ITEM)}
+      </div>
+      <div class="nav-pane-version" id="navVersion"></div>
+    `;
+    forEachNode(pane.querySelectorAll("[data-nav]"), (btn) => {
+      btn.addEventListener("click", () => {
+        navigate("#" + btn.dataset.nav);
+        closePane();
+      });
     });
     const syncBtn = document.getElementById("navSyncBtn");
     if (syncBtn) {
@@ -225,11 +299,36 @@ function renderBottomNav(activePath) {
         const result = await window.ArtistWaySync.syncAll();
         syncBtn.disabled = false;
         toast(result);
+        closePane();
       });
     }
     const version = await getDisplayVersion();
     const versionEl = document.getElementById("navVersion");
     if (versionEl) versionEl.textContent = version ? `versão ${version}` : "";
+  });
+}
+
+// — abas (Ajustes/Recursos) —
+// Igual ao Pivot do UWP: barra de abas horizontal, uma aba visível por
+// vez. `state` é um objeto de módulo (fora da função de rota) que
+// guarda qual aba está ativa entre re-renders da mesma rota — sem
+// isso, qualquer botão dentro de uma aba que chame render() de novo
+// (ex.: trocar o tema) faria a aba selecionada voltar sempre pra
+// primeira, o mesmo bug que o NavigationCacheMode corrigiu no UWP.
+function renderTabs(container, tabs, state) {
+  const activeId = tabs.some((t) => t.id === state.active) ? state.active : tabs[0].id;
+  state.active = activeId;
+  container.innerHTML =
+    `<div class="tab-header">` +
+    tabs.map((t) => `<button class="tab-header-item ${t.id === activeId ? "active" : ""}" data-tab="${t.id}">${t.label}</button>`).join("") +
+    `</div>` +
+    tabs.map((t) => `<div class="tab-panel ${t.id === activeId ? "active" : ""}" data-tab-panel="${t.id}">${t.html}</div>`).join("");
+  forEachNode(container.querySelectorAll("[data-tab]"), (btn) => {
+    btn.addEventListener("click", () => {
+      state.active = btn.dataset.tab;
+      forEachNode(container.querySelectorAll("[data-tab]"), (b) => b.classList.toggle("active", b === btn));
+      forEachNode(container.querySelectorAll("[data-tab-panel]"), (p) => p.classList.toggle("active", p.dataset.tabPanel === btn.dataset.tab));
+    });
   });
 }
 
@@ -454,9 +553,7 @@ route("/home", async () => {
 
   if (maintenanceMode) {
     appEl.innerHTML = `
-      <div class="top-bar">
-        <div class="logo" style="text-align:right">The Artist's Way<span class="sub">${dayCountLabel || "seu companheiro de jornada"}</span></div>
-      </div>
+      <p class="muted">${dayCountLabel || "seu companheiro de jornada"}</p>
 
       <div class="card dotted text-center">
         <p class="muted">Modo manutenção</p>
@@ -476,9 +573,7 @@ route("/home", async () => {
   }
 
   appEl.innerHTML = `
-    <div class="top-bar">
-      <div class="logo" style="text-align:right">The Artist's Way<span class="sub">${dayCountLabel || "seu companheiro de jornada"}</span></div>
-    </div>
+    <p class="muted">${dayCountLabel || "seu companheiro de jornada"}</p>
 
     <div class="card">
       <div class="card-sub">Semana ${weekId} de 12</div>
@@ -615,11 +710,11 @@ route("/tabela-crencas", async () => {
 });
 
 // ================= LISTAS NOMEADAS (Vidas Imaginárias, 20 Coisas, Mapa
-// do Ciúme) -- uma tela genérica reaproveitada pelas 3, espelhando
+// do Ciúme) — uma tela genérica reaproveitada pelas 3, espelhando
 // NamedListPage.xaml.cs no app do Windows. Círculo de Segurança tem tela
 // própria (duas colunas + alternar lado, não um formulário de adicionar).
 // TOOL_CONFIGS vem de data.js (fonte única, gerada também em
-// Data/content.json pro lado UWP) -- ver ContentStore.Content.ToolConfigs.
+// Data/content.json pro lado UWP) — ver ContentStore.Content.ToolConfigs.
 
 route("/list", async (rest) => {
   const config = TOOL_CONFIGS[rest[0]];
@@ -853,7 +948,7 @@ route("/life-pie", async () => {
   const snapshots = (await DB.getListItems(LIST_NAME)).sort((a, b) => (a.updatedAt || "").localeCompare(b.updatedAt || ""));
   const previous = snapshots.length ? snapshots[snapshots.length - 1] : null;
 
-  // Começa com os valores do último snapshot (se existir) -- assim dá
+  // Começa com os valores do último snapshot (se existir) — assim dá
   // pra ajustar em vez de sempre começar do zero.
   const ratings = {};
   LIFE_PIE_CATEGORIES.forEach((c) => {
@@ -1010,7 +1105,7 @@ route("/artist-date", async () => {
   const current = (await DB.getArtistDate(weekKey)) || { done: false, idea: "" };
 
   let usedIdeas = JSON.parse(localStorage.getItem("awUsedIdeas") || "[]");
-  // Só o botão "Salvar Date" grava/sincroniza a ideia -- entrar e sair
+  // Só o botão "Salvar Date" grava/sincroniza a ideia — entrar e sair
   // dessa tela sem clicar em nada não muda nada. Espelha o ArtistDatePage
   // do app do Windows: antes salvava sozinho ao digitar e ao sair da
   // tela, e um "toque" sem edição real podia carimbar um updatedAt mais
@@ -1033,9 +1128,7 @@ route("/artist-date", async () => {
 
   function renderScreen() {
     appEl.innerHTML = `
-      <div class="top-bar">
-        <div class="logo" style="text-align:right">Artist Date<span class="sub">semana ${weekId}</span></div>
-      </div>
+      <p class="muted">semana ${weekId}</p>
       <p class="muted text-center">Um encontro solo, só por prazer — sem culpa, sem produtividade.</p>
       ${
         editing
@@ -1143,7 +1236,7 @@ route("/checkin", async (rest) => {
 });
 
 // ================= HISTÓRICO (Artist Dates + reler check-ins) =================
-// Só leitura -- lê os stores artistDates/checkins já existentes, sem
+// Só leitura — lê os stores artistDates/checkins já existentes, sem
 // escrever nada novo.
 route("/artist-date-history", async () => {
   const all = await DB.dbGetAll(DB.STORES.artistDates);
@@ -1211,9 +1304,6 @@ route("/progress", async () => {
   );
 
   appEl.innerHTML = `
-    <div class="top-bar">
-      <div class="logo" style="text-align:right">Sua Jornada<span class="sub">12 semanas</span></div>
-    </div>
     <p class="muted">Toque em qualquer semana — você pode ir e voltar à vontade.</p>
     <div class="week-grid">
       ${chips
@@ -1233,154 +1323,142 @@ route("/progress", async () => {
 
 // ================= SETTINGS =================
 // Cada seção é uma lista de links; a maioria aponta pra #/list/:key
-// (tela genérica, ver TOOL_CONFIGS) -- só as com tela própria (Círculo de
+// (tela genérica, ver TOOL_CONFIGS) — só as com tela própria (Círculo de
 // Segurança, Life Pie, Crença->Positiva, Regras/Princípios, histórico,
 // quiz) têm rota dedicada.
 function toolLink(key) {
   return `<a class="btn secondary block" href="#/list/${key}">${TOOL_CONFIGS[key].title}</a>`;
 }
 
+const ferramentasTabState = { active: "reference" };
 route("/ferramentas", async () => {
-  appEl.innerHTML = `
-    <div class="top-bar">
-      <div class="logo" style="text-align:right">${UI_STRINGS["recursos.title"]}<span class="sub">${UI_STRINGS["recursos.subtitle"]}</span></div>
-    </div>
+  appEl.innerHTML = `<div id="ferramentasTabs"></div><div class="spacer"></div>`;
 
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.reference.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.reference.description"]}</p>
-      <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/tabela-crencas">Crença → Positiva</a>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.lists.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.lists.description"]}</p>
-      ${toolLink("imaginaryLives")}
-      <div class="spacer-sm"></div>
-      ${toolLink("thingsILike")}
-      <div class="spacer-sm"></div>
-      ${toolLink("jealousyMap")}
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/circulo-seguranca">Círculo de Segurança</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/life-pie">Life Pie</a>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.diaries.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.diaries.description"]}</p>
-      ${toolLink("sincronicidade")}
-      <div class="spacer-sm"></div>
-      ${toolLink("pocoCriativo")}
-      <div class="spacer-sm"></div>
-      ${toolLink("diarioResistencia")}
-      <div class="spacer-sm"></div>
-      ${toolLink("cartaCriticoInterno")}
-      <div class="spacer-sm"></div>
-      ${toolLink("diarioLeitura")}
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.letters.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.letters.description"]}</p>
-      ${toolLink("carta80anos")}
-      <div class="spacer-sm"></div>
-      ${toolLink("carta8anos")}
-      <div class="spacer-sm"></div>
-      ${toolLink("oracaoArtista")}
-      <div class="spacer-sm"></div>
-      ${toolLink("cartaEncorajamento")}
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.planning.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.planning.description"]}</p>
-      ${toolLink("metasNorteVerdadeiro")}
-      <div class="spacer-sm"></div>
-      ${toolLink("buscaEstilo")}
-      <div class="spacer-sm"></div>
-      ${toolLink("diaIdeal")}
-      <div class="spacer-sm"></div>
-      ${toolLink("cadernoDesejos")}
-      <div class="spacer-sm"></div>
-      ${toolLink("planoContinuidade")}
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.boundaries.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.boundaries.description"]}</p>
-      ${toolLink("resentimentosMedos")}
-      <div class="spacer-sm"></div>
-      ${toolLink("retornosEmU")}
-      <div class="spacer-sm"></div>
-      ${toolLink("arqueologia")}
-      <div class="spacer-sm"></div>
-      ${toolLink("bottomLine")}
-      <div class="spacer-sm"></div>
-      ${toolLink("pontosFelicidade")}
-      <div class="spacer-sm"></div>
-      ${toolLink("totemArtista")}
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.history.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.history.description"]}</p>
-      <a class="btn secondary block" href="#/artist-date-history">Histórico de Artist Dates</a>
-      <div class="spacer-sm"></div>
-      <a class="btn secondary block" href="#/checkin-history">Reler Check-ins Antigos</a>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["recursos.quiz.title"]}</div>
-      <p class="muted">${UI_STRINGS["recursos.quiz.description"]}</p>
-      <a class="btn secondary block" href="#/quiz/workaholismQuiz">${QUIZ_CONFIGS.workaholismQuiz.title}</a>
-    </div>
-
-    <div class="spacer"></div>
-  `;
+  renderTabs(
+    document.getElementById("ferramentasTabs"),
+    [
+      {
+        id: "reference",
+        label: UI_STRINGS["recursos.reference.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.reference.description"]}</p>
+          <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
+          <div class="spacer-sm"></div>
+          <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
+          <div class="spacer-sm"></div>
+          <a class="btn secondary block" href="#/tabela-crencas">Crença → Positiva</a>
+        `,
+      },
+      {
+        id: "lists",
+        label: UI_STRINGS["recursos.lists.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.lists.description"]}</p>
+          ${toolLink("imaginaryLives")}
+          <div class="spacer-sm"></div>
+          ${toolLink("thingsILike")}
+          <div class="spacer-sm"></div>
+          ${toolLink("jealousyMap")}
+          <div class="spacer-sm"></div>
+          <a class="btn secondary block" href="#/circulo-seguranca">Círculo de Segurança</a>
+          <div class="spacer-sm"></div>
+          <a class="btn secondary block" href="#/life-pie">Life Pie</a>
+        `,
+      },
+      {
+        id: "diaries",
+        label: UI_STRINGS["recursos.diaries.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.diaries.description"]}</p>
+          ${toolLink("sincronicidade")}
+          <div class="spacer-sm"></div>
+          ${toolLink("pocoCriativo")}
+          <div class="spacer-sm"></div>
+          ${toolLink("diarioResistencia")}
+          <div class="spacer-sm"></div>
+          ${toolLink("cartaCriticoInterno")}
+          <div class="spacer-sm"></div>
+          ${toolLink("diarioLeitura")}
+        `,
+      },
+      {
+        id: "letters",
+        label: UI_STRINGS["recursos.letters.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.letters.description"]}</p>
+          ${toolLink("carta80anos")}
+          <div class="spacer-sm"></div>
+          ${toolLink("carta8anos")}
+          <div class="spacer-sm"></div>
+          ${toolLink("oracaoArtista")}
+          <div class="spacer-sm"></div>
+          ${toolLink("cartaEncorajamento")}
+        `,
+      },
+      {
+        id: "planning",
+        label: UI_STRINGS["recursos.planning.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.planning.description"]}</p>
+          ${toolLink("metasNorteVerdadeiro")}
+          <div class="spacer-sm"></div>
+          ${toolLink("buscaEstilo")}
+          <div class="spacer-sm"></div>
+          ${toolLink("diaIdeal")}
+          <div class="spacer-sm"></div>
+          ${toolLink("cadernoDesejos")}
+          <div class="spacer-sm"></div>
+          ${toolLink("planoContinuidade")}
+        `,
+      },
+      {
+        id: "boundaries",
+        label: UI_STRINGS["recursos.boundaries.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.boundaries.description"]}</p>
+          ${toolLink("resentimentosMedos")}
+          <div class="spacer-sm"></div>
+          ${toolLink("retornosEmU")}
+          <div class="spacer-sm"></div>
+          ${toolLink("arqueologia")}
+          <div class="spacer-sm"></div>
+          ${toolLink("bottomLine")}
+          <div class="spacer-sm"></div>
+          ${toolLink("pontosFelicidade")}
+          <div class="spacer-sm"></div>
+          ${toolLink("totemArtista")}
+        `,
+      },
+      {
+        id: "history",
+        label: UI_STRINGS["recursos.history.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.history.description"]}</p>
+          <a class="btn secondary block" href="#/artist-date-history">Histórico de Artist Dates</a>
+          <div class="spacer-sm"></div>
+          <a class="btn secondary block" href="#/checkin-history">Reler Check-ins Antigos</a>
+        `,
+      },
+      {
+        id: "quiz",
+        label: UI_STRINGS["recursos.quiz.title"],
+        html: `
+          <p class="muted">${UI_STRINGS["recursos.quiz.description"]}</p>
+          <a class="btn secondary block" href="#/quiz/workaholismQuiz">${QUIZ_CONFIGS.workaholismQuiz.title}</a>
+        `,
+      },
+    ],
+    ferramentasTabState
+  );
 });
 
-route("/settings", async () => {
+// Meu Perfil (fora de Ajustes — destino próprio no painel de
+// navegação, igual ao ProfilePage do UWP). Perfil não é bem um
+// "ajuste", é o programa de 12 semanas da pessoa.
+route("/profile", async () => {
   const settings = (await DB.getSetting("profile", null)) || {};
 
-  const fontSize = settings.fontSize || "medium";
-
   appEl.innerHTML = `
-    <div class="top-bar">
-      <div class="logo" style="text-align:right">${UI_STRINGS["settings.title"]}<span class="sub">${UI_STRINGS["settings.subtitle"]}</span></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Tamanho da letra</div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn ${fontSize === "small" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="small">Pequena</button>
-        <button class="btn ${fontSize === "medium" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="medium">Média</button>
-        <button class="btn ${fontSize === "large" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="large">Grande</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.appearance.title"]}</div>
-      <p class="muted">Accent color e tema — sincronizados entre aparelhos junto com o resto do seu progresso.</p>
-      <label>Cor de destaque</label>
-      <div class="swatch-row" id="accentSwatches">
-        ${window.ArtistWayTheme.ACCENT_COLORS.map(
-          (color) =>
-            `<button class="swatch ${(settings.accentColor || window.ArtistWayTheme.ACCENT_COLORS[0]) === color ? "selected" : ""}" style="background:${color};" data-accent="${color}" aria-label="${color}"></button>`
-        ).join("")}
-      </div>
-      <label>Tema</label>
-      <div class="theme-mode-row" id="themeModeRow">
-        <button class="btn ${(settings.themeMode || "auto") === "light" ? "" : "secondary"}" data-theme-mode="light"><span class="icon">${window.ArtistWayIcons.sun}</span> Claro</button>
-        <button class="btn ${(settings.themeMode || "auto") === "dark" ? "" : "secondary"}" data-theme-mode="dark"><span class="icon">${window.ArtistWayIcons.moon}</span> Escuro</button>
-        <button class="btn ${(settings.themeMode || "auto") === "auto" ? "" : "secondary"}" data-theme-mode="auto">Automático</button>
-      </div>
-    </div>
-
     <div class="card">
       <label>Nome</label>
       <input type="text" id="fname" value="${settings.name || ""}" />
@@ -1418,76 +1496,8 @@ route("/settings", async () => {
       <button class="btn secondary block" id="calCI">+ Check-in semanal</button>
     </div>
 
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.data.title"]}</div>
-      <p class="muted">Tudo fica só no seu aparelho. Faça backup de vez em quando.</p>
-      <button class="btn secondary block" id="exportData">Exportar backup (.json)</button>
-      ${
-        isUwpHost()
-          ? `<div class="spacer-sm"></div><button class="btn secondary block" id="importDataUwp">Importar backup (.json)</button>`
-          : `<div class="spacer-sm"></div><label>Importar backup</label><input type="file" id="importFile" accept=".json" />`
-      }
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.sync.title"]}</div>
-      <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o app do Windows, no mesmo login.</p>
-      <p class="muted" id="syncStatus">Verificando...</p>
-      <button class="btn brass block" id="googleLogin">Entrar com Google</button>
-      <button class="btn secondary block" id="signOut" style="display:none;">Sair</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.maintenance.title"]}</div>
-      <p class="muted">${UI_STRINGS["settings.maintenance.description"]}</p>
-      <button class="btn ${settings.maintenanceMode ? "secondary" : "brass"} block" id="toggleMaintenance">
-        ${settings.maintenanceMode ? UI_STRINGS["settings.maintenance.toggleOff"] : UI_STRINGS["settings.maintenance.toggleOn"]}
-      </button>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.dangerZone.title"]}</div>
-      <p class="muted">Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa.</p>
-      <button class="btn secondary block" id="clearData">Apagar todos os dados (mantém login)</button>
-      <div class="spacer-sm"></div>
-      <button class="btn secondary block" id="fullReset">Resetar o app completamente (sai da conta)</button>
-    </div>
-
-    <div class="card" id="updatesCard">
-      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.updates.title"]}</div>
-      <p class="muted" id="updatesBody">Verificando...</p>
-    </div>
-
     <div class="spacer"></div>
   `;
-
-
-  forEachNode(appEl.querySelectorAll("[data-fontsize]"), (btn) => {
-    btn.addEventListener("click", async () => {
-      const updated = Object.assign({}, settings, { fontSize: btn.dataset.fontsize });
-      await DB.setProfile(updated);
-      applyFontSizePreference(updated.fontSize);
-      render();
-    });
-  });
-
-  forEachNode(appEl.querySelectorAll("[data-accent]"), (btn) => {
-    btn.addEventListener("click", async () => {
-      const updated = Object.assign({}, settings, { accentColor: btn.dataset.accent });
-      await DB.setProfile(updated);
-      window.ArtistWayTheme.applyTheme(updated);
-      render();
-    });
-  });
-
-  forEachNode(appEl.querySelectorAll("[data-theme-mode]"), (btn) => {
-    btn.addEventListener("click", async () => {
-      const updated = Object.assign({}, settings, { themeMode: btn.dataset.themeMode });
-      await DB.setProfile(updated);
-      window.ArtistWayTheme.applyTheme(updated);
-      render();
-    });
-  });
 
   document.getElementById("save").addEventListener("click", async () => {
     const updated = Object.assign({}, settings, {
@@ -1518,6 +1528,130 @@ route("/settings", async () => {
     const s = await DB.getSetting("profile", null);
     GCAL.openUrl(GCAL.checkinUrl(Number(s.checkinDay), s.checkinTime));
   });
+});
+
+const settingsTabState = { active: "appearance" };
+route("/settings", async () => {
+  const settings = (await DB.getSetting("profile", null)) || {};
+  const fontSize = settings.fontSize || "medium";
+
+  appEl.innerHTML = `<div id="settingsTabs"></div>`;
+
+  renderTabs(
+    document.getElementById("settingsTabs"),
+    [
+      {
+        id: "appearance",
+        label: UI_STRINGS["settings.tabs.appearance"],
+        html: `
+          <div class="card">
+            <div class="card-title" style="font-size:1.05rem;">Tamanho da letra</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn ${fontSize === "small" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="small">Pequena</button>
+              <button class="btn ${fontSize === "medium" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="medium">Média</button>
+              <button class="btn ${fontSize === "large" ? "brass" : "secondary"}" style="flex:1;" data-fontsize="large">Grande</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <p class="muted">${UI_STRINGS["settings.appearance.description"]}</p>
+            <label>Cor de destaque</label>
+            <div class="swatch-row" id="accentSwatches">
+              ${window.ArtistWayTheme.ACCENT_COLORS.map(
+                (color) =>
+                  `<button class="swatch ${(settings.accentColor || window.ArtistWayTheme.ACCENT_COLORS[0]) === color ? "selected" : ""}" style="background:${color};" data-accent="${color}" aria-label="${color}"></button>`
+              ).join("")}
+            </div>
+            <label>Tema</label>
+            <div class="theme-mode-row" id="themeModeRow">
+              <button class="btn ${(settings.themeMode || "auto") === "light" ? "" : "secondary"}" data-theme-mode="light"><span class="icon">${window.ArtistWayIcons.sun}</span> Claro</button>
+              <button class="btn ${(settings.themeMode || "auto") === "dark" ? "" : "secondary"}" data-theme-mode="dark"><span class="icon">${window.ArtistWayIcons.moon}</span> Escuro</button>
+              <button class="btn ${(settings.themeMode || "auto") === "auto" ? "" : "secondary"}" data-theme-mode="auto">Automático</button>
+            </div>
+          </div>
+        `,
+      },
+      {
+        id: "dataSync",
+        label: UI_STRINGS["settings.tabs.dataSync"],
+        html: `
+          <div class="card">
+            <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.data.title"]}</div>
+            <p class="muted">Tudo fica só no seu aparelho. Faça backup de vez em quando.</p>
+            <button class="btn secondary block" id="exportData">Exportar backup (.json)</button>
+            ${
+              isUwpHost()
+                ? `<div class="spacer-sm"></div><button class="btn secondary block" id="importDataUwp">Importar backup (.json)</button>`
+                : `<div class="spacer-sm"></div><label>Importar backup</label><input type="file" id="importFile" accept=".json" />`
+            }
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.sync.title"]}</div>
+            <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o app do Windows, no mesmo login.</p>
+            <p class="muted" id="syncStatus">Verificando...</p>
+            <button class="btn brass block" id="googleLogin">Entrar com Google</button>
+            <button class="btn secondary block" id="signOut" style="display:none;">Sair</button>
+          </div>
+        `,
+      },
+      {
+        id: "advanced",
+        label: UI_STRINGS["settings.tabs.advanced"],
+        html: `
+          <div class="card" id="updatesCard">
+            <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.updates.title"]}</div>
+            <p class="muted" id="updatesBody">Verificando...</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.maintenance.title"]}</div>
+            <p class="muted">${UI_STRINGS["settings.maintenance.description"]}</p>
+            <button class="btn ${settings.maintenanceMode ? "secondary" : "brass"} block" id="toggleMaintenance">
+              ${settings.maintenanceMode ? UI_STRINGS["settings.maintenance.toggleOff"] : UI_STRINGS["settings.maintenance.toggleOn"]}
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.dangerZone.title"]}</div>
+            <p class="muted">Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa.</p>
+            <button class="btn secondary block" id="clearData">Apagar todos os dados (mantém login)</button>
+            <div class="spacer-sm"></div>
+            <button class="btn secondary block" id="fullReset">Resetar o app completamente (sai da conta)</button>
+          </div>
+        `,
+      },
+    ],
+    settingsTabState
+  );
+  appEl.insertAdjacentHTML("beforeend", `<div class="spacer"></div>`);
+
+  forEachNode(appEl.querySelectorAll("[data-fontsize]"), (btn) => {
+    btn.addEventListener("click", async () => {
+      const updated = Object.assign({}, settings, { fontSize: btn.dataset.fontsize });
+      await DB.setProfile(updated);
+      applyFontSizePreference(updated.fontSize);
+      render();
+    });
+  });
+
+  forEachNode(appEl.querySelectorAll("[data-accent]"), (btn) => {
+    btn.addEventListener("click", async () => {
+      const updated = Object.assign({}, settings, { accentColor: btn.dataset.accent });
+      await DB.setProfile(updated);
+      window.ArtistWayTheme.applyTheme(updated);
+      render();
+    });
+  });
+
+  forEachNode(appEl.querySelectorAll("[data-theme-mode]"), (btn) => {
+    btn.addEventListener("click", async () => {
+      const updated = Object.assign({}, settings, { themeMode: btn.dataset.themeMode });
+      await DB.setProfile(updated);
+      window.ArtistWayTheme.applyTheme(updated);
+      render();
+    });
+  });
 
   document.getElementById("exportData").addEventListener("click", async () => {
     const data = await DB.exportAllData();
@@ -1525,7 +1659,7 @@ route("/settings", async () => {
     const filename = `artist-way-backup-${todayStr()}.json`;
     if (isUwpHost()) {
       // A WebView UWP legada não dispara o download via Blob + <a download>
-      // -- pede pro app nativo salvar o arquivo com um seletor de verdade.
+      // — pede pro app nativo salvar o arquivo com um seletor de verdade.
       // O resultado (sucesso/cancelado/erro) volta via callback, nunca fica
       // silencioso.
       window.__onNativeExportResult = (result) => {
@@ -1533,7 +1667,7 @@ route("/settings", async () => {
         if (result && result.success) {
           toast("Backup salvo ✓");
         } else if (result && result.canceled) {
-          // usuário cancelou o seletor -- não é erro, sem toast.
+          // usuário cancelou o seletor — não é erro, sem toast.
         } else {
           toast("Erro ao salvar backup: " + ((result && result.error) || "desconhecido"));
         }
@@ -1626,7 +1760,7 @@ route("/settings", async () => {
     render();
   });
 
-  // Apaga o progresso (aparelho + nuvem, se logado) mas mantém a sessão --
+  // Apaga o progresso (aparelho + nuvem, se logado) mas mantém a sessão —
   // útil pra recomeçar o programa do zero sem precisar logar de novo. A
   // conta continua existindo, só fica vazia. Mesmo par de opções do app UWP.
   document.getElementById("clearData").addEventListener("click", async () => {
@@ -1695,9 +1829,9 @@ route("/settings", async () => {
   }
 });
 
-// ---------- boot ----------
+// — boot —
 // theme.js é um módulo ES (só ele, por causa dos temas prontos do
-// Fluent) -- módulos sempre carregam depois dos scripts clássicos, então
+// Fluent) — módulos sempre carregam depois dos scripts clássicos, então
 // esperamos o evento de pronto antes do primeiro render pra não desenhar
 // a tela com o tema errado por um instante.
 function waitForTheme() {
