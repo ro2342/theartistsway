@@ -1,7 +1,7 @@
 // updates.js
 // Compara a versão do app empacotado (UWP/Lumia) com a última versão
 // publicada no site. Não se aplica ao PWA/APK, que se atualizam sozinhos
-// (service worker / loja) -- por isso tudo aqui depende de
+// (service worker / loja) — por isso tudo aqui depende de
 // window.__ARTISTWAY_NATIVE_VERSION, que só existe quando o WebView UWP
 // injeta a versão instalada (ver MainPage.xaml.cs, NavigationCompleted).
 

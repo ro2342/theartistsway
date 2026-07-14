@@ -21,7 +21,7 @@ function isNativeCapacitor() {
 function isUwpHost() {
   try {
     // Em WebViews antigas, window.external.notify pode ser um método de
-    // objeto host (COM) e não reportar typeof "function" -- checa presença
+    // objeto host (COM) e não reportar typeof "function" — checa presença
     // em vez de tipo estrito.
     return !!(window.external && window.external.notify);
   } catch (e) {
@@ -33,7 +33,7 @@ function isUwpHost() {
 // ms-appx-web:), mesmo quando window.external.notify não está disponível
 // nesse aparelho específico. Nesse caso não existe UI de permissão de
 // notificação do navegador pra mostrar, então nem vale a pena chamar
-// Notification.requestPermission() -- em alguns WebViews antigos essa
+// Notification.requestPermission() — em alguns WebViews antigos essa
 // chamada nunca resolve.
 function isPackagedWebViewHost() {
   try {
@@ -64,7 +64,7 @@ async function requestPermission() {
   if ("Notification" in window) {
     try {
       // Em alguns WebViews antigos/incompletos, requestPermission() nunca
-      // resolve (não há UI de permissão pra mostrar) -- limita a espera pra
+      // resolve (não há UI de permissão pra mostrar) — limita a espera pra
       // nunca travar o fluxo do app. Também protege contra a chamada
       // lançando exceção síncrona (visto em WebViews com objetos host
       // quebrados, ex.: window.external nesse mesmo aparelho).

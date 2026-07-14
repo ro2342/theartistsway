@@ -1,7 +1,7 @@
 // sync.js — motor de sincronização com o Firestore, espelhando
 // Services/SyncService.cs do app UWP: pra cada "store", puxa a versão da
 // nuvem, mescla com a local registro a registro por updatedAt (quem for
-// mais recente vence), grava o resultado local e sobe de volta -- sempre
+// mais recente vence), grava o resultado local e sobe de volta — sempre
 // nos dois sentidos, sempre idempotente. Sem listener em tempo real: cada
 // sincronização é só um request/response HTTP curto (ver "Decisões de
 // arquitetura" em sincronizacao-nuvem-setup.md).
@@ -12,7 +12,7 @@ const SYNC_DEBOUNCE_MS = 5000;
 
 let syncDebounceTimer = null;
 
-// Chamado pelas funções de db.js que gravam dado do usuário -- espera a
+// Chamado pelas funções de db.js que gravam dado do usuário — espera a
 // "rajada" de toques parar antes de gastar uma chamada de rede.
 function scheduleSync() {
   if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
@@ -46,7 +46,7 @@ async function syncAll() {
   }
 }
 
-// Apaga os dados da nuvem (todos os stores) sem mexer no login -- usado
+// Apaga os dados da nuvem (todos os stores) sem mexer no login — usado
 // pelo reset "Apagar meus dados" (mantém o aparelho logado). A conta em si
 // nunca é apagada, só o que está guardado nela.
 async function clearCloudData() {
@@ -90,7 +90,7 @@ async function syncStore(session, storeName) {
   await putRemoteStore(session, storeName, merged);
 }
 
-// ---------- mesclagem ----------
+// — mesclagem —
 
 function mergeWholeBlob(local, remote) {
   const hasRemote = Object.keys(remote).length > 0;
@@ -121,7 +121,7 @@ function mergePerRecord(local, remote, tsField) {
   return merged;
 }
 
-// ---------- monta/aplica o blob local, um por store ----------
+// — monta/aplica o blob local, um por store —
 
 async function buildStoreBlob(storeName) {
   const db = window.ArtistWayDB;
@@ -186,7 +186,7 @@ async function applyStoreBlob(storeName, merged) {
       await db.setSetting("lastActivityAt", merged.lastActivityAt || null);
       await db.setSetting("_updatedAt", merged._updatedAt || null);
       // Se accent/tema mudou em outro aparelho, reflete aqui assim que
-      // a sincronização pousa -- sem precisar reabrir o app.
+      // a sincronização pousa — sem precisar reabrir o app.
       if (window.ArtistWayTheme && merged.profile) {
         window.ArtistWayTheme.applyTheme(merged.profile);
       }
@@ -204,7 +204,7 @@ async function applyStoreBlob(storeName, merged) {
       return;
     case "checklist":
       for (const id of Object.keys(merged)) {
-        // A chave codifica semana/índice ("w{n}-i{idx}") -- reconstrói os
+        // A chave codifica semana/índice ("w{n}-i{idx}") — reconstrói os
         // dois campos pro filtro por semana que getChecklistForWeek usa.
         const match = /^w(\d+)-i(\d+)$/.exec(id);
         if (!match) continue;
@@ -231,9 +231,9 @@ async function applyStoreBlob(storeName, merged) {
   }
 }
 
-// ---------- Firestore REST ----------
+// — Firestore REST —
 // Cada store vira um documento com um único campo "data" (o JSON inteiro do
-// store, como string) -- evita traduzir pro formato de tipos nativos do
+// store, como string) — evita traduzir pro formato de tipos nativos do
 // Firestore pra estruturas que, na prática, o app só lê/escreve como blob.
 
 function docUrl(uid, storeName) {
@@ -275,8 +275,8 @@ async function putRemoteStore(session, storeName, data) {
   }
 }
 
-// ---------- gatilhos ----------
-// Sem polling nem conexão persistente -- só ao voltar pra aba (pega o que
+// — gatilhos —
+// Sem polling nem conexão persistente — só ao voltar pra aba (pega o que
 // mudou em outro aparelho) e no debounce acima (ver scheduleSync).
 
 document.addEventListener("visibilitychange", () => {
@@ -290,7 +290,7 @@ window.addEventListener("focus", () => {
 
 window.ArtistWaySync = { scheduleSync, syncAll, clearCloudData };
 
-// Sincroniza uma vez ao carregar o app, se já tiver login guardado -- é
+// Sincroniza uma vez ao carregar o app, se já tiver login guardado — é
 // aqui que pegamos o que mudou em outro aparelho desde a última vez que
 // esse ficou aberto (equivalente ao OnLaunched/Resuming do app UWP).
 window.ArtistWayAuth.getSession().then((session) => {

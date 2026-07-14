@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
 using Windows.ApplicationModel;
@@ -31,6 +32,7 @@ namespace ArtistWayUWP
             await SyncService.SyncAllAsync();
             ProfileSettings profile = await LocalDataStore.GetProfileAsync();
             ThemeModeService.Apply(profile?.ThemeMode ?? "auto");
+            await TileService.UpdateAsync();
         }
 
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -74,8 +76,17 @@ namespace ArtistWayUWP
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
                 Window.Current.Activate();
-                _ = SyncService.SyncAllAsync();
+                _ = SyncThenUpdateTileAsync();
             }
+        }
+
+        // A tile só faz sentido depois que a sincronização trouxer o que
+        // mudou em outro aparelho — senão a Live Tile podia mostrar uma
+        // sequência desatualizada logo ao abrir.
+        private static async Task SyncThenUpdateTileAsync()
+        {
+            await SyncService.SyncAllAsync();
+            await TileService.UpdateAsync();
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)

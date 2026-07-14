@@ -2,18 +2,18 @@
 //
 // Diferente do app UWP (que roda num WebView antigo sem origem HTTPS
 // própria e por isso precisou de loopback/device flow), o PWA roda num
-// navegador de verdade, com endereço HTTPS real (GitHub Pages) -- então usa
+// navegador de verdade, com endereço HTTPS real (GitHub Pages) — então usa
 // o fluxo padrão de login de site: redireciona pro Google, o Google
 // redireciona de volta com um "code", e troca esse code por tokens com
-// PKCE + client_secret -- ao contrário de outros provedores, o Google
+// PKCE + client_secret — ao contrário de outros provedores, o Google
 // exige o secret mesmo em clientes "Web application" com PKCE. O secret
 // nunca fica em texto puro aqui: o workflow 02-build-appx.yml substitui o
 // placeholder abaixo pelo valor real (guardado como GitHub Actions secret)
-// só no artefato publicado no Pages -- o arquivo commitado no git sempre
+// só no artefato publicado no Pages — o arquivo commitado no git sempre
 // mantém o placeholder. Mesmo esquema já usado pro client secret do UWP.
 //
 // Precisa de contexto seguro (HTTPS ou http://localhost) porque usa
-// crypto.subtle -- funciona em ro2342.github.io/theartistsway/, não
+// crypto.subtle — funciona em ro2342.github.io/theartistsway/, não
 // funciona acessando por IP na rede local em HTTP puro.
 
 const GOOGLE_WEB_CLIENT_ID = "431486750791-boejg1gtvt082b9hqpl5hjd3mqg3kh1c.apps.googleusercontent.com";
@@ -60,7 +60,7 @@ async function startGoogleLogin() {
   window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString();
 }
 
-// Troca o id_token do Google pelo login do Firebase -- mesma chamada REST
+// Troca o id_token do Google pelo login do Firebase — mesma chamada REST
 // que o AuthService.cs usa no UWP (Identity Toolkit signInWithIdp).
 async function exchangeWithFirebase(token, tokenParamName) {
   const postBody = `${tokenParamName}=${encodeURIComponent(token)}&providerId=google.com`;
@@ -101,7 +101,7 @@ async function handleRedirectIfNeeded() {
   sessionStorage.removeItem(AUTH_VERIFIER_KEY);
 
   // Limpa ?code=/?state= da barra de endereço antes de mais nada, sucesso
-  // ou erro -- não queremos que um F5 tente reusar o code (só vale uma vez).
+  // ou erro — não queremos que um F5 tente reusar o code (só vale uma vez).
   window.history.replaceState({}, "", window.location.pathname + window.location.hash);
 
   if (params.get("error")) {
@@ -135,7 +135,30 @@ async function handleRedirectIfNeeded() {
   const tokenParamName = tokenJson.id_token ? "id_token" : "access_token";
   const session = await exchangeWithFirebase(token, tokenParamName);
   await window.ArtistWayDB.setSetting("session", session);
-  if (window.ArtistWaySync) window.ArtistWaySync.syncAll();
+
+  // O redirect do Google derruba o hash da URL (redirect_uri não leva
+  // fragmento) — sem isso, quem loga na tela de onboarding ("já é
+  // usuário?") volta pro app sem nenhuma navegação acontecer, preso na
+  // tela de boas-vindas mesmo depois do perfil da nuvem já ter chegado.
+  if (window.ArtistWaySync) {
+    await window.ArtistWaySync.syncAll().catch((err) => console.warn("Sincronização falhou:", err));
+  }
+  // Aponta o hash explicitamente pro destino certo (não dá pra confiar no
+  // valor atual: pode ser "" ainda, ou já ter virado #/onboarding via
+  // boot() antes desse sync terminar) e força um render — cobre tanto o
+  // caso de mudança de hash real (dispara hashchange) quanto o caso em
+  // que o hash já era esse (hashchange não dispara sozinho).
+  const syncedProfile = await window.ArtistWayDB.getSetting("profile", null);
+  if (syncedProfile && syncedProfile.onboarded) {
+    window.location.hash = "#/home";
+  } else {
+    // Conta nova/sem dado salvo: não achou perfil pra pular onboarding —
+    // continua do passo 1 (boas-vindas), já logado, em vez de voltar pro
+    // passo 0 ("já é usuário?") que a pessoa acabou de responder.
+    window.__onboardStep = 1;
+    window.location.hash = "#/onboarding";
+  }
+  if (window.ArtistWayApp) window.ArtistWayApp.render();
 }
 
 async function getSession() {
@@ -146,7 +169,7 @@ async function signOut() {
   await window.ArtistWayDB.setSetting("session", null);
 }
 
-// Renova o idToken via refresh token -- mesmo endpoint que o SyncService.cs
+// Renova o idToken via refresh token — mesmo endpoint que o SyncService.cs
 // usa no UWP (securetoken.googleapis.com).
 async function refreshIdToken(session) {
   try {
@@ -183,7 +206,7 @@ window.ArtistWayAuth = {
   needsRefresh,
 };
 
-// Roda uma vez ao carregar o script -- é assim que o retorno do redirect
+// Roda uma vez ao carregar o script — é assim que o retorno do redirect
 // do Google (?code=...) é processado, sem precisar que nenhuma tela
 // específica esteja aberta.
 handleRedirectIfNeeded().catch((err) => console.warn("Erro ao processar retorno do login com Google:", err));

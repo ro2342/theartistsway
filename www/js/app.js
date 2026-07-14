@@ -163,6 +163,11 @@ async function render() {
 }
 window.addEventListener("hashchange", render);
 
+// Exposto pra auth.js poder reavaliar a rota depois de um login que volta
+// de um redirect de página inteira (hash se perde no round-trip do OAuth
+// do Google) — ver handleRedirectIfNeeded em auth.js.
+window.ArtistWayApp = { render };
+
 // Número da versão publicada — mesmo app/version.json que o checador de
 // atualização do app do Windows já usa (updates.js), só que aqui é
 // puramente informativo: aparece no rodapé do painel de navegação e em
@@ -348,16 +353,27 @@ route("/onboarding", async () => {
   window.__onboardDraft = draft;
 
   const steps = [
-    // 0 — boas vindas
+    // 0 — já é usuário?
+    () => `
+      <div class="onboard-screen">
+        <h1 class="onboard-title">The Artist's Way<br/>— Companheiro —</h1>
+        <p class="onboard-sub">Você já usa esse app em outro aparelho?</p>
+        <p class="muted" style="text-align:center;">Entre com a mesma conta Google pra trazer seus dados agora, sem preencher tudo de novo.</p>
+        <button class="btn brass block" id="loginBtn">Já sou usuário(a) — entrar com Google</button>
+        <p class="muted" id="loginStatus" style="display:none;text-align:center;"></p>
+        <button class="btn secondary block" id="next" style="margin-top:12px;">Sou novo(a) — começar do zero</button>
+        <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>`,
+    // 1 — boas vindas
     () => `
       <div class="onboard-screen">
         <div class="quote-banner">"A criatividade recuperada nunca é perdida de novo."</div>
         <h1 class="onboard-title">The Artist's Way<br/>— Companheiro —</h1>
         <p class="onboard-sub">Um espaço para transformar as tarefas do livro em passos claros, um dia de cada vez. Vamos organizar sua jornada de 12 semanas.</p>
         <button class="btn brass block" id="next">Começar</button>
-        <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span><span></span><span></span></div>
       </div>`,
-    // 1 — nome + data de início
+    // 2 — nome + data de início
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
@@ -369,9 +385,9 @@ route("/onboarding", async () => {
         <input type="date" id="fstart" value="${draft.startDate}" />
         <div class="spacer"></div>
         <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span><span></span></div>
+        <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span><span></span><span></span></div>
       </div>`,
-    // 2 — morning pages + artist date
+    // 3 — morning pages + artist date
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
@@ -389,9 +405,9 @@ route("/onboarding", async () => {
         <input type="time" id="fadtime" value="${draft.artistDateTime}" />
         <div class="spacer"></div>
         <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span><span></span></div>
+        <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span><span></span><span></span></div>
       </div>`,
-    // 3 — checkin + permissões
+    // 4 — checkin + permissões
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
@@ -407,9 +423,9 @@ route("/onboarding", async () => {
         <input type="time" id="fcitime" value="${draft.checkinTime}" />
         <div class="spacer"></div>
         <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span><span></span></div>
+        <div class="dots-progress"><span></span><span></span><span></span><span></span><span class="active"></span><span></span></div>
       </div>`,
-    // 4 — contrato inicial assinável
+    // 5 — contrato inicial assinável
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
@@ -422,7 +438,7 @@ route("/onboarding", async () => {
         <input type="text" id="fsignature" value="${draft.contractSignedName || draft.name || ""}" placeholder="Seu nome" />
         <div class="spacer"></div>
         <button class="btn moss block" id="finish">Assinar e começar</button>
-        <div class="dots-progress"><span></span><span></span><span></span><span></span><span class="active"></span></div>
+        <div class="dots-progress"><span></span><span></span><span></span><span></span><span></span><span class="active"></span></div>
       </div>`,
   ];
 
@@ -439,21 +455,40 @@ route("/onboarding", async () => {
   const next = document.getElementById("next");
   if (next) {
     next.addEventListener("click", () => {
-      if (step === 1) {
+      if (step === 2) {
         draft.name = document.getElementById("fname").value.trim();
         draft.startDate = document.getElementById("fstart").value || draft.startDate;
       }
-      if (step === 2) {
+      if (step === 3) {
         draft.morningPagesTime = document.getElementById("fmp").value || draft.morningPagesTime;
         draft.artistDateDay = document.getElementById("fadday").value;
         draft.artistDateTime = document.getElementById("fadtime").value || draft.artistDateTime;
       }
-      if (step === 3) {
+      if (step === 4) {
         draft.checkinDay = document.getElementById("fciday").value;
         draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
       }
       window.__onboardStep = step + 1;
       render();
+    });
+  }
+
+  // Passo 0: já é usuário em outro aparelho? O redirect do Google leva a
+  // aba inteira embora — ao voltar, handleRedirectIfNeeded (auth.js)
+  // sincroniza e chama window.ArtistWayApp.render() de novo, que decide
+  // sozinho se pula onboarding (achou perfil já onboarded) ou continua
+  // daqui pro passo 1 normalmente.
+  const loginBtn = document.getElementById("loginBtn");
+  const loginStatus = document.getElementById("loginStatus");
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Entrando...";
+      if (loginStatus) {
+        loginStatus.style.display = "";
+        loginStatus.textContent = "Você vai ser levado(a) pro login do Google e volta pra cá.";
+      }
+      window.ArtistWayAuth.startGoogleLogin();
     });
   }
   const finish = document.getElementById("finish");

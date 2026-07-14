@@ -131,6 +131,7 @@ namespace ArtistWayUWP
         {
             HeaderBar.Visibility = Visibility.Visible;
             NavigateToTab(typeof(HomePage));
+            _ = TileService.UpdateAsync();
         }
 
         // — painel de navegação —

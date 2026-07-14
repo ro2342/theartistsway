@@ -17,7 +17,7 @@ namespace ArtistWayUWP.Views
         public OnboardingPage()
         {
             this.InitializeComponent();
-            _panels = new[] { WelcomePanel, NameDatePanel, RitualsPanel, FinishPanel, ContractPanel };
+            _panels = new[] { ReturningUserPanel, WelcomePanel, NameDatePanel, RitualsPanel, FinishPanel, ContractPanel };
 
             for (int i = 1; i <= 7; i++)
             {
@@ -58,6 +58,45 @@ namespace ArtistWayUWP.Views
         private void Next_Click(object sender, RoutedEventArgs e)
         {
             ShowStep(_step + 1);
+        }
+
+        // Passo 0: já é usuário em outro aparelho? Entra com a mesma conta
+        // Google, puxa o que já existe na nuvem e, se achar um perfil já
+        // onboarded, pula o resto do formulário inteiro — evita reescrever
+        // nome/horários/dias que já foram preenchidos da primeira vez.
+        private async void ReturningUserLogin_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            button.IsEnabled = false;
+            button.Content = "Entrando...";
+            ReturningUserStatusText.Visibility = Visibility.Visible;
+            ReturningUserStatusText.Text = "Entrando com o Google...";
+
+            AuthResult result = await AuthService.SignInWithGoogleConsentAsync();
+            if (!result.Success)
+            {
+                button.IsEnabled = true;
+                button.Content = "Já sou usuário(a) — entrar com Google";
+                ReturningUserStatusText.Text = result.ErrorMessage ?? "Login cancelado.";
+                return;
+            }
+
+            SessionService.SaveSession(result);
+            ReturningUserStatusText.Text = "Login OK — buscando seus dados...";
+            await SyncService.SyncAllAsync();
+
+            ProfileSettings profile = await LocalDataStore.GetProfileAsync();
+            if (profile != null && profile.Onboarded)
+            {
+                NotificationService.ApplySettings(profile);
+                MainPage.Current.CompleteOnboarding();
+                return;
+            }
+
+            button.IsEnabled = true;
+            button.Content = "Já sou usuário(a) — entrar com Google";
+            ReturningUserStatusText.Text = "Login OK, mas não achei dados salvos com essa conta. Vamos configurar do zero — a partir de agora, tudo já fica salvo na nuvem.";
+            ShowStep(1);
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)

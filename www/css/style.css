@@ -49,7 +49,7 @@ h1, h2, h3, h4 {
 a { color: var(--colorBrandForeground1, #0f6cbd); }
 button { font-family: inherit; }
 
-/* ---------- Shell ---------- */
+/* — Shell — */
 /* Mesmo shell em qualquer tamanho de tela — hambúrguer + cabeçalho fixo
    no topo, painel deslizante por cima do conteúdo (nunca cobre o
    cabeçalho, então o hambúrguer sempre continua clicável pra fechar).
@@ -108,7 +108,7 @@ button { font-family: inherit; }
 .icon-btn:active { background: var(--colorNeutralBackground1Pressed, #e0e0e0); }
 .icon-btn .icon { width: 18px; height: 18px; }
 
-/* ---------- Cards ---------- */
+/* — Cards — */
 
 .card {
   background: var(--colorNeutralBackground1, #fff);
@@ -162,7 +162,7 @@ button { font-family: inherit; }
   height: 16px;
 }
 
-/* ---------- Progress ---------- */
+/* — Progress — */
 
 .progress-track {
   height: 4px;
@@ -184,7 +184,7 @@ button { font-family: inherit; }
   color: var(--colorNeutralForeground3, #616161);
 }
 
-/* ---------- Checklist ---------- */
+/* — Checklist — */
 
 .checklist-item {
   display: flex;
@@ -235,7 +235,7 @@ button { font-family: inherit; }
   border-left: 2px solid var(--colorBrandStroke2, #96c6fa);
 }
 
-/* ---------- Buttons ---------- */
+/* — Buttons — */
 /* Botões novos usam <fluent-button> de verdade; essas classes seguem
    valendo pra qualquer <a>/<button> que ainda precise do visual de botão
    fora do componente (ex.: links de navegação estilizados como botão). */
@@ -278,7 +278,7 @@ button { font-family: inherit; }
 .btn.block { width: 100%; }
 .btn .icon { width: 18px; height: 18px; }
 
-/* ---------- Week grid ---------- */
+/* — Week grid — */
 
 .week-grid {
   display: grid;
@@ -338,7 +338,7 @@ button { font-family: inherit; }
   margin-top: 2px;
 }
 
-/* ---------- Streak dots ---------- */
+/* — Streak dots — */
 
 .streak-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 
@@ -362,7 +362,7 @@ button { font-family: inherit; }
   color: #fff;
 }
 
-/* ---------- Navegação (cabeçalho + painel deslizante) ---------- */
+/* — Navegação (cabeçalho + painel deslizante) — */
 
 :root {
   --shell-header-height: 48px;
@@ -485,7 +485,7 @@ body.has-shell #app {
   color: var(--colorNeutralForeground3, #616161);
 }
 
-/* ---------- Abas (Ajustes/Recursos) ---------- */
+/* — Abas (Ajustes/Recursos) — */
 /* Igual ao Pivot do UWP: barra cinza atrás do cabeçalho de abas, nome
    de aba em fonte menor, aba atual em negrito com traço embaixo. A
    faixa de abas rola/arrasta na horizontal quando não cabe tudo (ex.:
@@ -527,7 +527,7 @@ body.has-shell #app {
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-/* ---------- Forms ---------- */
+/* — Forms — */
 
 label {
   display: block;
@@ -553,7 +553,7 @@ input[type="date"] {
   font-size: var(--fontSizeBase300, 14px);
 }
 
-/* ---------- Quiz ---------- */
+/* — Quiz — */
 
 .quiz-question {
   padding: 12px 0;
@@ -578,7 +578,7 @@ input[type="date"] {
   margin: 0;
 }
 
-/* ---------- Onboarding ---------- */
+/* — Onboarding — */
 
 .onboard-screen {
   min-height: 100vh;
@@ -594,7 +594,7 @@ input[type="date"] {
 .dots-progress span { width: 8px; height: 8px; border-radius: 50%; background: var(--colorNeutralStroke1, #d1d1d1); }
 .dots-progress span.active { background: var(--colorBrandBackground, #0f6cbd); }
 
-/* ---------- Toast ---------- */
+/* — Toast — */
 
 .toast {
   position: fixed;
@@ -615,7 +615,7 @@ input[type="date"] {
 }
 .toast.show { opacity: 1; }
 
-/* ---------- Misc ---------- */
+/* — Misc — */
 
 .spacer-sm { height: 8px; }
 .spacer { height: 20px; }
@@ -649,7 +649,7 @@ input[type="date"] {
 .idea-card textarea:focus { outline: none; }
 .idea-card textarea::placeholder { color: var(--colorNeutralForeground3, #616161); font-weight: var(--fontWeightRegular, 400); }
 
-/* ---------- Ensaio da semana ---------- */
+/* — Ensaio da semana — */
 
 .essay-text p {
   font-size: var(--fontSizeBase300, 14px);
@@ -658,7 +658,7 @@ input[type="date"] {
 }
 .essay-text p:last-child { margin-bottom: 0; }
 
-/* ---------- Regras da Estrada / Princípios Básicos ---------- */
+/* — Regras da Estrada / Princípios Básicos — */
 
 .rule-list {
   margin: 0;
@@ -702,7 +702,7 @@ input[type="date"] {
   color: var(--colorNeutralForeground2, #424242);
 }
 
-/* ---------- Accent color / tema (Ajustes) ---------- */
+/* — Accent color / tema (Ajustes) — */
 
 .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 4px; }
 .swatch {

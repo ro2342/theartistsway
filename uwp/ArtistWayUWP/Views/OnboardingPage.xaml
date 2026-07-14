@@ -11,7 +11,24 @@
     <ScrollViewer Padding="24">
         <StackPanel VerticalAlignment="Center" MaxWidth="480" HorizontalAlignment="Stretch">
 
-            <StackPanel x:Name="WelcomePanel">
+            <StackPanel x:Name="ReturningUserPanel">
+                <TextBlock Text="The Artist's Way — Companheiro" Style="{StaticResource HeaderTextBlockStyle}"
+                           TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" />
+                <TextBlock Text="Você já usa esse app em outro aparelho?" Style="{StaticResource BodyTextBlockStyle}"
+                           TextWrapping="Wrap" TextAlignment="Center" Opacity="0.85" Margin="0,16,0,4" />
+                <TextBlock Text="Entre com a mesma conta Google pra trazer seus dados agora, sem preencher tudo de novo."
+                           Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap" TextAlignment="Center"
+                           Opacity="0.7" Margin="0,0,0,24" />
+                <Button x:Name="ReturningUserLoginButton" Content="Já sou usuário(a) — entrar com Google"
+                        Click="ReturningUserLogin_Click" HorizontalAlignment="Stretch" />
+                <TextBlock x:Name="ReturningUserStatusText" Style="{StaticResource CaptionTextBlockStyle}"
+                           Opacity="0.8" TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,0"
+                           Visibility="Collapsed" />
+                <Button Content="Sou novo(a) — começar do zero" Click="Next_Click"
+                        HorizontalAlignment="Stretch" Margin="0,12,0,0" />
+            </StackPanel>
+
+            <StackPanel x:Name="WelcomePanel" Visibility="Collapsed">
                 <TextBlock Text="&quot;A criatividade recuperada nunca é perdida de novo.&quot;"
                            Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap"
                            HorizontalAlignment="Center" TextAlignment="Center" Opacity="0.85" />

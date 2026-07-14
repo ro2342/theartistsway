@@ -123,6 +123,7 @@ namespace ArtistWayUWP.Views
         {
             await LocalDataStore.ToggleMorningPageAsync(WeekCalculator.DateToStr(DateTime.Now.Date));
             await LoadAsync();
+            await TileService.UpdateAsync();
         }
 
         private void OpenArtistDate_Click(object sender, RoutedEventArgs e)

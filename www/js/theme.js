@@ -2,10 +2,10 @@
 // em Ajustes). Único arquivo do projeto que precisa ser um módulo ES
 // (`type="module"` no index.html) porque os temas prontos do Fluent
 // (`webLightTheme`/`webDarkTheme`) só existem como export nomeado do
-// pacote vendorizado -- o resto do app continua em scripts clássicos.
+// pacote vendorizado — o resto do app continua em scripts clássicos.
 import { webLightTheme, webDarkTheme } from "../vendor/fluentui/tokens/index.js";
 
-// Paleta de accent colors -- os mesmos tons que o Windows oferece por
+// Paleta de accent colors — os mesmos tons que o Windows oferece por
 // padrão em Personalização > Cores.
 export const ACCENT_COLORS = [
   "#0078D4", // azul (padrão)
@@ -43,7 +43,7 @@ function mix(hex, amount) {
   return rgbToHex(r + (target - r) * t, g + (target - g) * t, b + (target - b) * t);
 }
 
-// Gera só os tokens de marca mais visíveis a partir da cor escolhida --
+// Gera só os tokens de marca mais visíveis a partir da cor escolhida —
 // não tenta reproduzir a rampa oficial de 16 tons do Fluent (isso exigiria
 // o gerador interno da Microsoft), só o suficiente pra "pintar" botões e
 // realces com a cor certa em cima do tema claro/escuro base.

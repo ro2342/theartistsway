@@ -66,7 +66,7 @@ async function dbGet(store, key) {
 async function dbGetAll(store) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    // objectStore.getAll() é IndexedDB 2.0 -- não existe no motor antigo do
+    // objectStore.getAll() é IndexedDB 2.0 — não existe no motor antigo do
     // WebView do Windows 10 Mobile. Usa cursor manual (IndexedDB 1.0),
     // suportado desde sempre.
     const tx = db.transaction(store, "readonly");
@@ -105,7 +105,7 @@ async function dbDelete(store, key) {
   });
 }
 
-// --- Helpers de alto nível ---
+// — Helpers de alto nível —
 
 async function getSetting(key, fallback = null) {
   const row = await dbGet(STORES.settings, key);
@@ -116,7 +116,7 @@ async function setSetting(key, value) {
   return dbPut(STORES.settings, { key, value });
 }
 
-// Carimba _updatedAt junto do perfil -- é o que sync.js usa pra decidir,
+// Carimba _updatedAt junto do perfil — é o que sync.js usa pra decidir,
 // na hora de mesclar com a nuvem, qual cópia (local ou remota) é mais
 // recente (mesmo desenho do SetProfileAsync no app do Windows).
 async function setProfile(profile) {
@@ -185,9 +185,9 @@ async function getCheckin(weekId) {
   return dbGet(STORES.checkins, weekId);
 }
 
-// ---------- listas nomeadas (Vidas Imaginárias, 20 Coisas, Mapa do
-// Ciúme, Círculo de Segurança, Life Pie) ----------
-// Um store só (STORES.lists), id = "listName/itemId" -- assim toda
+// — listas nomeadas (Vidas Imaginárias, 20 Coisas, Mapa do
+// Ciúme, Círculo de Segurança, Life Pie) —
+// Um store só (STORES.lists), id = "listName/itemId" — assim toda
 // funcionalidade nova desse tipo usa o mesmo mecanismo de guardar/
 // sincronizar, em vez de um store por funcionalidade. Itens só são
 // adicionados/editados, nunca removidos (sem tombstone na mesclagem).

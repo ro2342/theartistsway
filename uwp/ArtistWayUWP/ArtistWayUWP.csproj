@@ -82,6 +82,7 @@
     <Compile Include="Services\WeekCalculator.cs" />
     <Compile Include="Services\UpdateCheckService.cs" />
     <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\TileService.cs" />
 
     <Compile Include="Views\HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
