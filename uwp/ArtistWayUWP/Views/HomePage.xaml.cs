@@ -12,6 +12,9 @@ namespace ArtistWayUWP.Views
     public sealed partial class HomePage : Page
     {
         private int _weekId = 1;
+        private ProfileSettings _profile;
+        private WeekCursor _cursor;
+        private bool _advanceMeansFinish;
 
         public HomePage()
         {
@@ -32,7 +35,10 @@ namespace ArtistWayUWP.Views
                 return;
             }
 
-            int weekId = WeekCalculator.GetCurrentWeekId(profile);
+            _profile = profile;
+            WeekCursor cursor = await LocalDataStore.GetOrSeedWeekCursorAsync(profile);
+            _cursor = cursor;
+            int weekId = cursor.WeekId;
             _weekId = weekId;
             WeekContent week = ContentStore.Content.Weeks.FirstOrDefault(w => w.Id == weekId);
             string weekKey = WeekCalculator.WeekKeyForOffset(profile, weekId);
@@ -46,6 +52,20 @@ namespace ArtistWayUWP.Views
             MaintenanceCard.Visibility = maintenanceMode ? Visibility.Visible : Visibility.Collapsed;
             WeekCard.Visibility = maintenanceMode ? Visibility.Collapsed : Visibility.Visible;
             CheckinNudgeCard.Visibility = maintenanceMode ? Visibility.Collapsed : Visibility.Visible;
+
+            bool cyclePending = !maintenanceMode && WeekCalculator.IsWeekCyclePending(cursor);
+            WeekDecisionCard.Visibility = cyclePending ? Visibility.Visible : Visibility.Collapsed;
+            if (cyclePending)
+            {
+                WeekSummary summary = await LocalDataStore.BuildWeekSummaryAsync(profile, cursor);
+                WeekDecisionTitleText.Text = $"A Semana {cursor.WeekId} completou os 7 dias";
+                WeekDecisionSummaryText.Text =
+                    $"{summary.DoneCount}/{summary.TotalItems} tarefas concluídas · Morning Pages em {summary.MorningPagesDone}/7 dias · " +
+                    $"Artist Date {(summary.ArtistDateDone ? "feito" : "não feito")} · check-in {(summary.CheckinDone ? "feito" : "não feito")}.";
+                StayWeekButton.Content = $"Continuar na Semana {cursor.WeekId}";
+                _advanceMeansFinish = cursor.WeekId >= 12;
+                AdvanceWeekButton.Content = _advanceMeansFinish ? "Concluir o programa" : $"Ir para a Semana {cursor.WeekId + 1}";
+            }
 
             WeekLabelText.Text = $"Semana {weekId} de 12";
             WeekTitleText.Text = week?.Title ?? "";
@@ -139,6 +159,36 @@ namespace ArtistWayUWP.Views
         private void OpenRoadRules_Click(object sender, RoutedEventArgs e)
         {
             MainPage.Current.ContentFrame.Navigate(typeof(RegrasDaEstradaPage));
+        }
+
+        private async void StayWeek_Click(object sender, RoutedEventArgs e)
+        {
+            if (_profile == null)
+            {
+                return;
+            }
+            await LocalDataStore.DecideWeekCycleAsync(_profile, advance: false);
+            await LoadAsync();
+            await TileService.UpdateAsync();
+        }
+
+        private async void AdvanceWeek_Click(object sender, RoutedEventArgs e)
+        {
+            if (_profile == null)
+            {
+                return;
+            }
+            if (_advanceMeansFinish)
+            {
+                _profile.MaintenanceMode = true;
+                await LocalDataStore.SetProfileAsync(_profile);
+            }
+            else
+            {
+                await LocalDataStore.DecideWeekCycleAsync(_profile, advance: true);
+            }
+            await LoadAsync();
+            await TileService.UpdateAsync();
         }
     }
 }

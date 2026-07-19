@@ -28,5 +28,18 @@ namespace ArtistWayUWP.Models
         // "assinatura" e quando foi assinado.
         public string ContractSignedName { get; set; } = "";
         public string ContractSignedAt { get; set; } = "";
+
+        // Controla qual semana está "atual" pra decisão do usuário
+        // (continuar na semana ou avançar), em vez de puro cálculo por
+        // data — ver WeekCalculator.GetWeekCursor. Null até ser semeado
+        // na primeira leitura.
+        public WeekCursor WeekCursor { get; set; }
+    }
+
+    // Espelha profile.weekCursor no PWA: { weekId, cycleStart }.
+    public sealed class WeekCursor
+    {
+        public int WeekId { get; set; }
+        public string CycleStart { get; set; } = "";
     }
 }

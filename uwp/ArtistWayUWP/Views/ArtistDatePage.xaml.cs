@@ -31,7 +31,7 @@ namespace ArtistWayUWP.Views
         private async Task LoadAsync()
         {
             ProfileSettings profile = await LocalDataStore.GetProfileAsync();
-            _weekId = WeekCalculator.GetCurrentWeekId(profile);
+            _weekId = WeekCalculator.GetWeekCursor(profile).WeekId;
             _weekKey = WeekCalculator.WeekKeyForOffset(profile, _weekId);
             SubText.Text = $"semana {_weekId}";
 

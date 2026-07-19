@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using ArtistWayUWP.Models;
 using Windows.Data.Json;
@@ -93,7 +94,26 @@ namespace ArtistWayUWP.Services
                 MaintenanceMode = p.ContainsKey("maintenanceMode") && p["maintenanceMode"].GetBoolean(),
                 ContractSignedName = GetStringOrDefault(p, "contractSignedName", ""),
                 ContractSignedAt = GetStringOrDefault(p, "contractSignedAt", ""),
+                WeekCursor = GetWeekCursorOrDefault(p),
             };
+        }
+
+        private static WeekCursor GetWeekCursorOrDefault(JsonObject p)
+        {
+            if (!p.ContainsKey("weekCursor") || p["weekCursor"].ValueType != JsonValueType.Object)
+            {
+                return null;
+            }
+            JsonObject wc = p["weekCursor"].GetObject();
+            string cycleStart = GetStringOrDefault(wc, "cycleStart", "");
+            int weekId = wc.ContainsKey("weekId") && wc["weekId"].ValueType == JsonValueType.Number
+                ? (int)wc["weekId"].GetNumber()
+                : 0;
+            if (weekId <= 0 || string.IsNullOrEmpty(cycleStart))
+            {
+                return null;
+            }
+            return new WeekCursor { WeekId = weekId, CycleStart = cycleStart };
         }
 
         public static async Task SetProfileAsync(ProfileSettings profile)
@@ -115,6 +135,14 @@ namespace ArtistWayUWP.Services
                 ["contractSignedName"] = JsonValue.CreateStringValue(profile.ContractSignedName ?? ""),
                 ["contractSignedAt"] = JsonValue.CreateStringValue(profile.ContractSignedAt ?? ""),
             };
+            if (profile.WeekCursor != null)
+            {
+                p["weekCursor"] = new JsonObject
+                {
+                    ["weekId"] = JsonValue.CreateNumberValue(profile.WeekCursor.WeekId),
+                    ["cycleStart"] = JsonValue.CreateStringValue(profile.WeekCursor.CycleStart ?? ""),
+                };
+            }
             settings["profile"] = p;
             // Carimba o blob inteiro de settings — é o que o SyncService usa
             // pra decidir, na hora de mesclar com a nuvem, qual cópia (local
@@ -122,6 +150,77 @@ namespace ArtistWayUWP.Services
             settings["_updatedAt"] = JsonValue.CreateStringValue(DateTimeOffset.UtcNow.ToString("o"));
             await WriteStoreAsync(SettingsFile, settings);
             SyncScheduler.ScheduleSync();
+        }
+
+        // Garante que profile.WeekCursor exista, semeando (e salvando) com o
+        // cálculo antigo por data na primeira vez que alguém pede — depois
+        // disso o cursor só muda por decisão explícita do usuário (ver
+        // DecideWeekCycleAsync). Idempotente: chamadas seguintes só leem.
+        public static async Task<WeekCursor> GetOrSeedWeekCursorAsync(ProfileSettings profile)
+        {
+            if (profile.WeekCursor != null)
+            {
+                return profile.WeekCursor;
+            }
+            WeekCursor seeded = new WeekCursor
+            {
+                WeekId = WeekCalculator.NaturalWeekId(profile),
+                CycleStart = WeekCalculator.DateToStr(WeekCalculator.CurrentStreakWeekStart(profile, DateTime.Now)),
+            };
+            profile.WeekCursor = seeded;
+            await SetProfileAsync(profile);
+            return seeded;
+        }
+
+        // Aplica a decisão do usuário (continuar na semana ou avançar) e
+        // reabre um ciclo novo de 7 dias a partir da semana corrente do
+        // calendário.
+        public static async Task<WeekCursor> DecideWeekCycleAsync(ProfileSettings profile, bool advance)
+        {
+            WeekCursor current = await GetOrSeedWeekCursorAsync(profile);
+            WeekCursor next = new WeekCursor
+            {
+                WeekId = advance ? Math.Min(12, current.WeekId + 1) : current.WeekId,
+                CycleStart = WeekCalculator.DateToStr(WeekCalculator.CurrentStreakWeekStart(profile, DateTime.Now)),
+            };
+            profile.WeekCursor = next;
+            await SetProfileAsync(profile);
+            return next;
+        }
+
+        // Resumo da semana pro cartão de decisão da Home: tarefas
+        // concluídas, check-in feito ou não, Artist Date feito ou não, e
+        // quantos dias de Morning Pages nesse ciclo de 7 dias.
+        public static async Task<WeekSummary> BuildWeekSummaryAsync(ProfileSettings profile, WeekCursor cursor)
+        {
+            WeekContent week = ContentStore.Content.Weeks.FirstOrDefault(w => w.Id == cursor.WeekId);
+            string weekKey = WeekCalculator.WeekKeyForOffset(profile, cursor.WeekId);
+            HashSet<int> doneIndexes = await GetDoneChecklistIndexesAsync(cursor.WeekId);
+            CheckinEntry checkin = await GetCheckinAsync(cursor.WeekId);
+            ArtistDateEntry artistDate = await GetArtistDateAsync(weekKey);
+
+            DateTime.TryParse(cursor.CycleStart, out DateTime cycleStart);
+            Dictionary<string, bool> allMp = await GetAllMorningPagesAsync();
+            int mpDone = 0;
+            for (int i = 0; i < 7; i++)
+            {
+                string key = WeekCalculator.DateToStr(cycleStart.AddDays(i));
+                if (allMp.TryGetValue(key, out bool done) && done)
+                {
+                    mpDone++;
+                }
+            }
+
+            int totalItems = week?.Checklist.Count ?? 0;
+            return new WeekSummary
+            {
+                WeekId = cursor.WeekId,
+                DoneCount = doneIndexes.Count(idx => idx < totalItems),
+                TotalItems = totalItems,
+                CheckinDone = checkin != null,
+                ArtistDateDone = artistDate != null && artistDate.Done,
+                MorningPagesDone = mpDone,
+            };
         }
 
         // — morning pages —

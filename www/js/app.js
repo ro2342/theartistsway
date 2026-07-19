@@ -73,12 +73,83 @@ function dayOfYear(d) {
   return Math.floor(diff / (24 * 3600 * 1000));
 }
 
-async function getCurrentWeekId(settings) {
+// Cálculo puramente por data — mesma conta de sempre, mas agora só serve
+// pra semear o cursor da semana na primeira vez (ver getWeekCursor
+// abaixo). Não é mais usado direto pra decidir a semana "atual" do
+// usuário, porque isso passou a ser uma decisão explícita dele.
+function naturalWeekId(settings) {
   if (!settings.startDate) return 1;
   const start = startOfWeek(new Date(settings.startDate + "T00:00:00"));
   const now = startOfWeek(new Date());
   const diffWeeks = Math.round((now - start) / (7 * 24 * 3600 * 1000));
   return Math.min(12, Math.max(1, diffWeeks + 1));
+}
+
+// A semana "atual" agora é controlada por um cursor guardado no perfil
+// (settings.weekCursor = { weekId, cycleStart }), não só pela conta de
+// dias — assim dá pra "continuar" numa semana mesmo depois que os 7 dias
+// passaram, sem perder nada do que já foi feito (checklist/check-in/
+// Artist Date continuam guardados pela chave da própria semana, ver
+// weekKeyForOffset). O cursor só anda quando o usuário decide de verdade
+// (decideWeekCycle) — na primeira vez que é lido, é semeado com o
+// cálculo antigo por data e já salvo, pra não recalcular diferente a
+// cada chamada.
+async function getWeekCursor(settings) {
+  if (settings.weekCursor && settings.weekCursor.weekId && settings.weekCursor.cycleStart) {
+    return settings.weekCursor;
+  }
+  const weekId = naturalWeekId(settings);
+  const cycleStart = dateToStr(currentStreakWeekStart(settings, new Date()));
+  const cursor = { weekId, cycleStart };
+  settings.weekCursor = cursor;
+  await DB.setProfile(settings);
+  return cursor;
+}
+
+// Passaram os 7 dias do ciclo atual? Se sim, a Home mostra o cartão de
+// decisão (continuar na semana ou ir pra próxima) em vez de trocar de
+// semana sozinha.
+function weekCyclePending(cursor) {
+  const cycleStart = new Date(cursor.cycleStart + "T00:00:00");
+  const cycleEnd = addDays(cycleStart, 7);
+  return new Date() >= cycleEnd;
+}
+
+// Aplica a decisão do usuário (continuar na mesma semana ou avançar) e
+// reabre um ciclo novo de 7 dias a partir da semana corrente do
+// calendário — assim quem ficou sumido várias semanas não fica preso
+// respondendo uma decisão por semana pulada, só a mais recente.
+async function decideWeekCycle(settings, action) {
+  const cursor = await getWeekCursor(settings);
+  const weekId = action === "advance" ? Math.min(12, cursor.weekId + 1) : cursor.weekId;
+  const cycleStart = dateToStr(currentStreakWeekStart(settings, new Date()));
+  const next = { weekId, cycleStart };
+  settings.weekCursor = next;
+  await DB.setProfile(settings);
+  return next;
+}
+
+// Resumo da semana pro cartão de decisão: tarefas concluídas, check-in
+// feito ou não, Artist Date feito ou não, e quantos dias de Morning
+// Pages nesse ciclo de 7 dias.
+async function buildWeekSummary(settings, cursor) {
+  const week = WEEKS.find((w) => w.id === cursor.weekId);
+  const weekKey = weekKeyForOffset(settings, cursor.weekId);
+  const checklist = await DB.getChecklistForWeek(cursor.weekId);
+  const doneCount = checklist.filter((c) => c.done).length;
+  const totalItems = week.checklist.length;
+  const checkin = await DB.getCheckin(cursor.weekId);
+  const artistDate = (await DB.getArtistDate(weekKey)) || { done: false };
+  const cycleEnd = dateToStr(addDays(new Date(cursor.cycleStart + "T00:00:00"), 6));
+  const mpDone = (await DB.getMorningPagesInRange(cursor.cycleStart, cycleEnd)).length;
+  return {
+    week,
+    doneCount,
+    totalItems,
+    checkinDone: !!checkin,
+    artistDateDone: !!artistDate.done,
+    mpDone,
+  };
 }
 
 const PROGRAM_LENGTH_DAYS = 84; // 12 semanas x 7 dias
@@ -518,7 +589,8 @@ route("/home", async () => {
     navigate("#/onboarding");
     return;
   }
-  const weekId = await getCurrentWeekId(settings);
+  const cursor = await getWeekCursor(settings);
+  const weekId = cursor.weekId;
   const week = WEEKS.find((w) => w.id === weekId);
   const weekKey = weekKeyForOffset(settings, weekId);
 
@@ -552,6 +624,26 @@ route("/home", async () => {
   const dayCount = dayCountSinceStart(settings);
   const dayCountLabel = dayCount !== null ? `Dia ${Math.max(1, dayCount)} de ${PROGRAM_LENGTH_DAYS}` : "";
   const maintenanceMode = !!settings.maintenanceMode || isProgramFinished(settings);
+  const cyclePending = !maintenanceMode && weekCyclePending(cursor);
+  const weekSummary = cyclePending ? await buildWeekSummary(settings, cursor) : null;
+
+  const weekDecisionCard = cyclePending
+    ? `
+    <div class="card dotted">
+      <div class="card-title" style="font-size:1.05rem;">A Semana ${cursor.weekId} completou os 7 dias</div>
+      <p class="muted">${weekSummary.doneCount}/${weekSummary.totalItems} tarefas concluídas · Morning Pages em ${weekSummary.mpDone}/7 dias · Artist Date ${
+        weekSummary.artistDateDone ? "feito" : "não feito"
+      } · check-in ${weekSummary.checkinDone ? "feito" : "não feito"}.</p>
+      <p class="muted">Quer continuar mais um tempo na Semana ${cursor.weekId} ou seguir em frente?</p>
+      <button class="btn secondary block" id="stayWeek">Continuar na Semana ${cursor.weekId}</button>
+      <div class="spacer-sm"></div>
+      ${
+        cursor.weekId < 12
+          ? `<button class="btn brass block" id="advanceWeek">Ir para a Semana ${cursor.weekId + 1}</button>`
+          : `<button class="btn brass block" id="finishProgram">Concluir o programa</button>`
+      }
+    </div>`
+    : "";
 
   const morningPagesCard = `
     <div class="card">
@@ -610,6 +702,8 @@ route("/home", async () => {
   appEl.innerHTML = `
     <p class="muted">${dayCountLabel || "seu companheiro de jornada"}</p>
 
+    ${weekDecisionCard}
+
     <div class="card">
       <div class="card-sub">Semana ${weekId} de 12</div>
       <div class="card-title">${week.title}</div>
@@ -644,6 +738,31 @@ route("/home", async () => {
     toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
     render();
   });
+
+  if (cyclePending) {
+    document.getElementById("stayWeek").addEventListener("click", async () => {
+      await decideWeekCycle(settings, "continue");
+      toast("Continuando na Semana " + cursor.weekId);
+      render();
+    });
+    const advanceBtn = document.getElementById("advanceWeek");
+    if (advanceBtn) {
+      advanceBtn.addEventListener("click", async () => {
+        await decideWeekCycle(settings, "advance");
+        toast("Seguindo pra próxima semana");
+        render();
+      });
+    }
+    const finishBtn = document.getElementById("finishProgram");
+    if (finishBtn) {
+      finishBtn.addEventListener("click", async () => {
+        settings.maintenanceMode = true;
+        await DB.setProfile(settings);
+        toast("Programa concluído — modo manutenção ativado");
+        render();
+      });
+    }
+  }
 });
 
 // ================= WEEK DETAIL =================
@@ -1135,7 +1254,7 @@ route("/life-pie", async () => {
 // ================= ARTIST DATE =================
 route("/artist-date", async () => {
   const settings = await DB.getSetting("profile", null);
-  const weekId = await getCurrentWeekId(settings);
+  const weekId = (await getWeekCursor(settings)).weekId;
   const weekKey = weekKeyForOffset(settings, weekId);
   const current = (await DB.getArtistDate(weekKey)) || { done: false, idea: "" };
 
@@ -1327,7 +1446,7 @@ route("/checkin-history", async () => {
 // ================= PROGRESS (jornada) =================
 route("/progress", async () => {
   const settings = await DB.getSetting("profile", null);
-  const currentWeekId = await getCurrentWeekId(settings);
+  const currentWeekId = (await getWeekCursor(settings)).weekId;
 
   const chips = await Promise.all(
     WEEKS.map(async (w) => {

@@ -24,7 +24,7 @@ namespace ArtistWayUWP.Views
         private async System.Threading.Tasks.Task LoadAsync()
         {
             ProfileSettings profile = await LocalDataStore.GetProfileAsync();
-            int currentWeekId = WeekCalculator.GetCurrentWeekId(profile);
+            int currentWeekId = WeekCalculator.GetWeekCursor(profile).WeekId;
 
             WeekGrid.Children.Clear();
             WeekGrid.RowDefinitions.Clear();

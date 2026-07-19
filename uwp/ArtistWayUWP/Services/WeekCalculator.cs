@@ -36,7 +36,13 @@ namespace ArtistWayUWP.Services
             return today.AddDays(-diff);
         }
 
-        public static int GetCurrentWeekId(ProfileSettings profile)
+        // Cálculo puramente por data — mesma conta de sempre, mas agora só
+        // serve pra semear o cursor da semana na primeira vez (ver
+        // LocalDataStore.GetOrSeedWeekCursorAsync). Não decide mais sozinho
+        // a semana "atual" — isso passou a ser uma decisão explícita do
+        // usuário (continuar na semana ou avançar), guardada em
+        // ProfileSettings.WeekCursor.
+        public static int NaturalWeekId(ProfileSettings profile)
         {
             if (profile == null || string.IsNullOrEmpty(profile.StartDate) ||
                 !DateTime.TryParse(profile.StartDate, out DateTime startDate))
@@ -47,6 +53,35 @@ namespace ArtistWayUWP.Services
             DateTime now = StartOfWeek(DateTime.Now);
             int diffWeeks = (int)Math.Round((now - start).TotalDays / 7.0);
             return Math.Min(12, Math.Max(1, diffWeeks + 1));
+        }
+
+        // Fallback puro (sem gravar nada) pra quem só precisa ler a semana
+        // atual sem se importar em persistir um cursor recém-semeado (ex.:
+        // TileService). Se o perfil já tem um cursor salvo, usa ele; senão
+        // recalcula pela data, igual sempre foi.
+        public static WeekCursor GetWeekCursor(ProfileSettings profile)
+        {
+            if (profile?.WeekCursor != null)
+            {
+                return profile.WeekCursor;
+            }
+            return new WeekCursor
+            {
+                WeekId = NaturalWeekId(profile),
+                CycleStart = DateToStr(CurrentStreakWeekStart(profile, DateTime.Now)),
+            };
+        }
+
+        // Os 7 dias do ciclo atual já passaram? Se sim, a Home mostra o
+        // cartão de decisão (continuar na semana ou ir pra próxima) em vez
+        // de trocar de semana sozinha.
+        public static bool IsWeekCyclePending(WeekCursor cursor)
+        {
+            if (cursor == null || !DateTime.TryParse(cursor.CycleStart, out DateTime cycleStart))
+            {
+                return false;
+            }
+            return DateTime.Now >= cycleStart.AddDays(7);
         }
 
         public static string WeekKeyForOffset(ProfileSettings profile, int weekId)

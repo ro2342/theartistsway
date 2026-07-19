@@ -32,7 +32,7 @@ namespace ArtistWayUWP.Services
                 int streak = ComputeStreak(allMp, DateTime.Now.Date);
                 int? dayCount = WeekCalculator.GetDayCount(profile);
 
-                int weekId = WeekCalculator.GetCurrentWeekId(profile);
+                int weekId = WeekCalculator.GetWeekCursor(profile).WeekId;
                 WeekContent week = ContentStore.Content.Weeks.FirstOrDefault(w => w.Id == weekId);
                 int totalItems = week?.Checklist.Count ?? 0;
                 HashSet<int> doneIndexes = await LocalDataStore.GetDoneChecklistIndexesAsync(weekId);
