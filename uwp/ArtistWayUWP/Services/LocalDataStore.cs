@@ -178,9 +178,23 @@ namespace ArtistWayUWP.Services
         public static async Task<WeekCursor> DecideWeekCycleAsync(ProfileSettings profile, bool advance)
         {
             WeekCursor current = await GetOrSeedWeekCursorAsync(profile);
+            int weekId = advance ? Math.Min(12, current.WeekId + 1) : current.WeekId;
+            return await SetCurrentWeekAsync(profile, weekId);
+        }
+
+        // Define diretamente qual semana é a "atual", abrindo um ciclo novo
+        // de 7 dias a partir de hoje. Usado pelo botão "Tornar esta a minha
+        // semana atual" na tela da semana — dá pra voltar (ou pular pra
+        // frente) pra qualquer semana manualmente, sem depender do cartão
+        // de decisão aparecer sozinho (só aparece quando os 7 dias de um
+        // ciclo já correram; quem tinha o app numa versão antiga e teve o
+        // cursor semeado direto numa semana mais adiante, por exemplo,
+        // precisa desse botão pra voltar).
+        public static async Task<WeekCursor> SetCurrentWeekAsync(ProfileSettings profile, int weekId)
+        {
             WeekCursor next = new WeekCursor
             {
-                WeekId = advance ? Math.Min(12, current.WeekId + 1) : current.WeekId,
+                WeekId = Math.Min(12, Math.Max(1, weekId)),
                 CycleStart = WeekCalculator.DateToStr(WeekCalculator.CurrentStreakWeekStart(profile, DateTime.Now)),
             };
             profile.WeekCursor = next;

@@ -15,6 +15,7 @@ namespace ArtistWayUWP.Views
     {
         private int _weekId;
         private WeekContent _week;
+        private ProfileSettings _profile;
 
         public WeekDetailPage()
         {
@@ -94,6 +95,18 @@ namespace ArtistWayUWP.Views
                     });
                 }
             }
+
+            _profile = await LocalDataStore.GetProfileAsync();
+            if (_profile != null)
+            {
+                WeekCursor cursor = await LocalDataStore.GetOrSeedWeekCursorAsync(_profile);
+                bool isCurrent = cursor.WeekId == _weekId;
+                CurrentWeekCard.Visibility = Visibility.Visible;
+                CurrentWeekStatusText.Text = isCurrent
+                    ? "Esta é a sua semana atual."
+                    : $"Sua semana atual é a {cursor.WeekId}.";
+                SetCurrentWeekButton.Visibility = isCurrent ? Visibility.Collapsed : Visibility.Visible;
+            }
         }
 
         private async void ChecklistItem_Toggled(object sender, RoutedEventArgs e)
@@ -110,6 +123,17 @@ namespace ArtistWayUWP.Views
         private void OpenCheckin_Click(object sender, RoutedEventArgs e)
         {
             MainPage.Current.ContentFrame.Navigate(typeof(CheckinPage), _weekId);
+        }
+
+        private async void SetCurrentWeek_Click(object sender, RoutedEventArgs e)
+        {
+            if (_profile == null)
+            {
+                return;
+            }
+            await LocalDataStore.SetCurrentWeekAsync(_profile, _weekId);
+            await TileService.UpdateAsync();
+            await LoadAsync();
         }
     }
 }

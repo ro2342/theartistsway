@@ -122,11 +122,24 @@ function weekCyclePending(cursor) {
 async function decideWeekCycle(settings, action) {
   const cursor = await getWeekCursor(settings);
   const weekId = action === "advance" ? Math.min(12, cursor.weekId + 1) : cursor.weekId;
+  return setCurrentWeek(settings, weekId);
+}
+
+// Define diretamente qual semana é a "atual", abrindo um ciclo novo de 7
+// dias a partir de hoje. Usado tanto por decideWeekCycle (continuar/
+// avançar) quanto pelo botão "Tornar esta a minha semana atual" na tela
+// da semana — assim dá pra voltar (ou pular pra frente) pra qualquer
+// semana manualmente, sem depender do cartão de decisão aparecer sozinho
+// (que só mostra quando os 7 dias de um ciclo já correram; quem estava
+// numa versão antiga do app e teve o cursor semeado direto numa semana
+// mais adiante, por exemplo, precisa desse botão pra voltar).
+async function setCurrentWeek(settings, weekId) {
+  const clamped = Math.min(12, Math.max(1, weekId));
   const cycleStart = dateToStr(currentStreakWeekStart(settings, new Date()));
-  const next = { weekId, cycleStart };
-  settings.weekCursor = next;
+  const cursor = { weekId: clamped, cycleStart };
+  settings.weekCursor = cursor;
   await DB.setProfile(settings);
-  return next;
+  return cursor;
 }
 
 // Resumo da semana pro cartão de decisão: tarefas concluídas, check-in
@@ -787,6 +800,22 @@ route("/week", async (rest) => {
   const checklist = await DB.getChecklistForWeek(weekId);
   const doneSet = new Set(checklist.filter((c) => c.done).map((c) => c.itemIndex));
 
+  const settings = await DB.getSetting("profile", null);
+  const cursor = settings ? await getWeekCursor(settings) : null;
+  const isCurrent = !!cursor && cursor.weekId === weekId;
+
+  const currentWeekCard = cursor
+    ? `
+    <div class="card dotted text-center">
+      ${
+        isCurrent
+          ? `<p class="muted">Esta é a sua semana atual.</p>`
+          : `<p class="muted">Sua semana atual é a ${cursor.weekId}.</p>
+             <button class="btn secondary block" id="setCurrentWeek">Tornar esta a minha semana atual</button>`
+      }
+    </div>`
+    : "";
+
   appEl.innerHTML = `
     <div class="top-bar">
       <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">${WEEKS.length} no total</span></div>
@@ -810,6 +839,7 @@ route("/week", async (rest) => {
         .join("")}
     </div>
     <a class="btn brass block" href="#/checkin/${week.id}">Fazer o check-in dessa semana</a>
+    ${currentWeekCard}
     <div class="spacer"></div>
   `;
 
@@ -820,6 +850,15 @@ route("/week", async (rest) => {
       el.classList.toggle("done", done);
     });
   });
+
+  const setCurrentBtn = document.getElementById("setCurrentWeek");
+  if (setCurrentBtn) {
+    setCurrentBtn.addEventListener("click", async () => {
+      await setCurrentWeek(settings, weekId);
+      toast("Semana " + weekId + " definida como sua semana atual");
+      render();
+    });
+  }
 });
 
 // ================= REFERÊNCIA (Regras da Estrada / Princípios Básicos) =================

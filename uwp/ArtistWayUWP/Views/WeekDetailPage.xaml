@@ -27,6 +27,13 @@
                     <TextBlock Text="Fazer o check-in dessa semana" Margin="8,0,0,0" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
+
+            <Border x:Name="CurrentWeekCard" Visibility="Collapsed" Style="{StaticResource NudgeBorderStyle}" Margin="0,16,0,0">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock x:Name="CurrentWeekStatusText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+                    <Button x:Name="SetCurrentWeekButton" Visibility="Collapsed" Content="Tornar esta a minha semana atual" Click="SetCurrentWeek_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>
