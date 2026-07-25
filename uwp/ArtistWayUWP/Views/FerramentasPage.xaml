@@ -39,7 +39,7 @@
                     <TextBlock Text="Crescem com o tempo, não somem depois de uma semana."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <TextBlock Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" Margin="0,0,0,4">
-                        <Run Text="Semana 1" /><Run Text=" (cresce nas Semanas 2 e 5)" FontWeight="Normal" Opacity="0.7" />
+                        <Run Text="Semana 1" /><Run Text=" (cresce nas Semanas 2 e 5)" FontWeight="Normal" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
                     </TextBlock>
                     <Button Content="Vidas Imaginárias" Click="OpenImaginaryLives_Click" HorizontalAlignment="Stretch" />
                     <TextBlock Text="Semana 2" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" Margin="0,16,0,4" />
@@ -128,7 +128,7 @@
                     <TextBlock Text="Reveja Artist Dates e check-ins de semanas passadas."
                                Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,12" />
                     <TextBlock Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" Margin="0,0,0,4">
-                        <Run Text="Ferramentas Básicas" /><Run Text=" (não é de nenhuma semana específica)" FontWeight="Normal" Opacity="0.7" />
+                        <Run Text="Ferramentas Básicas" /><Run Text=" (não é de nenhuma semana específica)" FontWeight="Normal" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
                     </TextBlock>
                     <Button Content="Histórico de Artist Dates" Click="OpenArtistDateHistory_Click" HorizontalAlignment="Stretch" />
                     <TextBlock Text="Semana 9" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" Margin="0,16,0,4" />
