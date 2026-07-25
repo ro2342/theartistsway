@@ -884,6 +884,10 @@ route("/principios-basicos", async () => {
   renderReferenceScreen("Princípios Básicos", "a base de tudo", BASIC_PRINCIPLES);
 });
 
+route("/banco-afirmacoes", async () => {
+  renderReferenceScreen("Banco de Afirmações", "20 frases prontas", AFFIRMATIONS);
+});
+
 route("/tabela-crencas", async () => {
   appEl.innerHTML = `
     <div class="top-bar">
@@ -1523,6 +1527,14 @@ function toolLink(key) {
   return `<a class="btn secondary block" href="#/list/${key}">${TOOL_CONFIGS[key].title}</a>`;
 }
 
+// Rótulo de semana acima de um grupo de recursos — a semana em que cada
+// ferramenta aparece pela primeira vez no livro, conferida linha a linha
+// contra o texto original. "note" é usado pra casos como "cresce nas
+// Semanas 2 e 5" ou "reutilizada nas Semanas 6 e 11".
+function weekHeading(label, note) {
+  return `<p class="muted" style="margin:16px 0 6px;font-weight:var(--fontWeightSemibold,600);">${label}${note ? ` <span style="font-weight:normal;">(${note})</span>` : ""}</p>`;
+}
+
 const ferramentasTabState = { active: "reference" };
 route("/ferramentas", async () => {
   appEl.innerHTML = `<div id="ferramentasTabs"></div><div class="spacer"></div>`;
@@ -1535,11 +1547,14 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.reference.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.reference.description"]}</p>
-          <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
-          <div class="spacer-sm"></div>
+          ${weekHeading("Introdução")}
           <a class="btn secondary block" href="#/principios-basicos"><span class="icon">${window.ArtistWayIcons.star}</span> Princípios Básicos</a>
-          <div class="spacer-sm"></div>
+          ${weekHeading("Semana 1")}
           <a class="btn secondary block" href="#/tabela-crencas">Crença → Positiva</a>
+          ${weekHeading("Semana 2")}
+          <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Regras da Estrada</a>
+          ${weekHeading("Semana 8")}
+          <a class="btn secondary block" href="#/banco-afirmacoes">Banco de Afirmações</a>
         `,
       },
       {
@@ -1547,15 +1562,16 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.lists.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.lists.description"]}</p>
+          ${weekHeading("Semana 1", "cresce nas Semanas 2 e 5")}
           ${toolLink("imaginaryLives")}
-          <div class="spacer-sm"></div>
+          ${weekHeading("Semana 2")}
           ${toolLink("thingsILike")}
-          <div class="spacer-sm"></div>
-          ${toolLink("jealousyMap")}
           <div class="spacer-sm"></div>
           <a class="btn secondary block" href="#/circulo-seguranca">Círculo de Segurança</a>
           <div class="spacer-sm"></div>
           <a class="btn secondary block" href="#/life-pie">Life Pie</a>
+          ${weekHeading("Semana 7")}
+          ${toolLink("jealousyMap")}
         `,
       },
       {
@@ -1563,15 +1579,16 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.diaries.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.diaries.description"]}</p>
-          ${toolLink("sincronicidade")}
-          <div class="spacer-sm"></div>
+          ${weekHeading("Ferramentas Básicas")}
           ${toolLink("pocoCriativo")}
-          <div class="spacer-sm"></div>
-          ${toolLink("diarioResistencia")}
-          <div class="spacer-sm"></div>
+          ${weekHeading("Semana 1")}
           ${toolLink("cartaCriticoInterno")}
-          <div class="spacer-sm"></div>
+          ${weekHeading("Semana 3")}
+          ${toolLink("sincronicidade")}
+          ${weekHeading("Semana 4")}
           ${toolLink("diarioLeitura")}
+          ${weekHeading("Semana 9")}
+          ${toolLink("diarioResistencia")}
         `,
       },
       {
@@ -1579,12 +1596,14 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.letters.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.letters.description"]}</p>
+          ${weekHeading("Semana 4")}
           ${toolLink("carta80anos")}
           <div class="spacer-sm"></div>
           ${toolLink("carta8anos")}
           <div class="spacer-sm"></div>
           ${toolLink("oracaoArtista")}
-          <div class="spacer-sm"></div>
+          <p class="muted" style="margin:2px 0 0;font-size:0.85em;">reutilizada nas Semanas 6 e 11</p>
+          ${weekHeading("Semana 11")}
           ${toolLink("cartaEncorajamento")}
         `,
       },
@@ -1593,14 +1612,15 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.planning.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.planning.description"]}</p>
+          ${weekHeading("Semana 8")}
           ${toolLink("metasNorteVerdadeiro")}
           <div class="spacer-sm"></div>
           ${toolLink("buscaEstilo")}
           <div class="spacer-sm"></div>
           ${toolLink("diaIdeal")}
-          <div class="spacer-sm"></div>
+          ${weekHeading("Semana 11")}
           ${toolLink("cadernoDesejos")}
-          <div class="spacer-sm"></div>
+          ${weekHeading("Semana 12")}
           ${toolLink("planoContinuidade")}
         `,
       },
@@ -1609,17 +1629,18 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.boundaries.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.boundaries.description"]}</p>
+          ${weekHeading("Semana 7")}
+          ${toolLink("arqueologia")}
+          ${weekHeading("Semana 9")}
           ${toolLink("resentimentosMedos")}
           <div class="spacer-sm"></div>
           ${toolLink("retornosEmU")}
           <div class="spacer-sm"></div>
-          ${toolLink("arqueologia")}
-          <div class="spacer-sm"></div>
+          ${toolLink("totemArtista")}
+          ${weekHeading("Semana 10")}
           ${toolLink("bottomLine")}
           <div class="spacer-sm"></div>
           ${toolLink("pontosFelicidade")}
-          <div class="spacer-sm"></div>
-          ${toolLink("totemArtista")}
         `,
       },
       {
@@ -1627,8 +1648,9 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.history.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.history.description"]}</p>
+          ${weekHeading("Ferramentas Básicas", "não é de nenhuma semana específica")}
           <a class="btn secondary block" href="#/artist-date-history">Histórico de Artist Dates</a>
-          <div class="spacer-sm"></div>
+          ${weekHeading("Semana 9")}
           <a class="btn secondary block" href="#/checkin-history">Reler Check-ins Antigos</a>
         `,
       },
@@ -1637,6 +1659,7 @@ route("/ferramentas", async () => {
         label: UI_STRINGS["recursos.quiz.title"],
         html: `
           <p class="muted">${UI_STRINGS["recursos.quiz.description"]}</p>
+          ${weekHeading("Semana 10")}
           <a class="btn secondary block" href="#/quiz/workaholismQuiz">${QUIZ_CONFIGS.workaholismQuiz.title}</a>
         `,
       },

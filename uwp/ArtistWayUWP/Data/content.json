@@ -16,11 +16,11 @@
           "detail": "É a ferramenta-base de todo o processo — tudo o mais no livro parte daqui. Não precisa fazer sentido nem ser bonito: o valor está em escrever antes que o crítico interno acorde."
         },
         {
-          "task": "Escolha 2–3 afirmações e repita-as ao final das páginas de cada dia.",
-          "detail": "Afirmações são frases curtas, no presente, como se já fossem verdade ('eu sou capaz de usar meu talento criativo'). A ideia é substituir aos poucos as crenças negativas por outras mais gentis, repetição por repetição."
+          "task": "Trabalhe com suas afirmações de escolha ao fim das páginas de cada dia — e converta cada 'blurt' (a réplica automática e ácida que a mente solta) numa afirmação positiva.",
+          "detail": "Blurts são os contra-ataques que aparecem assim que você tenta afirmar algo bom sobre si ('quem você pensa que é'). O livro pede pra não ignorá-los: cada um vira matéria-prima pra uma nova afirmação, virando o veneno do avesso."
         },
         {
-          "task": "Liste três antigos 'vilões' da sua autoconfiança criativa (professores, críticos, vozes internalizadas).",
+          "task": "Liste três antigos 'vilões' da sua autoconfiança criativa (professores, críticos, vozes internalizadas) — seja bem específico.",
           "detail": "O livro chama isso de 'crenças negativas centrais': frases que alguém disse um dia e que você carrega até hoje como se fossem fatos. Nomear o vilão tira o poder dele de agir escondido."
         },
         {
@@ -28,12 +28,20 @@
           "detail": "Reviver o episódio com detalhes sensoriais (o lugar, a fala, a sensação no corpo) ajuda a processar a mágoa como algo que já passou, em vez de uma ferida ainda aberta e reativa."
         },
         {
+          "task": "Se quiser, desenhe ou faça uma caricatura desse 'vilão' — pode ser um rabisco bobo, ou um X vermelho bem grande por cima dele.",
+          "detail": "Não precisa saber desenhar. O livro sugere isso como uma forma de extravasar com humor, não só com palavras — tirar um pouco do peso simbólico que essa lembrança carrega."
+        },
+        {
           "task": "Escreva uma carta 'em sua defesa' na voz da sua criança-artista ferida.",
           "detail": "Escrever na primeira pessoa, como a criança que você foi, costuma soltar uma raiva ou tristeza que a versão adulta racionaliza demais para sentir de verdade."
         },
         {
-          "task": "Liste três 'campeões' que apoiaram sua criatividade e escreva um agradecimento a um deles.",
-          "detail": "Contrabalança o exercício anterior: também existiram vozes que acreditaram em você. Reconhecê-las por escrito reforça que apoio real já existiu — e pode existir de novo."
+          "task": "Liste três 'campeões' que apoiaram sua criatividade — seja específico sobre cada palavra de incentivo que lembrar.",
+          "detail": "Contrabalança o exercício anterior: também existiram vozes que acreditaram em você. Mesmo um elogio que você duvidou na hora vale registrar — pode ser mais verdadeiro do que parecia."
+        },
+        {
+          "task": "Escreva uma carta de agradecimento a um desses campeões (ou a um mentor específico) e envie pra você mesmo(a), ou pra essa pessoa.",
+          "detail": "É uma tarefa separada da lista de campeões: um agradecimento concreto e endereçado, não só uma lembrança guardada — o gesto de mandar (mesmo que só pra si) reforça que esse apoio foi real."
         },
         {
           "task": "Liste 5 vidas imaginárias que você gostaria de ter vivido; escolha uma e faça algo dela essa semana.",
@@ -141,6 +149,10 @@
         {
           "task": "Liste 5 pessoas que você admira abertamente e 5 que admira em segredo; compare os traços.",
           "detail": "Admirações 'secretas' (as que você meio que esconde) costumam apontar para desejos que você julga bobos demais para admitir."
+        },
+        {
+          "task": "Liste 5 pessoas já falecidas que você gostaria de ter conhecido, e 5 falecidas com quem gostaria de 'passar um tempo na eternidade' — compare com as listas de admiração acima.",
+          "detail": "É uma forma diferente de encontrar seus valores reais: às vezes a gente admira por obrigação (quem 'deveria' admirar) e secretamente se identifica com outra energia completamente diferente."
         }
       ],
       "checkinBonus": "Que fonte de energia ou poder pessoal você redescobriu essa semana?"
@@ -187,6 +199,10 @@
         {
           "task": "Doe uma peça de roupa que te faz sentir mal consigo mesmo(a).",
           "detail": "Um gesto físico pequeno de 'soltar' algo carregado de autocrítica — o livro trata isso como parte do mesmo processo de honestidade emocional."
+        },
+        {
+          "task": "Olhe para uma situação da sua vida que você sabe que deveria mudar mas ainda não mudou — o que você ganha, hoje, em continuar travado(a) nela?",
+          "detail": "Antes de tentar resolver, o livro pede pra encarar o benefício escondido de não resolver. Quase sempre existe um, mesmo que pareça contraintuitivo."
         },
         {
           "task": "Considere uma semana de 'jejum de leitura' (sem livros, TV ou redes por alguns dias) — se topar, registre como foi.",
@@ -277,7 +293,7 @@
           "detail": "Um gesto de conexão sem segunda intenção — parte do 'músculo' de dar e receber afeto sem cálculo."
         },
         {
-          "task": "Liste seus 'favoritos' em categorias livres: cores, comidas, bandas, cheiros, lugares.",
+          "task": "Liste seus 'favoritos' em categorias como carros, cachorros, flores, árvores, frutas, vegetais, sobremesas, pratos principais, bandas e cores.",
           "detail": "Parece bobo, mas listar favoritos com atenção reafirma sua identidade pessoal — o oposto de viver no piloto automático."
         },
         {
@@ -291,6 +307,10 @@
         {
           "task": "Pratique dizer 'sim' a algo bom e gratuito que te oferecerem essa semana.",
           "detail": "Muita gente bloqueada tem o reflexo de recusar coisas boas por instinto ('ah, não precisa'). Esse exercício é treinar o músculo de aceitar."
+        },
+        {
+          "task": "Preste atenção em qualquer mudança (ou ideia nova, mesmo maluca) na sua relação com dinheiro essa semana — se quiser, adicione uma imagem disso ao seu arquivo de desejos.",
+          "detail": "Abundância inclui prosperidade material, não só sensorial. O livro trata isso como parte do mesmo músculo: perceber fartura em vez de só focar na escassez."
         }
       ],
       "checkinBonus": "Onde você sentiu abundância essa semana — não necessariamente em dinheiro?"
@@ -337,6 +357,10 @@
         {
           "task": "Liste 5 filmes favoritos e observe temas em comum — eles aparecem na sua colagem?",
           "detail": "Filmes favoritos costumam repetir os mesmos temas emocionais (redenção, aventura, pertencimento) — vale ver se batem com o que apareceu na colagem."
+        },
+        {
+          "task": "Nomeie seus temas favoritos de leitura (religião comparada, ESP, física, romance, esportes, o que for) — eles também aparecem na colagem?",
+          "detail": "É outra forma de mapear seus interesses reais, além das imagens — comparar os dois lados costuma revelar um padrão temático que você nunca tinha nomeado."
         },
         {
           "task": "Dê à sua colagem um lugar de honra, mesmo que secreto.",
@@ -414,6 +438,14 @@
           "detail": "É um check-up de meio de percurso — reconhecer progresso é tão importante quanto identificar o que ainda trava."
         },
         {
+          "task": "Note se você caiu num padrão de pensamento 'tudo ou nada' sobre alguém ou algo ultimamente ('é ótimo'/'é péssimo', 'amo'/'odeio').",
+          "detail": "É comum nessa fase do processo. Não é motivo de alarme — só vale perceber, sem tentar corrigir na hora."
+        },
+        {
+          "task": "Reconheça, por escrito, o valor que as próprias Morning Pages já trouxeram até aqui — dar-se crédito por ter sustentado a prática.",
+          "detail": "As páginas permitiram desabafar sem se destruir, planejar sem interferência, sonhar sem restrição. O livro pede pra você reconhecer isso explicitamente, não só a si mesmo em silêncio."
+        },
+        {
           "task": "Escreva, no presente, uma 'cena ideal' de você vivendo sua meta plenamente realizada.",
           "detail": "Escrever no presente (não no futuro) engana a mente pra sentir a cena como possível e próxima, não distante e abstrata."
         },
@@ -428,6 +460,14 @@
         {
           "task": "Nomeie um projeto criativo abandonado ('retorno em U') — ele pode ser resgatado agora?",
           "detail": "'Retorno em U' é o termo do livro pra quando a gente começa algo e desiste no meio por medo, não por falta de valor no projeto. Nem tudo precisa ser resgatado — mas vale perguntar."
+        },
+        {
+          "task": "Se bater vontade de abandonar as Morning Pages agora, não desista — só perceba a resistência e escreva mesmo assim.",
+          "detail": "É comum, nessa altura, as páginas parecerem repentinamente bobas ou inúteis. O livro chama isso de resistência disfarçada, não de sinal real de que a ferramenta parou de funcionar."
+        },
+        {
+          "task": "Admita, com sinceridade, quais sonhos criativos estão se tornando possíveis demais pra confortar — e reconheça que isso assusta.",
+          "detail": "Paradoxalmente, sonhos ficando alcançáveis também dá medo. Nomear esse medo tira um pouco do seu poder de travar você silenciosamente."
         },
         {
           "task": "Escolha um objeto para ser seu 'totem de artista' — algo que desperte ternura pela sua criança-artista.",
@@ -448,8 +488,8 @@
       ],
       "checklist": [
         {
-          "task": "Faça o exercício 'temas difíceis': sorteie um tema (trabalho, dinheiro, família, hábitos) e escreva 5 formas como ele impactou sua criatividade.",
-          "detail": "Sortear em vez de escolher tira a chance de evitar o tema mais desconfortável — e costuma ser exatamente aí que mora o insight mais útil."
+          "task": "Sorteie um entre 7 temas sensíveis (álcool, drogas, sexo, trabalho, dinheiro, comida, família/amigos) e escreva 5 formas como ele impactou negativamente sua criatividade; repita o sorteio ao longo da semana, podendo repetir temas.",
+          "detail": "O livro chama isso de 'os fatais' — o tema que mais te incomoda sortear de novo costuma ser, segundo a autora, exatamente o que mais precisa de atenção."
         },
         {
           "task": "Liste seus 'pontos de referência de felicidade' — pequenas coisas que sempre te consolam — e deixe a lista visível.",
@@ -472,6 +512,10 @@
           "detail": "Reconhecer vitórias pequenas contrabalança a tendência de só notar o que ainda falta fazer."
         },
         {
+          "task": "Faça 3 promessas gentis a si mesmo(a) — e cumpra-as.",
+          "detail": "Diferente de 'fazer algo gentil todo dia': aqui a promessa é específica e feita com antecedência, testando se você mantém compromissos consigo mesmo do jeito que manteria com outra pessoa."
+        },
+        {
           "task": "Faça uma coisa gentil por você mesmo(a) todos os dias dessa semana.",
           "detail": "Repetir o gesto diariamente (não só uma vez) é o que de fato transforma autocuidado em hábito, não em exceção rara."
         }
@@ -490,7 +534,7 @@
       ],
       "checklist": [
         {
-          "task": "Grave sua própria voz lendo os Princípios Básicos ou um trecho favorito do livro; use para meditar.",
+          "task": "Grave sua própria voz lendo os Princípios Básicos e um ensaio favorito do livro; use para meditar.",
           "detail": "Ouvir sua própria voz repetindo essas ideias costuma ter um efeito diferente (mais pessoal) do que só ler em silêncio."
         },
         {
@@ -502,7 +546,7 @@
           "detail": "Cobrir várias áreas da vida evita o erro comum de só sonhar sobre 'trabalho e arte' e esquecer o resto da vida que também merece atenção."
         },
         {
-          "task": "Faça um inventário: como você mudou desde que começou esse processo?",
+          "task": "Faça um inventário: como você mudou desde que começou esse processo? Liste também 5 formas como pretende continuar mudando.",
           "detail": "Esse balanço geral, perto do fim das 12 semanas, costuma revelar uma transformação maior do que a pessoa percebeu dia a dia."
         },
         {
@@ -520,6 +564,10 @@
         {
           "task": "Reexamine seu conceito de força espiritual/criativa: ele apoia ou limita sua expansão?",
           "detail": "Não precisa ser sobre religião — é sobre notar se as ideias que você tem sobre 'o que é permitido' ainda fazem sentido pra quem você é agora."
+        },
+        {
+          "task": "Liste 10 exemplos pessoais de sincronicidade — momentos em que algo pareceu 'colaborar' com você depois que se comprometeu com algo.",
+          "detail": "Reunir os exemplos num só lugar (em vez de deixá-los soltos na memória) reforça a confiança de que esse padrão é real na sua vida, não coincidência isolada."
         }
       ],
       "checkinBonus": "Que passo de autonomia criativa você deu essa semana?"
@@ -550,6 +598,10 @@
         {
           "task": "Escreva novas afirmações sobre sua criatividade daqui para frente.",
           "detail": "As afirmações da Semana 1 foram sobre curar o passado; essas são sobre sustentar o futuro."
+        },
+        {
+          "task": "Faça um pequeno gesto de cuidado com algo ao seu redor — conserte algo que precisa de conserto, ou replante uma planta enfraquecida.",
+          "detail": "São gestos simbólicos e concretos que o livro sugere pra fechar o ciclo: cuidar do que está ao seu redor reflete o cuidado que você aprendeu a ter consigo mesmo(a)."
         },
         {
           "task": "Escolha um 'recipiente de preocupações' — um pote, caixa ou frasco para colocar fisicamente medos e preocupações.",

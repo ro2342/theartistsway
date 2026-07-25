@@ -47,6 +47,11 @@ namespace ArtistWayUWP.Views
             MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage));
         }
 
+        private void OpenAfirmacoes_Click(object sender, RoutedEventArgs e)
+        {
+            MainPage.Current.ContentFrame.Navigate(typeof(AfirmacoesPage));
+        }
+
         // — Listas e mapas —
 
         private void OpenImaginaryLives_Click(object sender, RoutedEventArgs e)

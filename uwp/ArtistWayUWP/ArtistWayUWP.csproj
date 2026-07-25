@@ -127,6 +127,9 @@
     <Compile Include="Views\PrincipiosBasicosPage.xaml.cs">
       <DependentUpon>PrincipiosBasicosPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\AfirmacoesPage.xaml.cs">
+      <DependentUpon>AfirmacoesPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\OnboardingPage.xaml.cs">
       <DependentUpon>OnboardingPage.xaml</DependentUpon>
     </Compile>
@@ -206,6 +209,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\PrincipiosBasicosPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\AfirmacoesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
