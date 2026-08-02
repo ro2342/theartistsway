@@ -13,9 +13,11 @@ App companheiro do livro *The Artist's Way* (Julia Cameron), mantido em
   Compose nativo (Gradle). Distribuído por sideload, mesmo modelo do
   UWP: keystore autoassinado commitado no repo, workflow de CI
   builda/assina/publica, página de download própria em `app/android/`.
-  Em construção por fases (ver histórico de commits) — o scaffold
-  Gradle/Compose existe; telas e serviços vão sendo portados do UWP aos
-  poucos.
+  Feature-completo (todas as telas/ferramentas do UWP portadas,
+  notificação via AlarmManager, calendário via Intent, login
+  Google+sync Firestore via SDK real do Firebase, verificação/
+  instalação de atualização) — ver `sincronizacao-nuvem-setup.md`
+  Parte 10 pro histórico do registro no Firebase.
 
 **Preferência fixa do usuário: UWP e Android têm que continuar 100%
 nativos** — nada de framework cross-platform (WebView, React Native,
