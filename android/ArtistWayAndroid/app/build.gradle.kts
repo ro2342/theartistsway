@@ -14,8 +14,8 @@ android {
         applicationId = "com.rodcarvalho.artistway"
         minSdk = 26
         targetSdk = 34
-        versionCode = 12
-        versionName = "1.7.1"
+        versionCode = 13
+        versionName = "1.7.2"
     }
 
     buildTypes {
@@ -55,7 +55,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
 
-    implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-auth")
     implementation("androidx.credentials:credentials:1.6.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
