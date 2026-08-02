@@ -126,6 +126,11 @@ jobs:
             Write-Host "app.appxbundle e version.json já estão atualizados, nada para commitar."
           } else {
             git commit -m "chore: atualiza app/app.appxbundle e app/version.json (automático)"
+            # Descarta a injeção de segredos em AuthService.cs (passo anterior,
+            # só pra compilar — nunca deve ir pro commit): sem isso, o
+            # working tree fica sujo e "git pull --rebase" abaixo falha com
+            # "You have unstaged changes".
+            git checkout -- .
             for ($i = 0; $i -lt 5; $i++) {
               git push
               if ($LASTEXITCODE -eq 0) { break }
