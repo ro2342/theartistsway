@@ -27,6 +27,7 @@ import com.rodcarvalho.artistway.calendar.CalendarIntentHelper
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.notifications.NotificationScheduler
+import com.rodcarvalho.artistway.notifications.rememberNotificationPermissionRequester
 import com.rodcarvalho.artistway.ui.components.TimePickerField
 import com.rodcarvalho.artistway.ui.components.WeekdayDropdown
 import com.rodcarvalho.artistway.ui.components.parseTimeOrDefault
@@ -41,6 +42,7 @@ import java.time.LocalTime
 fun ProfileScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val requestNotificationPermission = rememberNotificationPermissionRequester()
 
     var loaded by remember { mutableStateOf(false) }
     var profile by remember { mutableStateOf(ProfileSettings()) }
@@ -142,9 +144,10 @@ fun ProfileScreen() {
                     checkinTime = checkinTime,
                     onboarded = true,
                 )
+                requestNotificationPermission()
                 scope.launch {
                     LocalDataStore.setProfile(next)
-                    NotificationScheduler.applySettings(next)
+                    NotificationScheduler.applySettings(context, next)
                     profile = next
                     savedMessage = "Ajustes salvos e lembretes atualizados."
                 }

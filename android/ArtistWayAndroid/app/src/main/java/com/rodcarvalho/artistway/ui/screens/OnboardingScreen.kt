@@ -22,10 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.notifications.NotificationScheduler
+import com.rodcarvalho.artistway.notifications.rememberNotificationPermissionRequester
 import com.rodcarvalho.artistway.ui.components.TimePickerField
 import com.rodcarvalho.artistway.ui.components.WeekdayDropdown
 import com.rodcarvalho.artistway.week.WeekCalculator
@@ -52,6 +54,8 @@ fun OnboardingScreen(onFinished: () -> Unit) {
     var signature by remember { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val requestNotificationPermission = rememberNotificationPermissionRequester()
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
@@ -106,9 +110,10 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                             contractSignedName = signature.trim().ifEmpty { name.trim() },
                             contractSignedAt = Instant.now().toString(),
                         )
+                        requestNotificationPermission()
                         scope.launch {
                             LocalDataStore.setProfile(profile)
-                            NotificationScheduler.applySettings(profile)
+                            NotificationScheduler.applySettings(context, profile)
                             onFinished()
                         }
                     },
