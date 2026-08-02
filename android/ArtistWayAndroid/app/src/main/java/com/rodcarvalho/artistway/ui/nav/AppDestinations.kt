@@ -31,8 +31,17 @@ object AppDestinations {
     const val CHECKIN_HISTORY = "checkinHistory"
     const val ARTIST_DATE_HISTORY = "artistDateHistory"
     const val REGRAS_DA_ESTRADA = "regrasDaEstrada"
+    const val PRINCIPIOS_BASICOS = "principiosBasicos"
+    const val BANCO_AFIRMACOES = "bancoAfirmacoes"
+    const val TABELA_CRENCAS = "tabelaCrencas"
+    const val CIRCULO_SEGURANCA = "circuloSeguranca"
+    const val LIFE_PIE = "lifePie"
+    const val LIST_TEMPLATE = "list/{listKey}"
+    const val QUIZ_TEMPLATE = "quiz/{quizKey}"
 
     fun weekDetail(weekId: Int) = "weekDetail/$weekId"
     fun essay(weekId: Int) = "essay/$weekId"
     fun checkin(weekId: Int) = "checkin/$weekId"
+    fun list(listKey: String) = "list/$listKey"
+    fun quiz(quizKey: String) = "quiz/$quizKey"
 }

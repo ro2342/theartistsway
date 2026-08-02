@@ -33,10 +33,17 @@ import com.rodcarvalho.artistway.ui.screens.ArtistDateHistoryScreen
 import com.rodcarvalho.artistway.ui.screens.ArtistDateScreen
 import com.rodcarvalho.artistway.ui.screens.CheckinHistoryScreen
 import com.rodcarvalho.artistway.ui.screens.CheckinScreen
+import com.rodcarvalho.artistway.ui.screens.CirculoSegurancaScreen
 import com.rodcarvalho.artistway.ui.screens.EssayScreen
+import com.rodcarvalho.artistway.ui.screens.FerramentasScreen
 import com.rodcarvalho.artistway.ui.screens.HomeScreen
+import com.rodcarvalho.artistway.ui.screens.LifePieScreen
+import com.rodcarvalho.artistway.ui.screens.NamedListScreen
+import com.rodcarvalho.artistway.ui.screens.NumberedListScreen
 import com.rodcarvalho.artistway.ui.screens.PlaceholderScreen
 import com.rodcarvalho.artistway.ui.screens.ProgressScreen
+import com.rodcarvalho.artistway.ui.screens.QuizScreen
+import com.rodcarvalho.artistway.ui.screens.TabelaCrencasScreen
 import com.rodcarvalho.artistway.ui.screens.WeekDetailScreen
 import kotlinx.coroutines.launch
 
@@ -125,7 +132,7 @@ fun MainShell() {
                     ProgressScreen(onOpenWeek = { navController.navigate(AppDestinations.weekDetail(it)) })
                 }
                 composable(AppDestinations.ARTIST_DATE) { ArtistDateScreen() }
-                composable(AppDestinations.FERRAMENTAS) { PlaceholderScreen(ContentStore.s("nav.recursos")) }
+                composable(AppDestinations.FERRAMENTAS) { FerramentasScreen(onNavigate = { navController.navigate(it) }) }
                 composable(AppDestinations.PROFILE) { PlaceholderScreen(ContentStore.s("nav.profile")) }
                 composable(AppDestinations.SETTINGS) { PlaceholderScreen(ContentStore.s("nav.settings")) }
 
@@ -163,7 +170,30 @@ fun MainShell() {
                     CheckinHistoryScreen(onOpenWeek = { navController.navigate(AppDestinations.checkin(it)) })
                 }
                 composable(AppDestinations.ARTIST_DATE_HISTORY) { ArtistDateHistoryScreen() }
-                composable(AppDestinations.REGRAS_DA_ESTRADA) { PlaceholderScreen("Regras da Estrada") }
+                composable(AppDestinations.REGRAS_DA_ESTRADA) {
+                    NumberedListScreen("Regras da Estrada", ContentStore.content.roadRules)
+                }
+                composable(AppDestinations.PRINCIPIOS_BASICOS) {
+                    NumberedListScreen("Princípios Básicos", ContentStore.content.basicPrinciples)
+                }
+                composable(AppDestinations.BANCO_AFIRMACOES) {
+                    NumberedListScreen("Banco de Afirmações", ContentStore.content.affirmations)
+                }
+                composable(AppDestinations.TABELA_CRENCAS) { TabelaCrencasScreen() }
+                composable(AppDestinations.CIRCULO_SEGURANCA) { CirculoSegurancaScreen() }
+                composable(AppDestinations.LIFE_PIE) { LifePieScreen() }
+                composable(
+                    AppDestinations.LIST_TEMPLATE,
+                    arguments = listOf(navArgument("listKey") { type = NavType.StringType }),
+                ) { entry ->
+                    NamedListScreen(listKey = entry.arguments?.getString("listKey") ?: "")
+                }
+                composable(
+                    AppDestinations.QUIZ_TEMPLATE,
+                    arguments = listOf(navArgument("quizKey") { type = NavType.StringType }),
+                ) { entry ->
+                    QuizScreen(quizKey = entry.arguments?.getString("quizKey") ?: "")
+                }
             }
         }
     }
