@@ -1,14 +1,12 @@
 package com.rodcarvalho.artistway.ui.components
 
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.exposedDropdownSize
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -36,11 +34,7 @@ fun WeekdayDropdown(label: String, selectedDay: Int, onDaySelected: (Int) -> Uni
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
         )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.exposedDropdownSize(),
-        ) {
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             for (day in 1..7) {
                 DropdownMenuItem(
                     text = { Text(WEEKDAY_NAMES[day]) },
