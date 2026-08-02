@@ -1,23 +1,31 @@
 # The Artist's Way — Companheiro
 
 App companheiro do livro *The Artist's Way* (Julia Cameron), mantido em
-**duas plataformas com o mesmo conteúdo conceitual**:
+**três plataformas com o mesmo conteúdo conceitual**:
 
 - **PWA** (`www/`) — JS puro, sem build. Hospedado ao vivo em
-  `https://ro2342.github.io/theartistsway/` (deploy via GitHub Actions),
-  também usável via wrapper Capacitor Android.
+  `https://ro2342.github.io/theartistsway/` (deploy via GitHub Actions).
 - **UWP nativo** (`uwp/ArtistWayUWP/`) — 100% XAML/C# nativo. Alvo é um
   Lumia 830 (Windows 10 Mobile), sideload via certificado autoassinado
   (sem Store), distribuído por uma página de download em `app/` (GitHub
   Pages).
+- **Android nativo** (`android/ArtistWayAndroid/`) — 100% Kotlin/Jetpack
+  Compose nativo (Gradle). Distribuído por sideload, mesmo modelo do
+  UWP: keystore autoassinado commitado no repo, workflow de CI
+  builda/assina/publica, página de download própria em `app/android/`.
+  Em construção por fases (ver histórico de commits) — o scaffold
+  Gradle/Compose existe; telas e serviços vão sendo portados do UWP aos
+  poucos.
 
-**Preferência fixa do usuário: o UWP tem que continuar 100% nativo** —
-nada de framework cross-platform (WebView, React Native, etc.). Isso
-significa que a lógica de aplicação é escrita duas vezes (C#/XAML e
-JS/HTML), sempre espelhada função por função entre as duas — mas o
-**conteúdo** vem de uma fonte única (ver abaixo). Toda mudança de
-comportamento não-trivial precisa ser replicada nos dois lados na mesma
-sessão, não só num.
+**Preferência fixa do usuário: UWP e Android têm que continuar 100%
+nativos** — nada de framework cross-platform (WebView, React Native,
+Capacitor, etc.). Já existiu um scaffold de wrapper Capacitor pro
+Android (`capacitor.config.json`) — foi removido, decisão foi ir 100%
+nativo em Kotlin em vez disso. Isso significa que a lógica de aplicação
+é escrita três vezes (C#/XAML, Kotlin/Compose e JS/HTML), sempre
+espelhada função por função entre as três — mas o **conteúdo** vem de
+uma fonte única (ver abaixo). Toda mudança de comportamento não-trivial
+precisa ser replicada nas três plataformas na mesma sessão, não só numa.
 
 ## Fonte única de conteúdo e texto de UI
 
@@ -25,14 +33,17 @@ sessão, não só num.
   (`UI_STRINGS`, dicionário plano), configs de ferramentas genéricas
   (`TOOL_CONFIGS`) e configs de quiz (`QUIZ_CONFIGS`). O PWA lê isso
   direto.
-- `scripts/generate-content-json.js` — gera
-  `uwp/ArtistWayUWP/Data/content.json` a partir de `data.js` (C# não
-  executa JavaScript). **Rodar sempre que `data.js` mudar:**
-  `node scripts/generate-content-json.js`. O CI roda com `--check` e
-  **falha o build** se esquecer de regenerar e commitar o resultado.
+- `scripts/generate-content-json.js` — gera **dois** arquivos idênticos
+  a partir de `data.js` (C# e Kotlin não executam JavaScript):
+  `uwp/ArtistWayUWP/Data/content.json` e
+  `android/ArtistWayAndroid/app/src/main/assets/content.json`. **Rodar
+  sempre que `data.js` mudar:** `node scripts/generate-content-json.js`.
+  O CI roda com `--check` e **falha o build** se esquecer de regenerar
+  e commitar os dois.
 - `uwp/ArtistWayUWP/Services/ContentStore.cs` — carrega o
   `content.json` empacotado e expõe `ContentStore.Content` tipado;
-  `ContentStore.S("chave")` lê `UiStrings`.
+  `ContentStore.S("chave")` lê `UiStrings`. Equivalente Android
+  (`ContentStore.kt`, lendo de `assets/`) ainda por portar.
 - Retrofit de `UI_STRINGS` cobre nav labels e títulos de card, mas
   descrições longas/strings muito dinâmicas continuam locais em cada
   plataforma (decisão consciente de escopo, não esquecimento).
@@ -115,6 +126,11 @@ weekId, cycleStart }`.
   `uwp/ArtistWayUWP/Package.appxmanifest` (`Identity/@Version`), senão
   o checador de atualização do app não detecta que existe uma versão
   nova.
+- **Toda mudança em `android/ArtistWayAndroid` precisa de bump de
+  versão** (`versionCode` E `versionName`) em
+  `android/ArtistWayAndroid/app/build.gradle.kts`, mesmo espírito da
+  regra do UWP acima — o update-checker do app Android compara contra
+  isso.
 - **`uwp/ArtistWayUWP/ArtistWayUWP.csproj` é old-style, sem wildcard**:
   todo `.xaml`/`.xaml.cs`/`.cs` novo precisa de entrada manual
   (`<Compile Include>` / `<Page Include>`), senão o build falha
@@ -126,6 +142,10 @@ weekId, cycleStart }`.
   nativos suficientes pra escrever um driver simples direto (abrir
   `google-chrome --headless=new --remote-debugging-port=PORTA`,
   conectar no `webSocketDebuggerUrl` de `http://localhost:PORTA/json/version`).
+- **Android não builda nesta máquina** (sem Java/Gradle/Android SDK
+  instalados). Mesmo tratamento do UWP: validar por leitura cuidadosa
+  de código + build real do CI (`04-build-apk.yml`, runner Linux com
+  `setup-java` + Android SDK).
 - **Fluxo padrão de toda mudança**: terminar, validar localmente,
   **commitar e dar push pro `main` na hora** — não deixar mudança só
   local esperando o usuário perguntar por quê não subiu. Depois
@@ -152,6 +172,19 @@ uwp/ArtistWayUWP/
 ├── Models/            ← ProfileSettings, WeekContent, WeekCursor,
 │                        WeekSummary, CheckinEntry, ...
 └── Data/content.json  ← gerado, não editar na mão
+
+android/ArtistWayAndroid/
+├── app/build.gradle.kts        ← versionCode/versionName (bump a cada mudança)
+└── app/src/main/
+    ├── assets/content.json     ← gerado, não editar na mão
+    └── java/com/rodcarvalho/artistway/
+        ├── MainActivity.kt
+        ├── ui/theme/            ← tema Compose (accent color, light/dark)
+        ├── ui/screens/          ← uma tela por composable (espelha Views/ do UWP)
+        ├── data/                ← models, ContentStore.kt, LocalDataStore.kt
+        ├── sync/                ← SyncService.kt, AuthService.kt
+        ├── notifications/       ← AlarmManager + canais
+        └── calendar/            ← Intent ACTION_INSERT + RRULE
 
 www/js/
 ├── app.js              ← roteador (`route("#/...")`) e todas as telas

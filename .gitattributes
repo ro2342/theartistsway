@@ -8,3 +8,6 @@
 *.png binary
 *.woff2 binary
 *.pfx binary
+*.keystore binary
+*.jks binary
+*.apk binary

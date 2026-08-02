@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 // scripts/generate-content-json.js
-// Gera uwp/ArtistWayUWP/Data/content.json a partir de www/js/data.js --
-// fonte única do conteúdo do livro pros dois apps (o PWA lê data.js
-// direto; o app do Windows empacota este JSON gerado, porque C# não
-// executa JavaScript).
+// Gera content.json a partir de www/js/data.js — fonte única do
+// conteúdo do livro pros três apps (o PWA lê data.js direto; o app do
+// Windows e o app Android empacotam este JSON gerado, porque C# e
+// Kotlin não executam JavaScript).
 //
-// Rodar sempre que data.js mudar. O workflow 02-build-appx.yml roda
-// `--check` antes do build e falha se esquecerem de regenerar, em vez
-// de deixar os dois apps saírem de sincronia silenciosamente.
+// Rodar sempre que data.js mudar. Os workflows 02-build-appx.yml e
+// 04-build-apk.yml rodam `--check` antes do build e falham se
+// esquecerem de regenerar, em vez de deixar os apps saírem de
+// sincronia silenciosamente.
 
 const fs = require("fs");
 const path = require("path");
@@ -34,10 +35,13 @@ const content = {
   quizConfigs: Object.keys(data.QUIZ_CONFIGS).map((key) => data.QUIZ_CONFIGS[key]),
 };
 
-const outPath = path.join(__dirname, "..", "uwp", "ArtistWayUWP", "Data", "content.json");
+const outPaths = [
+  path.join(__dirname, "..", "uwp", "ArtistWayUWP", "Data", "content.json"),
+  path.join(__dirname, "..", "android", "ArtistWayAndroid", "app", "src", "main", "assets", "content.json"),
+];
 const json = JSON.stringify(content, null, 2) + "\n";
 
-// Normaliza \r\n -> \n antes de comparar -- o runner do build (windows-latest)
+// Normaliza \r\n -> \n antes de comparar — o runner do build (windows-latest)
 // faz checkout com quebra de linha CRLF por padrão, o que faria essa
 // checagem sempre acusar "desatualizado" mesmo quando o conteúdo é
 // idêntico. O arquivo em si continua sendo escrito como o git decidir
@@ -47,17 +51,24 @@ function normalizeNewlines(text) {
 }
 
 if (process.argv.includes("--check")) {
-  const current = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
-  if (normalizeNewlines(current) !== normalizeNewlines(json)) {
-    console.error(
-      "content.json está desatualizado em relação a www/js/data.js.\n" +
-        "Rode: node scripts/generate-content-json.js"
-    );
+  let stale = false;
+  for (const outPath of outPaths) {
+    const current = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
+    if (normalizeNewlines(current) !== normalizeNewlines(json)) {
+      console.error(`content.json está desatualizado: ${outPath}`);
+      stale = true;
+    }
+  }
+  if (stale) {
+    console.error("Rode: node scripts/generate-content-json.js");
     process.exit(1);
   }
-  console.log("content.json está em dia.");
+  console.log("content.json está em dia nos dois destinos.");
   process.exit(0);
 }
 
-fs.writeFileSync(outPath, json);
-console.log("Gerado:", outPath);
+for (const outPath of outPaths) {
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, json);
+  console.log("Gerado:", outPath);
+}
