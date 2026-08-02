@@ -21,4 +21,18 @@ object AppDestinations {
         Item(PROFILE, "nav.profile"),
         Item(SETTINGS, "nav.settings"),
     )
+
+    // Destinos de detalhe — empilham no NavHost interno em vez de trocar
+    // de aba (mesmo espírito do ContentFrame.Navigate empilhando no back
+    // stack sem mudar o destino "de nível superior" no UWP).
+    const val WEEK_DETAIL_TEMPLATE = "weekDetail/{weekId}"
+    const val ESSAY_TEMPLATE = "essay/{weekId}"
+    const val CHECKIN_TEMPLATE = "checkin/{weekId}"
+    const val CHECKIN_HISTORY = "checkinHistory"
+    const val ARTIST_DATE_HISTORY = "artistDateHistory"
+    const val REGRAS_DA_ESTRADA = "regrasDaEstrada"
+
+    fun weekDetail(weekId: Int) = "weekDetail/$weekId"
+    fun essay(weekId: Int) = "essay/$weekId"
+    fun checkin(weekId: Int) = "checkin/$weekId"
 }

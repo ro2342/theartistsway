@@ -3,6 +3,16 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Visibilidade de pacote (Android 11+) pro Intent.ACTION_INSERT de
+         evento de calendário (CalendarIntentHelper) conseguir resolver o
+         app de Calendário instalado no aparelho. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.INSERT" />
+            <data android:mimeType="vnd.android.cursor.item/event" />
+        </intent>
+    </queries>
+
     <application
         android:name=".ArtistWayApplication"
         android:allowBackup="true"
