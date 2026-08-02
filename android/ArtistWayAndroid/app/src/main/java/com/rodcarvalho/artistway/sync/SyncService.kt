@@ -1,8 +1,7 @@
 package com.rodcarvalho.artistway.sync
 
+import com.rodcarvalho.artistway.auth.AuthService
 import com.rodcarvalho.artistway.auth.FirebaseConfig
-import com.rodcarvalho.artistway.auth.FirebaseSession
-import com.rodcarvalho.artistway.auth.SessionService
 import com.rodcarvalho.artistway.data.LocalDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,7 +16,6 @@ import kotlinx.serialization.json.put
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 import java.time.Instant
 import java.time.LocalTime
 
@@ -26,21 +24,19 @@ import java.time.LocalTime
 // updatedAt (quem for mais recente vence), grava o resultado local e
 // sobe de volta — sempre nos dois sentidos, sempre idempotente. Porta
 // quase linha a linha de SyncService.cs (UWP); HttpURLConnection puro
-// em vez de uma lib de rede nova só pra essas 4 chamadas.
+// em vez de uma lib de rede nova só pra essas 3 chamadas. O idToken vem
+// do FirebaseAuth SDK (AuthService.currentIdToken), que já cuida sozinho
+// de cache/renovação — não precisa de um refresh manual como no UWP.
 object SyncService {
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun syncAll(): String = withContext(Dispatchers.IO) {
-        val session = SessionService.getSession() ?: return@withContext "Não logado — nada pra sincronizar."
-        val idToken = if (session.needsRefresh()) {
-            refreshIdToken(session) ?: return@withContext "Sessão expirada — entre de novo."
-        } else {
-            session.idToken
-        }
+        val uid = AuthService.currentUser?.uid ?: return@withContext "Não logado — nada pra sincronizar."
+        val idToken = AuthService.currentIdToken() ?: return@withContext "Sessão expirada — entre de novo."
 
         try {
             for (storeName in LocalDataStore.SYNC_STORE_NAMES) {
-                syncStore(idToken, session.uid, storeName)
+                syncStore(idToken, uid, storeName)
             }
             "Sincronizado às ${LocalTime.now().withNano(0)}"
         } catch (e: Exception) {
@@ -51,16 +47,12 @@ object SyncService {
     // Apaga os dados da nuvem (todos os stores) sem mexer no login —
     // usado pelo reset "Apagar meus dados" (mantém o aparelho logado).
     suspend fun clearCloudData(): Boolean = withContext(Dispatchers.IO) {
-        val session = SessionService.getSession() ?: return@withContext true
-        val idToken = if (session.needsRefresh()) {
-            refreshIdToken(session) ?: return@withContext false
-        } else {
-            session.idToken
-        }
+        val uid = AuthService.currentUser?.uid ?: return@withContext true
+        val idToken = AuthService.currentIdToken() ?: return@withContext false
 
         try {
             for (storeName in LocalDataStore.SYNC_STORE_NAMES) {
-                val conn = openConnection(docUrl(session.uid, storeName), "DELETE", idToken)
+                val conn = openConnection(docUrl(uid, storeName), "DELETE", idToken)
                 val code = conn.responseCode
                 conn.disconnect()
                 if (code !in 200..299 && code != 404) return@withContext false
@@ -188,32 +180,5 @@ object SyncService {
         conn.connectTimeout = 15000
         conn.readTimeout = 15000
         return conn
-    }
-
-    // — renovação de token —
-
-    private fun refreshIdToken(session: FirebaseSession): String? {
-        return try {
-            val body = "grant_type=refresh_token&refresh_token=" + URLEncoder.encode(session.refreshToken, "UTF-8")
-            val conn = URL("https://securetoken.googleapis.com/v1/token?key=${FirebaseConfig.API_KEY}").openConnection() as HttpURLConnection
-            conn.requestMethod = "POST"
-            conn.doOutput = true
-            conn.connectTimeout = 15000
-            conn.readTimeout = 15000
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-            OutputStreamWriter(conn.outputStream, Charsets.UTF_8).use { it.write(body) }
-            val code = conn.responseCode
-            val text = (if (code in 200..299) conn.inputStream else conn.errorStream)?.bufferedReader()?.use { it.readText() }
-            conn.disconnect()
-            if (code !in 200..299 || text == null) return null
-
-            val obj = json.parseToJsonElement(text).jsonObject
-            val idToken = (obj["id_token"] as? JsonPrimitive)?.content ?: return null
-            val expiresIn = (obj["expires_in"] as? JsonPrimitive)?.content?.toIntOrNull() ?: 3600
-            SessionService.updateTokens(idToken, expiresIn)
-            idToken
-        } catch (e: Exception) {
-            null
-        }
     }
 }

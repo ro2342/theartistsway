@@ -29,7 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.rodcarvalho.artistway.auth.SessionService
+import com.rodcarvalho.artistway.auth.AuthService
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.sync.SyncService
@@ -41,18 +41,17 @@ import java.time.LocalDate
 
 private val TAB_TITLES = listOf("Aparência", "Dados e Sincronização", "Avançado")
 
-// Espelha SettingsPage.xaml.cs — três abas. Tudo funciona de ponta a
-// ponta (tema, backup, modo manutenção, verificação/instalação de
-// atualização, sincronizar agora, apagar dados/resetar) exceto o botão
-// de login com Google em si, que depende do app estar registrado no
-// Firebase (passo manual único, pendente) — sem sessão, os pontos que
-// dependem de login (sincronizar, apagar da nuvem) só afetam o
-// aparelho local, sem erro.
+// Espelha SettingsPage.xaml.cs — três abas, tudo funcionando de ponta a
+// ponta: tema, backup, login/logout com Google (Credential Manager +
+// Firebase Auth SDK), sincronizar agora, verificação/instalação de
+// atualização, modo manutenção, apagar dados/resetar (limpando a nuvem
+// também quando logado).
 @Composable
 fun SettingsScreen() {
     var selectedTab by remember { mutableIntStateOf(0) }
     var profile by remember { mutableStateOf(ProfileSettings()) }
     var loaded by remember { mutableStateOf(false) }
+    var loggedIn by remember { mutableStateOf(AuthService.currentUser != null) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -87,10 +86,15 @@ fun SettingsScreen() {
                         scope.launch { LocalDataStore.setProfile(next) }
                     },
                 )
-                1 -> DataSyncTab(context)
+                1 -> DataSyncTab(
+                    context = context,
+                    loggedIn = loggedIn,
+                    onLoggedInChange = { loggedIn = it },
+                )
                 2 -> AdvancedTab(
                     profile = profile,
                     onProfileChange = { profile = it },
+                    loggedIn = loggedIn,
                 )
             }
         }
@@ -119,8 +123,9 @@ private fun ThemeModeButton(mode: String, label: String, current: String, onClic
 }
 
 @Composable
-private fun DataSyncTab(context: Context) {
+private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (Boolean) -> Unit) {
     var status by remember { mutableStateOf<String?>(null) }
+    var loggingIn by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
@@ -156,27 +161,48 @@ private fun DataSyncTab(context: Context) {
     status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
 
     Text("Sincronização com a nuvem", style = MaterialTheme.typography.titleMedium)
-    val session = SessionService.getSession()
-    if (session == null) {
-        Text(
-            "Não logado. Login com Google chega assim que o app for registrado no Firebase " +
-                "(passo manual único, pendente).",
-            style = MaterialTheme.typography.bodyMedium,
-        )
+    val user = AuthService.currentUser
+    if (!loggedIn || user == null) {
+        Button(
+            onClick = {
+                loggingIn = true
+                scope.launch {
+                    val outcome = AuthService.signInWithGoogle(context)
+                    loggingIn = false
+                    if (outcome.success) {
+                        onLoggedInChange(true)
+                        status = "Login OK — sincronizando..."
+                        status = SyncService.syncAll()
+                    } else {
+                        status = outcome.errorMessage
+                    }
+                }
+            },
+            enabled = !loggingIn,
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text(if (loggingIn) "Entrando..." else "Entrar com Google") }
     } else {
         Text(
-            "Logado como ${session.email.ifEmpty { session.uid }} (${session.provider}).",
+            "Logado como ${user.email ?: user.uid}.",
             style = MaterialTheme.typography.bodyMedium,
         )
         Button(
             onClick = { scope.launch { status = SyncService.syncAll() } },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Sincronizar agora") }
+        OutlinedButton(
+            onClick = {
+                AuthService.signOut()
+                onLoggedInChange(false)
+                status = null
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text("Sair") }
     }
 }
 
 @Composable
-private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSettings) -> Unit) {
+private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSettings) -> Unit, loggedIn: Boolean) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showResetConfirm by remember { mutableStateOf(false) }
@@ -237,8 +263,6 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
         },
         modifier = Modifier.fillMaxWidth(),
     ) { Text(if (profile.maintenanceMode) "Desligar modo manutenção" else "Ligar modo manutenção") }
-
-    val loggedIn = SessionService.getSession() != null
 
     Text("Zona de perigo", style = MaterialTheme.typography.titleMedium)
     OutlinedButton(onClick = { showResetConfirm = true }, modifier = Modifier.fillMaxWidth()) {
@@ -302,7 +326,7 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
                         LocalDataStore.resetAll()
                         if (loggedIn) {
                             SyncService.clearCloudData()
-                            SessionService.clearSession()
+                            AuthService.signOut()
                         }
                         resetDone = true
                     }

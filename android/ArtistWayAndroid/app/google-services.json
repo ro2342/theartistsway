@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "431486750791",
+    "project_id": "theartistsway",
+    "storage_bucket": "theartistsway.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:431486750791:android:a30d3ea8cea0afa39d2162",
+        "android_client_info": {
+          "package_name": "com.rodcarvalho.artistway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "431486750791-tamak4eb84o2q8k2o45diqsj5osb4f97.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfdpPqGxbnTgd-BEyK3ryIlAU_HbTn3Kc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "431486750791-boejg1gtvt082b9hqpl5hjd3mqg3kh1c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

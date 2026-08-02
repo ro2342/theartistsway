@@ -255,3 +255,30 @@ documento) — ninguém mais, nem com a apiKey em mãos.
 1. 🆕 Client ID do cliente **"Web application"** da Parte 8 (login Google
    no PWA).
 2. 🆕 Confirmação de que publicou as regras da Parte 9 no Firestore.
+
+## Parte 10 — App Android registrado no Firebase
+
+Diferente do UWP (sem SDK do Firebase, OAuth reimplementado na mão) e do
+PWA (OAuth + PKCE no browser), o Android tem o SDK real do Firebase Auth
+disponível — então o login lá usa Credential Manager + Firebase Auth
+SDK de verdade, não uma reimplementação REST. Passos que já foram
+feitos:
+
+1. **console.firebase.google.com** → projeto **theartistsway** → ⚙️
+   Configurações do projeto → aba **Seus apps** → Adicionar app →
+   **Android** → pacote `com.rodcarvalho.artistway`, SHA-1 do keystore
+   de assinatura gerado por `03-generate-android-keystore.yml`.
+2. Baixado o `google-services.json` e commitado em
+   `android/ArtistWayAndroid/app/google-services.json` — não é segredo
+   (só identificadores públicos: api_key, client_id, app_id; nenhum
+   client_secret), mesma lógica de "API key do Firebase não é chave
+   secreta de verdade" já documentada nas partes anteriores.
+3. O "Web client ID" que o `google-services.json` já traz (client_type
+   3) é o mesmo usado como `serverClientId` do
+   `GetGoogleIdOption`/Credential Manager — não precisou criar nenhum
+   client OAuth novo pro Android.
+
+Como o SDK gerencia sessão e renovação de token sozinho, o app Android
+**não tem** um SessionService próprio guardando refresh token feito à
+mão (diferente do UWP) — `FirebaseAuth.getInstance().currentUser`
+já resolve isso.

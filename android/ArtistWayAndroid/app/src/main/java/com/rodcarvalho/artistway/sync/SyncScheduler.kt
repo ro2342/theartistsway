@@ -1,6 +1,6 @@
 package com.rodcarvalho.artistway.sync
 
-import com.rodcarvalho.artistway.auth.SessionService
+import com.rodcarvalho.artistway.auth.AuthService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,7 +17,7 @@ object SyncScheduler {
     private var pendingJob: Job? = null
 
     fun scheduleSync() {
-        if (SessionService.getSession() == null) return
+        if (AuthService.currentUser == null) return
         pendingJob?.cancel()
         pendingJob = scope.launch {
             delay(5000)
