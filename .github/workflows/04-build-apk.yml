@@ -1,11 +1,11 @@
 name: 04 - Build do APK (Android)
 
 # Roda automaticamente a cada push que mexer na pasta android/ ou www/, e
-# também pode ser disparado manualmente pela aba Actions. Por enquanto só
-# valida que o projeto Gradle compila (assembleDebug) e publica o APK de
-# debug como artefato do workflow — assinatura + publicação em app/android/
-# entram quando o keystore de sideload existir (workflow
-# 03-generate-android-keystore.yml).
+# também pode ser disparado manualmente pela aba Actions. Compila e testa
+# sempre (feedback rápido); assina o APK de release, publica em
+# app/android/ e (re)implanta o GitHub Pages sempre que o keystore de
+# sideload existir (gerado uma vez por 03-generate-android-keystore.yml) —
+# mesmo espírito do 02-build-appx.yml pro UWP.
 on:
   push:
     branches: [main]
@@ -16,14 +16,33 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
+
+      - name: Verificar se o keystore de assinatura já existe
+        id: keystore
+        run: |
+          if [ -f "android/ArtistWayAndroid/app/release.keystore" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Keystore não encontrado em android/ArtistWayAndroid/app/release.keystore — pulando build de release e publicação. Rode o workflow '03 - Gerar keystore de assinatura Android' na aba Actions pra habilitar isso."
+          fi
 
       - name: Conferir se assets/content.json está em dia com www/js/data.js
         run: node scripts/generate-content-json.js --check
@@ -55,3 +74,68 @@ jobs:
           name: artistway-debug-apk
           path: android/ArtistWayAndroid/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
+      - name: Compilar e assinar o APK de release
+        if: steps.keystore.outputs.exists == 'true'
+        working-directory: android/ArtistWayAndroid
+        run: |
+          ./gradlew assembleRelease --no-daemon \
+            -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/android/ArtistWayAndroid/app/release.keystore" \
+            -Pandroid.injected.signing.store.password='ArtistWayAndroid2026!' \
+            -Pandroid.injected.signing.key.alias=artistway \
+            -Pandroid.injected.signing.key.password='ArtistWayAndroid2026!'
+
+      - name: Publicar o app.apk e o version.json em app/android/ (link estável pro GitHub Pages)
+        if: steps.keystore.outputs.exists == 'true'
+        run: |
+          apk=$(find android/ArtistWayAndroid/app/build/outputs/apk/release -name "*.apk" | head -n1)
+          if [ -z "$apk" ]; then
+            echo "Nenhum APK de release encontrado." >&2
+            exit 1
+          fi
+          mkdir -p app/android
+          cp "$apk" app/android/app.apk
+
+          version_name=$(grep -oP 'versionName\s*=\s*"\K[^"]+' android/ArtistWayAndroid/app/build.gradle.kts)
+          version_code=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' android/ArtistWayAndroid/app/build.gradle.kts)
+          built_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          printf '{"versionName":"%s","versionCode":%s,"builtAt":"%s"}' "$version_name" "$version_code" "$built_at" > app/android/version.json
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/android/app.apk app/android/version.json
+          if git diff --cached --quiet -- app/android/app.apk app/android/version.json; then
+            echo "app.apk e version.json já estão atualizados, nada para commitar."
+          else
+            git commit -m "chore: atualiza app/android/app.apk e app/android/version.json (automático)"
+            git push
+          fi
+
+      - name: Preparar o conteúdo do GitHub Pages (PWA em / + downloads em /app/)
+        env:
+          GOOGLE_OAUTH_WEB_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_WEB_CLIENT_SECRET }}
+        run: |
+          if [ -z "$GOOGLE_OAUTH_WEB_CLIENT_SECRET" ]; then
+            echo "Secret GOOGLE_OAUTH_WEB_CLIENT_SECRET não configurado no repositório (Settings > Secrets and variables > Actions)." >&2
+            exit 1
+          fi
+          mkdir -p pages-dist
+          cp -r www/* pages-dist/
+          cp -r app pages-dist/app
+
+          # Substituição literal (não regex, tudo numa linha só pra não
+          # depender de indentação dentro do -c) — evita quebrar se o
+          # segredo tiver caracteres especiais pro sed (/, &, etc).
+          python3 -c "import os; p='pages-dist/js/auth.js'; s=open(p,encoding='utf-8').read(); s=s.replace('__GOOGLE_OAUTH_WEB_CLIENT_SECRET__', os.environ['GOOGLE_OAUTH_WEB_CLIENT_SECRET']); open(p,'w',encoding='utf-8').write(s)"
+
+      - name: Configurar o GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empacotar o site (PWA + downloads) como artefato do Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-dist
+
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

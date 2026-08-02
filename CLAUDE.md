@@ -161,6 +161,19 @@ weekId, cycleStart }`.
   commit automático, não no momento do push do código-fonte. O
   workflow `01-generate-cert.yml` só roda manualmente (uma vez, gerou o
   certificado de sideload já commitado) — não precisa rodar de novo.
+- Mesmo esquema pro Android: `app/android/app.apk` e
+  `app/android/version.json` são **gerados pelo workflow**
+  `.github/workflows/04-build-apk.yml` (compila+assina o release com o
+  keystore, lê `versionName`/`versionCode` do `app/build.gradle.kts`,
+  sobrescreve os dois arquivos e commita) — **nunca editar esses dois
+  na mão**. `app/android/index.html` é estático, só editado à mão (não
+  é regenerado). O workflow `03-generate-android-keystore.yml` só roda
+  manualmente (uma vez) — não precisa rodar de novo depois que o
+  keystore existir. `02-build-appx.yml` e `04-build-apk.yml`
+  compartilham o mesmo `concurrency: group: pages` de propósito — os
+  dois podem disparar do mesmo push (ambos rodam em mudança de `www/**`)
+  e cada um faz commit+push próprio antes de implantar o Pages; sem
+  isso os dois rodando ao mesmo tempo poderiam colidir no `git push`.
 
 ## Onde ficam as coisas
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Artist's Way UWP — download</title>
+  <title>Artist's Way Android — download</title>
   <style>
     body {
       margin: 0;
@@ -33,19 +33,18 @@
   </style>
 </head>
 <body>
-  <h1>Artist's Way — build UWP</h1>
-  <p>Baixa o pacote mais recente pra instalar no Lumia.</p>
-  <a class="download" href="./app.appxbundle" download="ArtistWayUWP.appxbundle">Baixar app.appxbundle</a>
+  <h1>Artist's Way — build Android</h1>
+  <p>Baixa o APK mais recente. Seu aparelho vai pedir pra permitir instalação de "fontes desconhecidas" na primeira vez — é esperado, esse APK não vem da Play Store.</p>
+  <a class="download" href="./app.apk" download="ArtistWay.apk">Baixar app.apk</a>
   <p class="muted">Esse link sempre aponta pro arquivo mais recente enviado pra esse branch.</p>
   <p class="muted" id="versionInfo">Carregando informações da versão...</p>
-  <p class="muted"><a href="./android/">Procurando a versão Android?</a></p>
   <script>
     fetch("./version.json", { cache: "no-store" })
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var el = document.getElementById("versionInfo");
         var date = data.builtAt ? new Date(data.builtAt).toLocaleDateString("pt-BR") : "";
-        el.textContent = "Última versão publicada: " + data.version + (date ? " (" + date + ")" : "");
+        el.textContent = "Última versão publicada: " + data.versionName + (date ? " (" + date + ")" : "");
       })
       .catch(function () {
         document.getElementById("versionInfo").textContent = "";
