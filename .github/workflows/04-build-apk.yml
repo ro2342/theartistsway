@@ -41,6 +41,10 @@ jobs:
         working-directory: android/ArtistWayAndroid
         run: chmod +x gradlew
 
+      - name: Rodar os testes unitários (JUnit)
+        working-directory: android/ArtistWayAndroid
+        run: ./gradlew testDebugUnitTest --no-daemon
+
       - name: Compilar o APK de debug
         working-directory: android/ArtistWayAndroid
         run: ./gradlew assembleDebug --no-daemon
