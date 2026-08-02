@@ -40,9 +40,10 @@ import com.rodcarvalho.artistway.ui.screens.HomeScreen
 import com.rodcarvalho.artistway.ui.screens.LifePieScreen
 import com.rodcarvalho.artistway.ui.screens.NamedListScreen
 import com.rodcarvalho.artistway.ui.screens.NumberedListScreen
-import com.rodcarvalho.artistway.ui.screens.PlaceholderScreen
+import com.rodcarvalho.artistway.ui.screens.ProfileScreen
 import com.rodcarvalho.artistway.ui.screens.ProgressScreen
 import com.rodcarvalho.artistway.ui.screens.QuizScreen
+import com.rodcarvalho.artistway.ui.screens.SettingsScreen
 import com.rodcarvalho.artistway.ui.screens.TabelaCrencasScreen
 import com.rodcarvalho.artistway.ui.screens.WeekDetailScreen
 import kotlinx.coroutines.launch
@@ -133,8 +134,8 @@ fun MainShell() {
                 }
                 composable(AppDestinations.ARTIST_DATE) { ArtistDateScreen() }
                 composable(AppDestinations.FERRAMENTAS) { FerramentasScreen(onNavigate = { navController.navigate(it) }) }
-                composable(AppDestinations.PROFILE) { PlaceholderScreen(ContentStore.s("nav.profile")) }
-                composable(AppDestinations.SETTINGS) { PlaceholderScreen(ContentStore.s("nav.settings")) }
+                composable(AppDestinations.PROFILE) { ProfileScreen() }
+                composable(AppDestinations.SETTINGS) { SettingsScreen() }
 
                 composable(
                     AppDestinations.WEEK_DETAIL_TEMPLATE,

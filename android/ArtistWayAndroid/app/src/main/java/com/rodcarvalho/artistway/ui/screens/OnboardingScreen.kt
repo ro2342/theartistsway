@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
+import com.rodcarvalho.artistway.notifications.NotificationScheduler
 import com.rodcarvalho.artistway.ui.components.TimePickerField
 import com.rodcarvalho.artistway.ui.components.WeekdayDropdown
 import com.rodcarvalho.artistway.week.WeekCalculator
@@ -107,6 +108,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                         )
                         scope.launch {
                             LocalDataStore.setProfile(profile)
+                            NotificationScheduler.applySettings(profile)
                             onFinished()
                         }
                     },

@@ -22,6 +22,7 @@ import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.ui.nav.MainShell
 import com.rodcarvalho.artistway.ui.screens.OnboardingScreen
+import com.rodcarvalho.artistway.ui.theme.AppThemeState
 import com.rodcarvalho.artistway.ui.theme.ArtistWayTheme
 
 private const val ROUTE_ONBOARDING = "onboarding"
@@ -36,18 +37,17 @@ fun AppRoot() {
     val context = LocalContext.current
     var isReady by remember { mutableStateOf(false) }
     var startOnboarding by remember { mutableStateOf(true) }
-    var themeMode by remember { mutableStateOf("auto") }
 
     LaunchedEffect(Unit) {
         ContentStore.initialize(context)
         val profile = LocalDataStore.getProfile()
-        themeMode = profile?.themeMode ?: "auto"
+        AppThemeState.mode.value = profile?.themeMode ?: "auto"
         startOnboarding = profile == null || !profile.onboarded
         isReady = true
     }
 
     val systemDark = isSystemInDarkTheme()
-    val darkTheme = when (themeMode) {
+    val darkTheme = when (AppThemeState.mode.value) {
         "light" -> false
         "dark" -> true
         else -> systemDark
