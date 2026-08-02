@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.ArtistWay" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Splash screen (androidx.core:core-splashscreen) — mesma marca
+         (pena/livro/estrela) e cor de fundo (#A8752C) do ícone e do
+         SplashScreen do UWP. installSplashScreen() na MainActivity troca
+         pra Theme.ArtistWay sozinho assim que o conteúdo carrega. -->
+    <style name="Theme.ArtistWay.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/artist_way_accent</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.ArtistWay</item>
+    </style>
 </resources>
