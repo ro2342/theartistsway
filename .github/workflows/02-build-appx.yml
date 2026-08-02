@@ -126,7 +126,13 @@ jobs:
             Write-Host "app.appxbundle e version.json já estão atualizados, nada para commitar."
           } else {
             git commit -m "chore: atualiza app/app.appxbundle e app/version.json (automático)"
-            git push
+            for ($i = 0; $i -lt 5; $i++) {
+              git push
+              if ($LASTEXITCODE -eq 0) { break }
+              Write-Host "push rejeitado (provável corrida com outro commit em main), tentando de novo..."
+              git pull --rebase origin $env:GITHUB_REF_NAME
+              Start-Sleep -Seconds 3
+            }
           }
 
       - name: Preparar o conteúdo do GitHub Pages (PWA em / + download em /app/)

@@ -108,7 +108,14 @@ jobs:
             echo "app.apk e version.json já estão atualizados, nada para commitar."
           else
             git commit -m "chore: atualiza app/android/app.apk e app/android/version.json (automático)"
-            git push
+            for i in 1 2 3 4 5; do
+              if git push; then
+                break
+              fi
+              echo "push rejeitado (provável corrida com outro commit em main), tentando de novo..."
+              git pull --rebase origin "$GITHUB_REF_NAME"
+              sleep 3
+            done
           fi
 
       - name: Preparar o conteúdo do GitHub Pages (PWA em / + downloads em /app/)
