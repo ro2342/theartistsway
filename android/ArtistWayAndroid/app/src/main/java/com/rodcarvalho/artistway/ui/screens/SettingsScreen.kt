@@ -29,19 +29,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.rodcarvalho.artistway.auth.SessionService
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
+import com.rodcarvalho.artistway.sync.SyncService
 import com.rodcarvalho.artistway.ui.theme.AppThemeState
+import com.rodcarvalho.artistway.update.UpdateCheckService
+import com.rodcarvalho.artistway.update.UpdateDownloader
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 private val TAB_TITLES = listOf("Aparência", "Dados e Sincronização", "Avançado")
 
-// Espelha SettingsPage.xaml.cs — três abas. Login/sincronização com
-// Google e verificação de atualização ainda são placeholders (chegam na
-// Fase 6, junto com AuthService/SyncService/UpdateCheckService de
-// verdade); tema, exportar/importar backup e modo manutenção já
-// funcionam de ponta a ponta.
+// Espelha SettingsPage.xaml.cs — três abas. Tudo funciona de ponta a
+// ponta (tema, backup, modo manutenção, verificação/instalação de
+// atualização, sincronizar agora, apagar dados/resetar) exceto o botão
+// de login com Google em si, que depende do app estar registrado no
+// Firebase (passo manual único, pendente) — sem sessão, os pontos que
+// dependem de login (sincronizar, apagar da nuvem) só afetam o
+// aparelho local, sem erro.
 @Composable
 fun SettingsScreen() {
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -150,22 +156,73 @@ private fun DataSyncTab(context: Context) {
     status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
 
     Text("Sincronização com a nuvem", style = MaterialTheme.typography.titleMedium)
-    Text(
-        "Login com Google e sincronização entre aparelhos chegam numa próxima fase.",
-        style = MaterialTheme.typography.bodyMedium,
-    )
+    val session = SessionService.getSession()
+    if (session == null) {
+        Text(
+            "Não logado. Login com Google chega assim que o app for registrado no Firebase " +
+                "(passo manual único, pendente).",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    } else {
+        Text(
+            "Logado como ${session.email.ifEmpty { session.uid }} (${session.provider}).",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Button(
+            onClick = { scope.launch { status = SyncService.syncAll() } },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text("Sincronizar agora") }
+    }
 }
 
 @Composable
 private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSettings) -> Unit) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var showResetConfirm by remember { mutableStateOf(false) }
+    var showFullResetConfirm by remember { mutableStateOf(false) }
     var resetDone by remember { mutableStateOf(false) }
+
+    var updateStatus by remember { mutableStateOf("Verificando se há atualização...") }
+    var updateAvailable by remember { mutableStateOf(false) }
+    var downloadProgress by remember { mutableStateOf<Float?>(null) }
+    var downloadedFile by remember { mutableStateOf<java.io.File?>(null) }
+
+    LaunchedEffect(Unit) {
+        val installed = UpdateCheckService.getInstalledVersionName(context)
+        val result = UpdateCheckService.check(context)
+        updateStatus = when {
+            !result.success -> "Versão instalada: $installed. Não foi possível checar agora (${result.error})."
+            result.updateAvailable -> "Versão instalada: $installed. Nova versão disponível: ${result.latestVersionName}."
+            else -> "Versão instalada: $installed. Atualizado ✓"
+        }
+        updateAvailable = result.updateAvailable
+    }
 
     Text("Avançado", style = MaterialTheme.typography.headlineSmall)
 
     Text("Atualizações", style = MaterialTheme.typography.titleMedium)
-    Text("Verificação de atualização chega numa próxima fase.", style = MaterialTheme.typography.bodyMedium)
+    Text(updateStatus, style = MaterialTheme.typography.bodyMedium)
+    if (updateAvailable && downloadedFile == null) {
+        Button(
+            onClick = {
+                scope.launch {
+                    downloadProgress = 0f
+                    val file = UpdateDownloader.download(context) { p -> downloadProgress = p }
+                    downloadProgress = null
+                    downloadedFile = file
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text("Baixar atualização") }
+        downloadProgress?.let { Text("Baixando... ${(it * 100).toInt()}%", style = MaterialTheme.typography.bodySmall) }
+    }
+    downloadedFile?.let { file ->
+        Button(
+            onClick = { UpdateDownloader.install(context, file) },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text("Instalar atualização") }
+    }
 
     Text("Modo manutenção", style = MaterialTheme.typography.titleMedium)
     Text(
@@ -181,9 +238,16 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
         modifier = Modifier.fillMaxWidth(),
     ) { Text(if (profile.maintenanceMode) "Desligar modo manutenção" else "Ligar modo manutenção") }
 
+    val loggedIn = SessionService.getSession() != null
+
     Text("Zona de perigo", style = MaterialTheme.typography.titleMedium)
     OutlinedButton(onClick = { showResetConfirm = true }, modifier = Modifier.fillMaxWidth()) {
         Text("Apagar todos os dados")
+    }
+    // Mantém a sessão logada (a conta continua existindo, só fica vazia) —
+    // útil pra recomeçar o programa do zero sem precisar logar de novo.
+    OutlinedButton(onClick = { showFullResetConfirm = true }, modifier = Modifier.fillMaxWidth()) {
+        Text("Resetar tudo (e sair da conta)")
     }
     if (resetDone) {
         Text("Dados apagados — reinicie o app pra configurar de novo.", style = MaterialTheme.typography.bodyMedium)
@@ -193,18 +257,59 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
         AlertDialog(
             onDismissRequest = { showResetConfirm = false },
             title = { Text("Apagar todos os dados?") },
-            text = { Text("Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?") },
+            text = {
+                Text(
+                    if (loggedIn) {
+                        "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer. Tem certeza?"
+                    } else {
+                        "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?"
+                    },
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     showResetConfirm = false
                     scope.launch {
                         LocalDataStore.resetAll()
+                        if (loggedIn) SyncService.clearCloudData()
                         resetDone = true
                     }
                 }) { Text("Apagar dados") }
             },
             dismissButton = {
                 TextButton(onClick = { showResetConfirm = false }) { Text("Cancelar") }
+            },
+        )
+    }
+
+    if (showFullResetConfirm) {
+        AlertDialog(
+            onDismissRequest = { showFullResetConfirm = false },
+            title = { Text("Resetar o app completamente?") },
+            text = {
+                Text(
+                    if (loggedIn) {
+                        "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer. Tem certeza?"
+                    } else {
+                        "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?"
+                    },
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showFullResetConfirm = false
+                    scope.launch {
+                        LocalDataStore.resetAll()
+                        if (loggedIn) {
+                            SyncService.clearCloudData()
+                            SessionService.clearSession()
+                        }
+                        resetDone = true
+                    }
+                }) { Text("Resetar tudo") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showFullResetConfirm = false }) { Text("Cancelar") }
             },
         )
     }

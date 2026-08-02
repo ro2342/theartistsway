@@ -1,13 +1,27 @@
 package com.rodcarvalho.artistway.sync
 
-// Placeholder até a Fase 6 (sync real via Firestore REST, mesmo desenho
-// do SyncScheduler.cs do UWP: debounce reiniciado a cada escrita local,
-// dispara ~5s depois da última mudança, só se houver sessão logada). Por
-// enquanto só existe pra LocalDataStore.kt poder chamar o mesmo hook que
-// o UWP chama a cada escrita, sem precisar mexer em LocalDataStore de
-// novo quando o sync de verdade entrar.
+import com.rodcarvalho.artistway.auth.SessionService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+// Agenda uma sincronização ~5s depois da última mudança local — espera
+// a "rajada" de toques parar antes de gastar uma chamada de rede, mesmo
+// desenho do SyncScheduler.cs (UWP: DispatcherTimer reiniciado a cada
+// chamada). Chamado pelos métodos do LocalDataStore que gravam dado do
+// usuário. Não faz nada se ninguém estiver logado.
 object SyncScheduler {
+    private val scope = CoroutineScope(Dispatchers.Default)
+    private var pendingJob: Job? = null
+
     fun scheduleSync() {
-        // TODO(Fase 6): debounce + SyncService.syncAll().
+        if (SessionService.getSession() == null) return
+        pendingJob?.cancel()
+        pendingJob = scope.launch {
+            delay(5000)
+            SyncService.syncAll()
+        }
     }
 }
