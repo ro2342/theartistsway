@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "431486750791-13m8f57lvnknk17e7r7n35b8r1c96oir.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rodcarvalho.artistway",
+            "certificate_hash": "1d8b82636861c111fdbd1c53ec91ae30faec65a2"
+          }
+        },
+        {
           "client_id": "431486750791-tamak4eb84o2q8k2o45diqsj5osb4f97.apps.googleusercontent.com",
           "client_type": 3
         }

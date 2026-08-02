@@ -192,9 +192,11 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
         ) { Text("Sincronizar agora") }
         OutlinedButton(
             onClick = {
-                AuthService.signOut()
-                onLoggedInChange(false)
-                status = null
+                scope.launch {
+                    AuthService.signOut(context)
+                    onLoggedInChange(false)
+                    status = null
+                }
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Sair") }
@@ -326,7 +328,7 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
                         LocalDataStore.resetAll()
                         if (loggedIn) {
                             SyncService.clearCloudData()
-                            AuthService.signOut()
+                            AuthService.signOut(context)
                         }
                         resetDone = true
                     }
