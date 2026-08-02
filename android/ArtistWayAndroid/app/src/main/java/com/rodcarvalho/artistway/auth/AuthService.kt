@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -35,29 +37,50 @@ object AuthService {
 
     suspend fun signInWithGoogle(context: Context): AuthOutcome {
         return try {
-            val googleIdOption = GetGoogleIdOption.Builder()
-                .setFilterByAuthorizedAccounts(false)
-                .setServerClientId(WEB_CLIENT_ID)
-                .build()
-            val request = GetCredentialRequest.Builder()
-                .addCredentialOption(googleIdOption)
-                .build()
-
             val credentialManager = CredentialManager.create(context)
-            val response = credentialManager.getCredential(context, request)
-            val credential = response.credential
+            val credential = fetchGoogleCredential(credentialManager, context)
 
-            if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                return AuthOutcome(success = false, errorMessage = "Credencial inesperada.")
-            }
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
             val authCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
 
             FirebaseAuth.getInstance().signInWithCredential(authCredential).await()
             AuthOutcome(success = true)
+        } catch (e: NoCredentialException) {
+            AuthOutcome(
+                success = false,
+                errorMessage = "Nenhuma conta Google encontrada nesse aparelho. Confira em " +
+                    "Configurações > Contas se há uma conta Google adicionada (não é a mesma " +
+                    "coisa que estar logado num app específico) e se a Play Store está instalada.",
+            )
         } catch (e: Exception) {
             AuthOutcome(success = false, errorMessage = e.message ?: "Login cancelado ou falhou.")
         }
+    }
+
+    // Tenta primeiro só contas que já autorizaram o app antes (mais rápido,
+    // às vezes nem mostra tela nenhuma); se não achar nenhuma, tenta de novo
+    // oferecendo todas as contas Google do aparelho, mesmo padrão
+    // recomendado pela própria Google pro Credential Manager.
+    private suspend fun fetchGoogleCredential(credentialManager: CredentialManager, context: Context): CustomCredential {
+        var lastError: Exception? = null
+        for (filterByAuthorizedAccounts in listOf(true, false)) {
+            try {
+                val option = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(filterByAuthorizedAccounts)
+                    .setServerClientId(WEB_CLIENT_ID)
+                    .build()
+                val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
+                val response = credentialManager.getCredential(context, request)
+                val credential = response.credential
+                if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    return credential
+                }
+                lastError = Exception("Credencial devolvida não é um Google ID token.")
+            } catch (e: GetCredentialException) {
+                lastError = e
+            }
+        }
+        throw lastError ?: Exception("Nenhuma credencial Google encontrada.")
     }
 
     fun signOut() {

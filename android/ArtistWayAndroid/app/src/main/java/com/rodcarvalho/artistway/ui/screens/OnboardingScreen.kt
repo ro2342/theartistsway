@@ -24,10 +24,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.rodcarvalho.artistway.auth.AuthService
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.notifications.NotificationScheduler
 import com.rodcarvalho.artistway.notifications.rememberNotificationPermissionRequester
+import com.rodcarvalho.artistway.sync.SyncService
 import com.rodcarvalho.artistway.ui.components.TimePickerField
 import com.rodcarvalho.artistway.ui.components.WeekdayDropdown
 import com.rodcarvalho.artistway.week.WeekCalculator
@@ -36,10 +38,10 @@ import java.time.Instant
 import java.time.LocalDate
 
 // Mesmo assistente de configuração inicial do UWP (OnboardingPage.xaml.cs) /
-// PWA, sem o passo de "já sou usuário — entrar com Google" — esse volta na
-// Fase 6 junto com o AuthService de verdade. Passos: boas-vindas / nome e
+// PWA. Passos: já é usuário (entrar com Google) / boas-vindas / nome e
 // data de início / rituais (Morning Pages, Artist Date, check-in) /
-// contrato assinável.
+// contrato assinável. Quem entra com Google e já tem perfil salvo na
+// nuvem pula direto pro app, sem passar pelo resto do formulário.
 @Composable
 fun OnboardingScreen(onFinished: () -> Unit) {
     var step by remember { mutableIntStateOf(0) }
@@ -66,16 +68,20 @@ fun OnboardingScreen(onFinished: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             when (step) {
-                0 -> WelcomeStep(onNext = { step = 1 })
-                1 -> NameDateStep(
+                0 -> ReturningUserStep(
+                    onSkip = { step = 1 },
+                    onLoggedInWithProfile = { onFinished() },
+                )
+                1 -> WelcomeStep(onNext = { step = 2 })
+                2 -> NameDateStep(
                     name = name,
                     onNameChange = { name = it },
                     startDate = startDate,
                     onStartDateChange = { startDate = it },
-                    onBack = { step = 0 },
-                    onNext = { step = 2 },
+                    onBack = { step = 1 },
+                    onNext = { step = 3 },
                 )
-                2 -> RitualsStep(
+                3 -> RitualsStep(
                     morningPagesTime = morningPagesTime,
                     onMorningPagesTimeChange = { morningPagesTime = it },
                     artistDateDay = artistDateDay,
@@ -86,17 +92,17 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                     onCheckinDayChange = { checkinDay = it },
                     checkinTime = checkinTime,
                     onCheckinTimeChange = { checkinTime = it },
-                    onBack = { step = 1 },
+                    onBack = { step = 2 },
                     onNext = {
                         if (signature.isEmpty()) signature = name
-                        step = 3
+                        step = 4
                     },
                 )
-                3 -> ContractStep(
+                4 -> ContractStep(
                     name = name.ifEmpty { "___" },
                     signature = signature,
                     onSignatureChange = { signature = it },
-                    onBack = { step = 2 },
+                    onBack = { step = 3 },
                     onFinish = {
                         val profile = ProfileSettings(
                             name = name.trim(),
@@ -121,6 +127,55 @@ fun OnboardingScreen(onFinished: () -> Unit) {
             }
         }
     }
+}
+
+// Passo 0: já é usuário em outro aparelho? Entra com a mesma conta
+// Google, puxa o que já existe na nuvem e, se achar um perfil já
+// onboarded, pula o resto do formulário inteiro — evita reescrever
+// nome/horários/dias que já foram preenchidos da primeira vez. Mesmo
+// comportamento do ReturningUserLogin_Click no UWP.
+@Composable
+private fun ReturningUserStep(onSkip: () -> Unit, onLoggedInWithProfile: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var loggingIn by remember { mutableStateOf(false) }
+    var status by remember { mutableStateOf<String?>(null) }
+
+    Text("Bem-vindo(a)", style = MaterialTheme.typography.headlineMedium)
+    Text(
+        "Companheiro de leitura pra The Artist's Way. Se você já usa esse app " +
+            "em outro aparelho, entre com a mesma conta Google pra continuar de onde parou.",
+        style = MaterialTheme.typography.bodyLarge,
+    )
+    Button(
+        onClick = {
+            loggingIn = true
+            status = null
+            scope.launch {
+                val outcome = AuthService.signInWithGoogle(context)
+                if (!outcome.success) {
+                    loggingIn = false
+                    status = outcome.errorMessage
+                    return@launch
+                }
+                status = "Login OK — buscando seus dados..."
+                SyncService.syncAll()
+                val profile = LocalDataStore.getProfile()
+                loggingIn = false
+                if (profile != null && profile.onboarded) {
+                    onLoggedInWithProfile()
+                } else {
+                    status = "Login OK, mas não achei dados salvos com essa conta. " +
+                        "Vamos configurar do zero — a partir de agora, tudo já fica salvo na nuvem."
+                    onSkip()
+                }
+            }
+        },
+        enabled = !loggingIn,
+        modifier = Modifier.fillMaxWidth(),
+    ) { Text(if (loggingIn) "Entrando..." else "Já sou usuário(a) — entrar com Google") }
+    status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
+    TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) { Text("Começar sem login") }
 }
 
 @Composable
