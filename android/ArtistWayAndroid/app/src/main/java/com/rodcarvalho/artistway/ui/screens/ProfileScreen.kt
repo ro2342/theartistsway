@@ -23,6 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.rodcarvalho.artistway.calendar.CalendarIntentHelper
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
@@ -54,8 +56,9 @@ fun ProfileScreen() {
     var checkinDay by remember { mutableIntStateOf(7) }
     var checkinTime by remember { mutableStateOf("19:00") }
     var savedMessage by remember { mutableStateOf<String?>(null) }
+    var reloadKey by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(reloadKey) {
         profile = LocalDataStore.getProfile() ?: ProfileSettings()
         name = profile.name
         startDate = profile.startDate
@@ -65,6 +68,13 @@ fun ProfileScreen() {
         checkinDay = profile.checkinDay.toIntOrNull() ?: 7
         checkinTime = profile.checkinTime
         loaded = true
+    }
+    // Perfil é uma aba da NavigationBar, cuja composição fica em cache ao
+    // trocar de aba (ver MainShell) — sem isso, voltar pra cá depois de
+    // sincronizar de outro aparelho mostraria os campos com os valores
+    // antigos até reabrir o app.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        reloadKey++
     }
 
     if (!loaded) return

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
@@ -140,6 +142,14 @@ fun HomeScreen(
 
     LaunchedEffect(reloadKey) {
         state = loadHomeState()
+    }
+    // A Home é uma aba da NavigationBar: trocar de aba não descarta a
+    // composição (popUpTo+saveState/restoreState do MainShell mantém o
+    // estado em cache pra preservar posição de scroll etc.) — sem isso,
+    // voltar pra cá depois de editar o perfil ou sincronizar de outro
+    // aparelho mostraria dados desatualizados até reabrir o app.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        reloadKey++
     }
 
     val current = state ?: return

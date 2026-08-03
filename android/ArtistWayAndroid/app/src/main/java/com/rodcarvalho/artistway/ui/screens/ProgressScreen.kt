@@ -17,12 +17,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.week.WeekCalculator
@@ -33,8 +36,9 @@ import com.rodcarvalho.artistway.week.WeekCalculator
 fun ProgressScreen(onOpenWeek: (Int) -> Unit) {
     var currentWeekId by remember { mutableStateOf(1) }
     var completedWeeks by remember { mutableStateOf<Set<Int>>(emptySet()) }
+    var reloadKey by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(reloadKey) {
         val profile = LocalDataStore.getProfile()
         currentWeekId = WeekCalculator.getWeekCursor(profile).weekId
         val completed = mutableSetOf<Int>()
@@ -45,6 +49,13 @@ fun ProgressScreen(onOpenWeek: (Int) -> Unit) {
             }
         }
         completedWeeks = completed
+    }
+    // Progresso é uma aba da NavigationBar em cache (ver MainShell) —
+    // sem isso, voltar pra cá depois de completar tarefas em outra
+    // semana ou sincronizar de outro aparelho mostraria a grade
+    // desatualizada até reabrir o app.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        reloadKey++
     }
 
     LazyVerticalGrid(

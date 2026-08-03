@@ -29,6 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.rodcarvalho.artistway.auth.AuthService
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
@@ -52,12 +54,22 @@ fun SettingsScreen() {
     var profile by remember { mutableStateOf(ProfileSettings()) }
     var loaded by remember { mutableStateOf(false) }
     var loggedIn by remember { mutableStateOf(AuthService.currentUser != null) }
+    var reloadKey by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(reloadKey) {
         profile = LocalDataStore.getProfile() ?: ProfileSettings()
+        loggedIn = AuthService.currentUser != null
         loaded = true
+    }
+    // Configurações é alcançada por um ícone fixo na TopAppBar (ver
+    // MainShell), mas continua sendo uma entrada da NavigationBar que
+    // fica em cache ao navegar pra outra aba — sem isso, reabrir essa
+    // tela depois de sincronizar de outro aparelho mostraria o modo
+    // manutenção/tema com os valores antigos até reabrir o app.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        reloadKey++
     }
 
     Column(modifier = Modifier.fillMaxSize()) {

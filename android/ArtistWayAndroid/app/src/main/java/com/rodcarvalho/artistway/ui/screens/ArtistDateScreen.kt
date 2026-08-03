@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.rodcarvalho.artistway.calendar.CalendarIntentHelper
 import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
@@ -49,8 +52,9 @@ fun ArtistDateScreen() {
     var artistDateDay by remember { mutableStateOf(7) }
     var artistDateTime by remember { mutableStateOf("16:00") }
     val usedIdeas = remember { mutableSetOf<Int>() }
+    var reloadKey by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(reloadKey) {
         val profile = LocalDataStore.getProfile()
         val cursor = WeekCalculator.getWeekCursor(profile)
         weekId = cursor.weekId
@@ -58,6 +62,13 @@ fun ArtistDateScreen() {
         current = LocalDataStore.getArtistDate(weekKey) ?: ArtistDateEntry()
         artistDateDay = profile?.artistDateDay?.toIntOrNull() ?: 7
         artistDateTime = profile?.artistDateTime ?: "16:00"
+    }
+    // Artist Date é uma aba da NavigationBar em cache (ver MainShell) —
+    // sem isso, voltar pra cá depois de sincronizar de outro aparelho
+    // mostraria a ideia/status antigos até reabrir o app. Só recarrega
+    // fora do modo de edição, pra não apagar um rascunho não salvo.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (!editing) reloadKey++
     }
 
     Column(
