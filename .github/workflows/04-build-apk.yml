@@ -93,35 +93,43 @@ jobs:
             echo "Nenhum APK de release encontrado." >&2
             exit 1
           fi
-          mkdir -p app/android
-          cp "$apk" app/android/app.apk
 
           version_name=$(grep -oP 'versionName\s*=\s*"\K[^"]+' android/ArtistWayAndroid/app/build.gradle.kts)
           version_code=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' android/ArtistWayAndroid/app/build.gradle.kts)
-          built_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          printf '{"versionName":"%s","versionCode":%s,"builtAt":"%s"}' "$version_name" "$version_code" "$built_at" > app/android/version.json
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add app/android/app.apk app/android/version.json
-          if git diff --cached --quiet -- app/android/app.apk app/android/version.json; then
-            echo "app.apk e version.json já estão atualizados, nada para commitar."
-          else
-            git commit -m "chore: atualiza app/android/app.apk e app/android/version.json (automático)"
-            # Descarta qualquer modificação incidental no working tree
-            # (ex.: bit de execução do gradlew mudando 100644 -> 100755
-            # no chmod +x anterior) — sem isso, "git pull --rebase"
-            # abaixo falha com "You have unstaged changes".
+
+          # Regenera o commit a cada tentativa em vez de tentar
+          # "git pull --rebase" sobre um commit já feito — app.apk é
+          # binário, então um rebase não consegue mesclar duas versões
+          # divergentes dele (conflito de conteúdo sem solução
+          # automática). Em vez de mesclar, cada tentativa: descarta
+          # qualquer modificação incidental no working tree (ex.: bit de
+          # execução do gradlew), reseta pro tip remoto mais recente, e
+          # regenera app.apk/version.json do zero em cima dele.
+          for i in 1 2 3 4 5; do
             git checkout -- .
-            for i in 1 2 3 4 5; do
-              if git push; then
-                break
-              fi
-              echo "push rejeitado (provável corrida com outro commit em main), tentando de novo..."
-              git pull --rebase origin "$GITHUB_REF_NAME"
-              sleep 3
-            done
-          fi
+            mkdir -p app/android
+            cp "$apk" app/android/app.apk
+            built_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            printf '{"versionName":"%s","versionCode":%s,"builtAt":"%s"}' "$version_name" "$version_code" "$built_at" > app/android/version.json
+
+            git add app/android/app.apk app/android/version.json
+            if git diff --cached --quiet -- app/android/app.apk app/android/version.json; then
+              echo "app.apk e version.json já estão atualizados, nada para commitar."
+              break
+            fi
+
+            git commit -m "chore: atualiza app/android/app.apk e app/android/version.json (automático)"
+            if git push; then
+              break
+            fi
+            echo "push rejeitado (provável corrida com outro commit em main), tentando de novo..."
+            git fetch origin "$GITHUB_REF_NAME"
+            git reset --hard "origin/$GITHUB_REF_NAME"
+            sleep 3
+          done
 
       - name: Preparar o conteúdo do GitHub Pages (PWA em / + downloads em /app/)
         env:
