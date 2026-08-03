@@ -135,6 +135,7 @@ fun MainShell() {
                                 "lifePie" -> AppDestinations.LIFE_PIE
                                 "circuloSeguranca" -> AppDestinations.CIRCULO_SEGURANCA
                                 "principiosBasicos" -> AppDestinations.PRINCIPIOS_BASICOS
+                                "artistDate" -> AppDestinations.ARTIST_DATE
                                 else -> null
                             }
                             else -> null

@@ -23,99 +23,55 @@ import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.ui.nav.AppDestinations
 
 private sealed interface FerramentasRow {
-    data class Heading(val text: String) : FerramentasRow
-    data class Link(val label: String, val route: String) : FerramentasRow
+    data class Link(val label: String, val route: String, val weekNote: String? = null) : FerramentasRow
 }
 
-private fun toolLink(listKey: String): FerramentasRow.Link {
-    val title = ContentStore.content.toolConfigs.firstOrNull { it.listName == listKey }?.title ?: listKey
-    return FerramentasRow.Link(title, AppDestinations.list(listKey))
-}
+// Telas de ferramenta que não são TOOL_CONFIGS (têm tela própria em vez
+// da genérica NamedListScreen) — mesma "semana de introdução" do PWA
+// (www/js/app.js, BESPOKE_TOOL_SCREENS), conferida linha a linha contra
+// o texto original.
+private data class BespokeToolScreen(val title: String, val route: String, val week: Int?, val weekNote: String? = null)
 
-private fun tabs(): List<Pair<String, List<FerramentasRow>>> = listOf(
-    ContentStore.s("recursos.reference.title") to listOf(
-        FerramentasRow.Heading("Introdução"),
-        FerramentasRow.Link("Princípios Básicos", AppDestinations.PRINCIPIOS_BASICOS),
-        FerramentasRow.Heading("Semana 1"),
-        FerramentasRow.Link("Crença → Positiva", AppDestinations.TABELA_CRENCAS),
-        FerramentasRow.Heading("Semana 2"),
-        FerramentasRow.Link("Regras da Estrada", AppDestinations.REGRAS_DA_ESTRADA),
-        FerramentasRow.Heading("Semana 8"),
-        FerramentasRow.Link("Banco de Afirmações", AppDestinations.BANCO_AFIRMACOES),
-    ),
-    ContentStore.s("recursos.lists.title") to listOf(
-        FerramentasRow.Heading("Semana 1 (cresce nas Semanas 2 e 5)"),
-        toolLink("imaginaryLives"),
-        FerramentasRow.Heading("Semana 2"),
-        toolLink("thingsILike"),
-        FerramentasRow.Link("Círculo de Segurança", AppDestinations.CIRCULO_SEGURANCA),
-        FerramentasRow.Link("Life Pie", AppDestinations.LIFE_PIE),
-        FerramentasRow.Heading("Semana 7"),
-        toolLink("jealousyMap"),
-    ),
-    ContentStore.s("recursos.diaries.title") to listOf(
-        FerramentasRow.Heading("Ferramentas Básicas"),
-        toolLink("pocoCriativo"),
-        FerramentasRow.Heading("Semana 1"),
-        toolLink("cartaCriticoInterno"),
-        FerramentasRow.Heading("Semana 3"),
-        toolLink("sincronicidade"),
-        FerramentasRow.Heading("Semana 4"),
-        toolLink("diarioLeitura"),
-        FerramentasRow.Heading("Semana 9"),
-        toolLink("diarioResistencia"),
-    ),
-    ContentStore.s("recursos.letters.title") to listOf(
-        FerramentasRow.Heading("Semana 4"),
-        toolLink("carta80anos"),
-        toolLink("carta8anos"),
-        toolLink("oracaoArtista"),
-        FerramentasRow.Heading("Semana 11 (oração reutilizada nas Semanas 6 e 11)"),
-        toolLink("cartaEncorajamento"),
-    ),
-    ContentStore.s("recursos.planning.title") to listOf(
-        FerramentasRow.Heading("Semana 8"),
-        toolLink("metasNorteVerdadeiro"),
-        toolLink("buscaEstilo"),
-        toolLink("diaIdeal"),
-        FerramentasRow.Heading("Semana 11"),
-        toolLink("cadernoDesejos"),
-        FerramentasRow.Heading("Semana 12"),
-        toolLink("planoContinuidade"),
-    ),
-    ContentStore.s("recursos.boundaries.title") to listOf(
-        FerramentasRow.Heading("Semana 7"),
-        toolLink("arqueologia"),
-        FerramentasRow.Heading("Semana 9"),
-        toolLink("resentimentosMedos"),
-        toolLink("retornosEmU"),
-        toolLink("totemArtista"),
-        FerramentasRow.Heading("Semana 10"),
-        toolLink("bottomLine"),
-        toolLink("pontosFelicidade"),
-    ),
-    ContentStore.s("recursos.history.title") to listOf(
-        FerramentasRow.Heading("Ferramentas Básicas"),
-        FerramentasRow.Link("Histórico de Artist Dates", AppDestinations.ARTIST_DATE_HISTORY),
-        FerramentasRow.Heading("Semana 9"),
-        FerramentasRow.Link("Reler Check-ins Antigos", AppDestinations.CHECKIN_HISTORY),
-    ),
-    ContentStore.s("recursos.quiz.title") to listOf(
-        FerramentasRow.Heading("Semana 10"),
-        FerramentasRow.Link(
-            ContentStore.content.quizConfigs.firstOrNull { it.key == "workaholismQuiz" }?.title ?: "Quiz",
-            AppDestinations.quiz("workaholismQuiz"),
-        ),
+private fun bespokeScreens(): List<BespokeToolScreen> = listOf(
+    BespokeToolScreen("Princípios Básicos", AppDestinations.PRINCIPIOS_BASICOS, week = null),
+    BespokeToolScreen("Crença → Positiva", AppDestinations.TABELA_CRENCAS, week = 1),
+    BespokeToolScreen("Regras da Estrada", AppDestinations.REGRAS_DA_ESTRADA, week = 2),
+    BespokeToolScreen("Círculo de Segurança", AppDestinations.CIRCULO_SEGURANCA, week = 2),
+    BespokeToolScreen("Life Pie", AppDestinations.LIFE_PIE, week = 2),
+    BespokeToolScreen("Banco de Afirmações", AppDestinations.BANCO_AFIRMACOES, week = 8),
+    BespokeToolScreen("Histórico de Artist Dates", AppDestinations.ARTIST_DATE_HISTORY, week = null),
+    BespokeToolScreen("Reler Check-ins Antigos", AppDestinations.CHECKIN_HISTORY, week = 9),
+    BespokeToolScreen(
+        ContentStore.content.quizConfigs.firstOrNull { it.key == "workaholismQuiz" }?.title ?: "Quiz",
+        AppDestinations.quiz("workaholismQuiz"),
+        week = 10,
     ),
 )
 
-// Espelha FerramentasPage.xaml.cs: hub com 8 abas, cada uma listando as
-// ferramentas daquela categoria (a maioria dirigida por TOOL_CONFIGS via
-// toolLink, mais os destinos bespoke — Círculo de Segurança, Life Pie,
-// telas de referência estáticas, histórico e quiz).
+private fun rowsForWeek(week: Int?, bespoke: List<BespokeToolScreen>): List<FerramentasRow.Link> {
+    val fromBespoke = bespoke.filter { it.week == week }
+        .map { FerramentasRow.Link(it.title, it.route, it.weekNote) }
+    val fromTools = ContentStore.content.toolConfigs.filter { it.week == week }
+        .map { FerramentasRow.Link(it.title, AppDestinations.list(it.listName), it.weekNote) }
+    return fromBespoke + fromTools
+}
+
+// Espelha FerramentasPage.xaml.cs: hub com uma aba por semana (1 a 12,
+// só as que já têm alguma ferramenta) + uma aba "Geral" no fim, pra não
+// virar uma lista única gigante conforme mais ferramentas vão sendo
+// adicionadas (a maioria dirigida por TOOL_CONFIGS, mais os destinos
+// bespoke — Círculo de Segurança, Life Pie, telas de referência
+// estáticas, histórico e quiz).
 @Composable
 fun FerramentasScreen(onNavigate: (String) -> Unit) {
-    val allTabs = remember { tabs() }
+    val allTabs = remember {
+        val bespoke = bespokeScreens()
+        val weekTabs = (1..12).mapNotNull { week ->
+            val rows = rowsForWeek(week, bespoke)
+            if (rows.isEmpty()) null else "Semana $week" to rows
+        }
+        weekTabs + ("Geral" to rowsForWeek(null, bespoke))
+    }
     var selected by remember { mutableIntStateOf(0) }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -132,16 +88,14 @@ fun FerramentasScreen(onNavigate: (String) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             allTabs[selected].second.forEach { row ->
-                when (row) {
-                    is FerramentasRow.Heading -> Text(
-                        row.text,
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
-                    )
-                    is FerramentasRow.Link -> OutlinedButton(
+                Column {
+                    OutlinedButton(
                         onClick = { onNavigate(row.route) },
                         modifier = Modifier.fillMaxWidth(),
                     ) { Text(row.label) }
+                    row.weekNote?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
+                    }
                 }
             }
         }

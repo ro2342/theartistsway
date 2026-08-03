@@ -136,6 +136,7 @@ private fun resolveLinkTitle(link: ChecklistLink?): String? {
             "lifePie" -> "Life Pie"
             "circuloSeguranca" -> "Círculo de Segurança"
             "principiosBasicos" -> "Princípios Básicos"
+            "artistDate" -> "Artist Date"
             else -> null
         }
         else -> null

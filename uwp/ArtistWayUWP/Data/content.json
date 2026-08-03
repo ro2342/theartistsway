@@ -17,15 +17,27 @@
         },
         {
           "task": "Trabalhe com suas afirmações de escolha ao fim das páginas de cada dia — e converta cada 'blurt' (a réplica automática e ácida que a mente solta) numa afirmação positiva.",
-          "detail": "Blurts são os contra-ataques que aparecem assim que você tenta afirmar algo bom sobre si ('quem você pensa que é'). O livro pede pra não ignorá-los: cada um vira matéria-prima pra uma nova afirmação, virando o veneno do avesso."
+          "detail": "Blurts são os contra-ataques que aparecem assim que você tenta afirmar algo bom sobre si ('quem você pensa que é'). O livro pede pra não ignorá-los: cada um vira matéria-prima pra uma nova afirmação, virando o veneno do avesso.",
+          "link": {
+            "type": "list",
+            "key": "minhasAfirmacoes"
+          }
         },
         {
           "task": "Liste três antigos 'vilões' da sua autoconfiança criativa (professores, críticos, vozes internalizadas) — seja bem específico.",
-          "detail": "O livro chama isso de 'crenças negativas centrais': frases que alguém disse um dia e que você carrega até hoje como se fossem fatos. Nomear o vilão tira o poder dele de agir escondido."
+          "detail": "O livro chama isso de 'crenças negativas centrais': frases que alguém disse um dia e que você carrega até hoje como se fossem fatos. Nomear o vilão tira o poder dele de agir escondido.",
+          "link": {
+            "type": "list",
+            "key": "crencasNegativasViloes"
+          }
         },
         {
           "task": "Escreva em detalhe sobre um desses episódios — o que aconteceu, como você se sentiu.",
-          "detail": "Reviver o episódio com detalhes sensoriais (o lugar, a fala, a sensação no corpo) ajuda a processar a mágoa como algo que já passou, em vez de uma ferida ainda aberta e reativa."
+          "detail": "Reviver o episódio com detalhes sensoriais (o lugar, a fala, a sensação no corpo) ajuda a processar a mágoa como algo que já passou, em vez de uma ferida ainda aberta e reativa.",
+          "link": {
+            "type": "list",
+            "key": "crencasNegativasViloes"
+          }
         },
         {
           "task": "Se quiser, desenhe ou faça uma caricatura desse 'vilão' — pode ser um rabisco bobo, ou um X vermelho bem grande por cima dele.",
@@ -33,15 +45,27 @@
         },
         {
           "task": "Escreva uma carta 'em sua defesa' na voz da sua criança-artista ferida.",
-          "detail": "Escrever na primeira pessoa, como a criança que você foi, costuma soltar uma raiva ou tristeza que a versão adulta racionaliza demais para sentir de verdade."
+          "detail": "Escrever na primeira pessoa, como a criança que você foi, costuma soltar uma raiva ou tristeza que a versão adulta racionaliza demais para sentir de verdade.",
+          "link": {
+            "type": "list",
+            "key": "cartaDefesaCrianca"
+          }
         },
         {
           "task": "Liste três 'campeões' que apoiaram sua criatividade — seja específico sobre cada palavra de incentivo que lembrar.",
-          "detail": "Contrabalança o exercício anterior: também existiram vozes que acreditaram em você. Mesmo um elogio que você duvidou na hora vale registrar — pode ser mais verdadeiro do que parecia."
+          "detail": "Contrabalança o exercício anterior: também existiram vozes que acreditaram em você. Mesmo um elogio que você duvidou na hora vale registrar — pode ser mais verdadeiro do que parecia.",
+          "link": {
+            "type": "list",
+            "key": "campeoesApoio"
+          }
         },
         {
           "task": "Escreva uma carta de agradecimento a um desses campeões (ou a um mentor específico) e envie pra você mesmo(a), ou pra essa pessoa.",
-          "detail": "É uma tarefa separada da lista de campeões: um agradecimento concreto e endereçado, não só uma lembrança guardada — o gesto de mandar (mesmo que só pra si) reforça que esse apoio foi real."
+          "detail": "É uma tarefa separada da lista de campeões: um agradecimento concreto e endereçado, não só uma lembrança guardada — o gesto de mandar (mesmo que só pra si) reforça que esse apoio foi real.",
+          "link": {
+            "type": "list",
+            "key": "cartaAgradecimentoCampeao"
+          }
         },
         {
           "task": "Liste 5 vidas imaginárias que você gostaria de ter vivido; escolha uma e faça algo dela essa semana.",
@@ -53,7 +77,11 @@
         },
         {
           "task": "Faça seu primeiro Artist Date da jornada, sozinho(a).",
-          "detail": "É a primeira das 12 saídas solo do programa. Não precisa ser grande: o objetivo é só provar pra si mesmo(a) que dá pra fazer algo só por prazer, sem culpa."
+          "detail": "É a primeira das 12 saídas solo do programa. Não precisa ser grande: o objetivo é só provar pra si mesmo(a) que dá pra fazer algo só por prazer, sem culpa.",
+          "link": {
+            "type": "screen",
+            "key": "artistDate"
+          }
         },
         {
           "task": "Leve seu artista interior para uma caminhada de 20 minutos.",
@@ -83,7 +111,11 @@
         },
         {
           "task": "Liste as 5 atividades que mais tomaram seu tempo essa semana e quanto foi 'quero' vs. 'deveria'.",
-          "detail": "Esse exercício expõe o quanto da sua energia vai para obrigações herdadas de outras pessoas, sem que você tenha escolhido isso conscientemente."
+          "detail": "Esse exercício expõe o quanto da sua energia vai para obrigações herdadas de outras pessoas, sem que você tenha escolhido isso conscientemente.",
+          "link": {
+            "type": "list",
+            "key": "queroVsDeveria"
+          }
         },
         {
           "task": "Desenhe um mapa de segurança: quem apoia sua criatividade agora e de quem você precisa se proteger por um tempo.",
@@ -103,11 +135,19 @@
         },
         {
           "task": "Escolha duas dessas coisas 'esquecidas' como metas para essa semana.",
-          "detail": "Sair da lista para a ação — o objetivo é pequeno e concreto, não uma reforma de vida inteira."
+          "detail": "Sair da lista para a ação — o objetivo é pequeno e concreto, não uma reforma de vida inteira.",
+          "link": {
+            "type": "list",
+            "key": "thingsILike"
+          }
         },
         {
           "task": "Volte às afirmações da Semana 1 e note quais ainda incomodam — geralmente são as mais importantes.",
-          "detail": "Quando uma afirmação positiva causa desconforto ou ceticismo forte, costuma ser sinal de que ela tocou numa crença negativa bem entrincheirada."
+          "detail": "Quando uma afirmação positiva causa desconforto ou ceticismo forte, costuma ser sinal de que ela tocou numa crença negativa bem entrincheirada.",
+          "link": {
+            "type": "list",
+            "key": "minhasAfirmacoes"
+          }
         },
         {
           "task": "Adicione mais 5 vidas imaginárias à sua lista da semana passada.",
@@ -127,7 +167,11 @@
         },
         {
           "task": "Liste 10 pequenas mudanças que gostaria de fazer e execute uma delas.",
-          "detail": "Mudanças pequenas e realizáveis (trocar o lençol, pintar uma parede) costumam destravar a sensação de estagnação mais rápido do que decisões grandes."
+          "detail": "Mudanças pequenas e realizáveis (trocar o lençol, pintar uma parede) costumam destravar a sensação de estagnação mais rápido do que decisões grandes.",
+          "link": {
+            "type": "list",
+            "key": "pequenasMudancas"
+          }
         }
       ],
       "checkinBonus": "Que 'deveria' você conseguiu trocar por um 'eu quero de verdade' essa semana?"
@@ -936,7 +980,9 @@
           "label": "Uma vida imaginária",
           "multiline": true
         }
-      ]
+      ],
+      "week": 1,
+      "weekNote": "cresce nas Semanas 2 e 5"
     },
     {
       "listName": "thingsILike",
@@ -948,7 +994,8 @@
           "label": "Uma coisa que eu gosto de fazer",
           "multiline": false
         }
-      ]
+      ],
+      "week": 2
     },
     {
       "listName": "jealousyMap",
@@ -970,7 +1017,8 @@
           "label": "Ação-antídoto",
           "multiline": true
         }
-      ]
+      ],
+      "week": 7
     },
     {
       "listName": "sincronicidade",
@@ -982,7 +1030,8 @@
           "label": "O que aconteceu",
           "multiline": true
         }
-      ]
+      ],
+      "week": 3
     },
     {
       "listName": "pocoCriativo",
@@ -994,7 +1043,8 @@
           "label": "O que encheu seu poço hoje",
           "multiline": true
         }
-      ]
+      ],
+      "week": null
     },
     {
       "listName": "diarioResistencia",
@@ -1006,7 +1056,8 @@
           "label": "O que você evitou fazer",
           "multiline": true
         }
-      ]
+      ],
+      "week": 9
     },
     {
       "listName": "cartaCriticoInterno",
@@ -1018,7 +1069,8 @@
           "label": "Sua carta",
           "multiline": true
         }
-      ]
+      ],
+      "week": 1
     },
     {
       "listName": "diarioLeitura",
@@ -1035,7 +1087,8 @@
           "label": "Sua reflexão",
           "multiline": true
         }
-      ]
+      ],
+      "week": 4
     },
     {
       "listName": "resentimentosMedos",
@@ -1062,7 +1115,8 @@
           "label": "Ganho oculto em não fazer",
           "multiline": true
         }
-      ]
+      ],
+      "week": 9
     },
     {
       "listName": "retornosEmU",
@@ -1084,7 +1138,8 @@
           "label": "Vale a pena resgatar agora?",
           "multiline": true
         }
-      ]
+      ],
+      "week": 9
     },
     {
       "listName": "arqueologia",
@@ -1101,7 +1156,8 @@
           "label": "Inventário positivo de hoje",
           "multiline": true
         }
-      ]
+      ],
+      "week": 7
     },
     {
       "listName": "buscaEstilo",
@@ -1133,7 +1189,8 @@
           "label": "Ligado a trabalho?",
           "multiline": false
         }
-      ]
+      ],
+      "week": 8
     },
     {
       "listName": "bottomLine",
@@ -1145,7 +1202,8 @@
           "label": "Limite",
           "multiline": true
         }
-      ]
+      ],
+      "week": 10
     },
     {
       "listName": "pontosFelicidade",
@@ -1157,7 +1215,8 @@
           "label": "O que te conforta",
           "multiline": true
         }
-      ]
+      ],
+      "week": 10
     },
     {
       "listName": "carta80anos",
@@ -1170,7 +1229,8 @@
           "label": "Sua carta",
           "multiline": true
         }
-      ]
+      ],
+      "week": 4
     },
     {
       "listName": "carta8anos",
@@ -1183,7 +1243,8 @@
           "label": "Sua carta",
           "multiline": true
         }
-      ]
+      ],
+      "week": 4
     },
     {
       "listName": "oracaoArtista",
@@ -1196,7 +1257,9 @@
           "label": "Sua oração",
           "multiline": true
         }
-      ]
+      ],
+      "week": 4,
+      "weekNote": "reutilizada nas Semanas 6 e 11"
     },
     {
       "listName": "cartaEncorajamento",
@@ -1209,7 +1272,8 @@
           "label": "Sua carta",
           "multiline": true
         }
-      ]
+      ],
+      "week": 11
     },
     {
       "listName": "metasNorteVerdadeiro",
@@ -1257,7 +1321,8 @@
           "label": "Agora",
           "multiline": false
         }
-      ]
+      ],
+      "week": 8
     },
     {
       "listName": "diaIdeal",
@@ -1275,7 +1340,8 @@
           "label": "Dia ideal sem nenhuma restrição",
           "multiline": true
         }
-      ]
+      ],
+      "week": 8
     },
     {
       "listName": "cadernoDesejos",
@@ -1318,7 +1384,8 @@
           "label": "Espiritualidade",
           "multiline": true
         }
-      ]
+      ],
+      "week": 11
     },
     {
       "listName": "planoContinuidade",
@@ -1331,7 +1398,8 @@
           "label": "Seu plano",
           "multiline": true
         }
-      ]
+      ],
+      "week": 12
     },
     {
       "listName": "totemArtista",
@@ -1344,7 +1412,123 @@
           "label": "Seu totem",
           "multiline": true
         }
-      ]
+      ],
+      "week": 9
+    },
+    {
+      "listName": "minhasAfirmacoes",
+      "title": "Minhas Afirmações",
+      "subtitle": "Suas próprias afirmações — incluindo as que nascem de converter um 'blurt' (a réplica ácida que a mente solta) em algo positivo.",
+      "fields": [
+        {
+          "key": "texto",
+          "label": "Afirmação",
+          "multiline": true
+        },
+        {
+          "key": "blurt",
+          "label": "Blurt que ela responde (opcional)",
+          "multiline": true
+        }
+      ],
+      "week": 1,
+      "weekNote": "reutilizada nas Semanas 2 e 12"
+    },
+    {
+      "listName": "crencasNegativasViloes",
+      "title": "Vilões da Autoconfiança / Crenças Negativas",
+      "subtitle": "Vilões antigos (professores, críticos, vozes internalizadas) e o episódio por trás de cada um.",
+      "fields": [
+        {
+          "key": "vilao",
+          "label": "Vilão / quem disse",
+          "multiline": false
+        },
+        {
+          "key": "detalhe",
+          "label": "O episódio em detalhe",
+          "multiline": true
+        }
+      ],
+      "week": 1,
+      "weekNote": "reler na Semana 12"
+    },
+    {
+      "listName": "cartaDefesaCrianca",
+      "title": "Carta em Sua Defesa",
+      "subtitle": "Escrita na voz da sua criança-artista ferida, respondendo a um dos vilões acima.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "texto",
+          "label": "Sua carta",
+          "multiline": true
+        }
+      ],
+      "week": 1
+    },
+    {
+      "listName": "campeoesApoio",
+      "title": "Campeões da Criatividade",
+      "subtitle": "Quem apoiou sua criatividade — e a palavra de incentivo específica que lembra de cada um.",
+      "fields": [
+        {
+          "key": "nome",
+          "label": "Nome",
+          "multiline": false
+        },
+        {
+          "key": "palavraDeIncentivo",
+          "label": "Palavra de incentivo",
+          "multiline": true
+        }
+      ],
+      "week": 1
+    },
+    {
+      "listName": "cartaAgradecimentoCampeao",
+      "title": "Carta de Agradecimento a um Campeão",
+      "subtitle": "Um agradecimento concreto e endereçado — a um campeão da lista acima, ou a um mentor específico.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "texto",
+          "label": "Sua carta",
+          "multiline": true
+        }
+      ],
+      "week": 1
+    },
+    {
+      "listName": "queroVsDeveria",
+      "title": "Quero vs. Deveria",
+      "subtitle": "As 5 atividades que mais tomaram seu tempo essa semana — e quanto foi 'quero' vs. 'deveria'.",
+      "fields": [
+        {
+          "key": "atividade",
+          "label": "Atividade",
+          "multiline": false
+        },
+        {
+          "key": "querOuDeveria",
+          "label": "Quero ou deveria?",
+          "multiline": false
+        }
+      ],
+      "week": 2
+    },
+    {
+      "listName": "pequenasMudancas",
+      "title": "Pequenas Mudanças",
+      "subtitle": "10 pequenas mudanças que gostaria de fazer — execute pelo menos uma.",
+      "fields": [
+        {
+          "key": "mudanca",
+          "label": "Mudança",
+          "multiline": false
+        }
+      ],
+      "week": 2
     }
   ],
   "quizConfigs": [

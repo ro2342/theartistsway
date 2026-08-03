@@ -120,6 +120,18 @@ namespace ArtistWayUWP.Services
                         Multiline = fieldObj.ContainsKey("multiline") && fieldObj.GetNamedBoolean("multiline"),
                     });
                 }
+                if (toolObj.ContainsKey("week"))
+                {
+                    JsonValue weekValue = toolObj.GetNamedValue("week");
+                    if (weekValue.ValueType == JsonValueType.Number)
+                    {
+                        tool.Week = (int)weekValue.GetNumber();
+                    }
+                }
+                if (toolObj.ContainsKey("weekNote"))
+                {
+                    tool.WeekNote = toolObj.GetNamedString("weekNote");
+                }
                 content.ToolConfigs.Add(tool);
             }
 

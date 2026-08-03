@@ -178,6 +178,7 @@ namespace ArtistWayUWP.Views
                     case "lifePie": return "Life Pie";
                     case "circuloSeguranca": return "Círculo de Segurança";
                     case "principiosBasicos": return "Princípios Básicos";
+                    case "artistDate": return "Artist Date";
                     default: return null;
                 }
             }
@@ -203,6 +204,9 @@ namespace ArtistWayUWP.Views
                         break;
                     case "principiosBasicos":
                         MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage));
+                        break;
+                    case "artistDate":
+                        MainPage.Current.ContentFrame.Navigate(typeof(ArtistDatePage));
                         break;
                 }
             }

@@ -19,4 +19,10 @@ data class NamedListConfig(
     val subtitle: String = "",
     val singleton: Boolean = false,
     val fields: List<ListFieldConfig> = emptyList(),
+    // Semana do livro em que a ferramenta é introduzida pela primeira vez
+    // — usado só pra agrupar a tela de Recursos por semana (null =
+    // "Geral"). weekNote é um texto livre opcional (ex.: "cresce nas
+    // Semanas 2 e 5").
+    val week: Int? = null,
+    val weekNote: String? = null,
 )

@@ -120,24 +120,31 @@ const WEEKS = [
       { task: "Comece as Morning Pages: 3 páginas à mão, toda manhã, sem reler.",
         detail: "É a ferramenta-base de todo o processo — tudo o mais no livro parte daqui. Não precisa fazer sentido nem ser bonito: o valor está em escrever antes que o crítico interno acorde." },
       { task: "Trabalhe com suas afirmações de escolha ao fim das páginas de cada dia — e converta cada 'blurt' (a réplica automática e ácida que a mente solta) numa afirmação positiva.",
-        detail: "Blurts são os contra-ataques que aparecem assim que você tenta afirmar algo bom sobre si ('quem você pensa que é'). O livro pede pra não ignorá-los: cada um vira matéria-prima pra uma nova afirmação, virando o veneno do avesso." },
+        detail: "Blurts são os contra-ataques que aparecem assim que você tenta afirmar algo bom sobre si ('quem você pensa que é'). O livro pede pra não ignorá-los: cada um vira matéria-prima pra uma nova afirmação, virando o veneno do avesso.",
+        link: { type: "list", key: "minhasAfirmacoes" } },
       { task: "Liste três antigos 'vilões' da sua autoconfiança criativa (professores, críticos, vozes internalizadas) — seja bem específico.",
-        detail: "O livro chama isso de 'crenças negativas centrais': frases que alguém disse um dia e que você carrega até hoje como se fossem fatos. Nomear o vilão tira o poder dele de agir escondido." },
+        detail: "O livro chama isso de 'crenças negativas centrais': frases que alguém disse um dia e que você carrega até hoje como se fossem fatos. Nomear o vilão tira o poder dele de agir escondido.",
+        link: { type: "list", key: "crencasNegativasViloes" } },
       { task: "Escreva em detalhe sobre um desses episódios — o que aconteceu, como você se sentiu.",
-        detail: "Reviver o episódio com detalhes sensoriais (o lugar, a fala, a sensação no corpo) ajuda a processar a mágoa como algo que já passou, em vez de uma ferida ainda aberta e reativa." },
+        detail: "Reviver o episódio com detalhes sensoriais (o lugar, a fala, a sensação no corpo) ajuda a processar a mágoa como algo que já passou, em vez de uma ferida ainda aberta e reativa.",
+        link: { type: "list", key: "crencasNegativasViloes" } },
       { task: "Se quiser, desenhe ou faça uma caricatura desse 'vilão' — pode ser um rabisco bobo, ou um X vermelho bem grande por cima dele.",
         detail: "Não precisa saber desenhar. O livro sugere isso como uma forma de extravasar com humor, não só com palavras — tirar um pouco do peso simbólico que essa lembrança carrega." },
       { task: "Escreva uma carta 'em sua defesa' na voz da sua criança-artista ferida.",
-        detail: "Escrever na primeira pessoa, como a criança que você foi, costuma soltar uma raiva ou tristeza que a versão adulta racionaliza demais para sentir de verdade." },
+        detail: "Escrever na primeira pessoa, como a criança que você foi, costuma soltar uma raiva ou tristeza que a versão adulta racionaliza demais para sentir de verdade.",
+        link: { type: "list", key: "cartaDefesaCrianca" } },
       { task: "Liste três 'campeões' que apoiaram sua criatividade — seja específico sobre cada palavra de incentivo que lembrar.",
-        detail: "Contrabalança o exercício anterior: também existiram vozes que acreditaram em você. Mesmo um elogio que você duvidou na hora vale registrar — pode ser mais verdadeiro do que parecia." },
+        detail: "Contrabalança o exercício anterior: também existiram vozes que acreditaram em você. Mesmo um elogio que você duvidou na hora vale registrar — pode ser mais verdadeiro do que parecia.",
+        link: { type: "list", key: "campeoesApoio" } },
       { task: "Escreva uma carta de agradecimento a um desses campeões (ou a um mentor específico) e envie pra você mesmo(a), ou pra essa pessoa.",
-        detail: "É uma tarefa separada da lista de campeões: um agradecimento concreto e endereçado, não só uma lembrança guardada — o gesto de mandar (mesmo que só pra si) reforça que esse apoio foi real." },
+        detail: "É uma tarefa separada da lista de campeões: um agradecimento concreto e endereçado, não só uma lembrança guardada — o gesto de mandar (mesmo que só pra si) reforça que esse apoio foi real.",
+        link: { type: "list", key: "cartaAgradecimentoCampeao" } },
       { task: "Liste 5 vidas imaginárias que você gostaria de ter vivido; escolha uma e faça algo dela essa semana.",
         detail: "As 'vidas imaginárias' revelam desejos que você talvez tenha engavetado (ex.: 'seria astrônomo'). A ideia não é mudar de carreira, mas roubar um pedacinho real dessa vida — uma aula, uma visita, uma leitura.",
         link: { type: "list", key: "imaginaryLives" } },
       { task: "Faça seu primeiro Artist Date da jornada, sozinho(a).",
-        detail: "É a primeira das 12 saídas solo do programa. Não precisa ser grande: o objetivo é só provar pra si mesmo(a) que dá pra fazer algo só por prazer, sem culpa." },
+        detail: "É a primeira das 12 saídas solo do programa. Não precisa ser grande: o objetivo é só provar pra si mesmo(a) que dá pra fazer algo só por prazer, sem culpa.",
+        link: { type: "screen", key: "artistDate" } },
       { task: "Leve seu artista interior para uma caminhada de 20 minutos.",
         detail: "Caminhar (sem fone, sem celular) é uma das formas mais simples de driblar o pensamento racional e deixar a mente associar ideias livremente — muitas soluções criativas aparecem assim." },
     ],
@@ -159,7 +166,8 @@ const WEEKS = [
         detail: "São as ideias centrais que sustentam o programa (ex.: a criatividade é um recurso espiritual, não um talento raro reservado a poucos). Repetir em voz alta ajuda a internalizar aos poucos, mesmo sem concordar 100% de cara.",
         link: { type: "screen", key: "principiosBasicos" } },
       { task: "Liste as 5 atividades que mais tomaram seu tempo essa semana e quanto foi 'quero' vs. 'deveria'.",
-        detail: "Esse exercício expõe o quanto da sua energia vai para obrigações herdadas de outras pessoas, sem que você tenha escolhido isso conscientemente." },
+        detail: "Esse exercício expõe o quanto da sua energia vai para obrigações herdadas de outras pessoas, sem que você tenha escolhido isso conscientemente.",
+        link: { type: "list", key: "queroVsDeveria" } },
       { task: "Desenhe um mapa de segurança: quem apoia sua criatividade agora e de quem você precisa se proteger por um tempo.",
         detail: "Não é sobre cortar pessoas para sempre — é sobre reconhecer que, num momento frágil de recomeço criativo, algumas conversas fazem mais mal que bem por ora.",
         link: { type: "screen", key: "circuloSeguranca" } },
@@ -167,9 +175,11 @@ const WEEKS = [
         detail: "É comum a lista mostrar prazeres simples abandonados há anos. Essa lista também vira um banco de ideias prontas para os futuros Artist Dates.",
         link: { type: "list", key: "thingsILike" } },
       { task: "Escolha duas dessas coisas 'esquecidas' como metas para essa semana.",
-        detail: "Sair da lista para a ação — o objetivo é pequeno e concreto, não uma reforma de vida inteira." },
+        detail: "Sair da lista para a ação — o objetivo é pequeno e concreto, não uma reforma de vida inteira.",
+        link: { type: "list", key: "thingsILike" } },
       { task: "Volte às afirmações da Semana 1 e note quais ainda incomodam — geralmente são as mais importantes.",
-        detail: "Quando uma afirmação positiva causa desconforto ou ceticismo forte, costuma ser sinal de que ela tocou numa crença negativa bem entrincheirada." },
+        detail: "Quando uma afirmação positiva causa desconforto ou ceticismo forte, costuma ser sinal de que ela tocou numa crença negativa bem entrincheirada.",
+        link: { type: "list", key: "minhasAfirmacoes" } },
       { task: "Adicione mais 5 vidas imaginárias à sua lista da semana passada.",
         detail: "Quanto mais vidas você lista, mais claro fica um padrão do que realmente te atrai (aventura? cuidado? risco? arte?).",
         link: { type: "list", key: "imaginaryLives" } },
@@ -177,7 +187,8 @@ const WEEKS = [
         detail: "É um raio-x visual e rápido de onde sua vida está desequilibrada. A ideia é revisitar esse mesmo desenho mais adiante no programa e comparar.",
         link: { type: "screen", key: "lifePie" } },
       { task: "Liste 10 pequenas mudanças que gostaria de fazer e execute uma delas.",
-        detail: "Mudanças pequenas e realizáveis (trocar o lençol, pintar uma parede) costumam destravar a sensação de estagnação mais rápido do que decisões grandes." },
+        detail: "Mudanças pequenas e realizáveis (trocar o lençol, pintar uma parede) costumam destravar a sensação de estagnação mais rápido do que decisões grandes.",
+        link: { type: "list", key: "pequenasMudancas" } },
     ],
     checkinBonus: "Que 'deveria' você conseguiu trocar por um 'eu quero de verdade' essa semana?",
   },
@@ -667,6 +678,11 @@ const UI_STRINGS = {
 // formulário de UM registro só (editável/sobrescrito) em vez de uma lista
 // que só cresce — mesmo mecanismo de armazenamento (store "lists"), só
 // muda o comportamento de salvar.
+// `week` marca em qual semana do livro a ferramenta é introduzida pela
+// primeira vez (usado só pra agrupar a tela de Recursos por semana —
+// null = "Geral", não presa a nenhuma semana específica). `weekNote`
+// é um texto livre opcional pra casos de reaproveitamento em semanas
+// futuras (ex.: "reutilizada nas Semanas 6 e 11").
 const TOOL_CONFIGS = {
   // já existiam antes desta leva
   imaginaryLives: {
@@ -674,12 +690,15 @@ const TOOL_CONFIGS = {
     title: "Vidas Imaginárias",
     subtitle: "Vidas que você gostaria de ter vivido — a lista cresce a cada semana, não precisa reescrever do zero.",
     fields: [{ key: "text", label: "Uma vida imaginária", multiline: true }],
+    week: 1,
+    weekNote: "cresce nas Semanas 2 e 5",
   },
   thingsILike: {
     listName: "thingsILike",
     title: "20 Coisas que Gosto de Fazer",
     subtitle: "Uma lista viva — reaparece em vários exercícios do livro, inclusive como banco de ideias pra Artist Date.",
     fields: [{ key: "text", label: "Uma coisa que eu gosto de fazer", multiline: false }],
+    week: 2,
   },
   jealousyMap: {
     listName: "jealousyMap",
@@ -690,6 +709,7 @@ const TOOL_CONFIGS = {
       { key: "why", label: "Por quê", multiline: true },
       { key: "antidote", label: "Ação-antídoto", multiline: true },
     ],
+    week: 7,
   },
 
   // novas — tipo lista (crescem, nunca são sobrescritas)
@@ -698,24 +718,28 @@ const TOOL_CONFIGS = {
     title: "Diário de Sincronicidade",
     subtitle: "Toda vez que uma coincidência boa acontecer, registre aqui — sinal de que você está alinhado(a) com sua criatividade.",
     fields: [{ key: "texto", label: "O que aconteceu", multiline: true }],
+    week: 3,
   },
   pocoCriativo: {
     listName: "pocoCriativo",
     title: "Registro do Poço Criativo",
     subtitle: "Pequenos gestos sensoriais do dia a dia que encheram seu poço criativo — um cheiro, uma música, um caminho diferente pra casa.",
     fields: [{ key: "texto", label: "O que encheu seu poço hoje", multiline: true }],
+    week: null,
   },
   diarioResistencia: {
     listName: "diarioResistencia",
     title: "Diário de Resistência",
     subtitle: "Toda vez que perceber que evitou fazer algo, registre aqui — o livro chama isso de medo, não preguiça.",
     fields: [{ key: "texto", label: "O que você evitou fazer", multiline: true }],
+    week: 9,
   },
   cartaCriticoInterno: {
     listName: "cartaCriticoInterno",
     title: "Cartas para o Crítico Interno",
     subtitle: "Um espaço pra responder, por escrito, às vozes autocríticas — sempre que precisar.",
     fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+    week: 1,
   },
   diarioLeitura: {
     listName: "diarioLeitura",
@@ -725,6 +749,7 @@ const TOOL_CONFIGS = {
       { key: "livro", label: "Livro", multiline: false },
       { key: "reflexao", label: "Sua reflexão", multiline: true },
     ],
+    week: 4,
   },
   resentimentosMedos: {
     listName: "resentimentosMedos",
@@ -736,6 +761,7 @@ const TOOL_CONFIGS = {
       { key: "medo", label: "Medo", multiline: true },
       { key: "ganhoOculto", label: "Ganho oculto em não fazer", multiline: true },
     ],
+    week: 9,
   },
   retornosEmU: {
     listName: "retornosEmU",
@@ -746,6 +772,7 @@ const TOOL_CONFIGS = {
       { key: "motivo", label: "Motivo (o medo por trás)", multiline: true },
       { key: "resgatar", label: "Vale a pena resgatar agora?", multiline: true },
     ],
+    week: 9,
   },
   arqueologia: {
     listName: "arqueologia",
@@ -755,6 +782,7 @@ const TOOL_CONFIGS = {
       { key: "faltou", label: "O que faltou na infância", multiline: true },
       { key: "ganho", label: "Inventário positivo de hoje", multiline: true },
     ],
+    week: 7,
   },
   buscaEstilo: {
     listName: "buscaEstilo",
@@ -767,18 +795,21 @@ const TOOL_CONFIGS = {
       { key: "riscoFisico", label: "Tem risco físico?", multiline: false },
       { key: "ligadoATrabalho", label: "Ligado a trabalho?", multiline: false },
     ],
+    week: 8,
   },
   bottomLine: {
     listName: "bottomLine",
     title: "Bottom Line / Limites Não-Negociáveis",
     subtitle: "Uma lista permanente e sempre visível de limites — pra funcionar de verdade como lembrete, não só um item de checklist riscado.",
     fields: [{ key: "limite", label: "Limite", multiline: true }],
+    week: 10,
   },
   pontosFelicidade: {
     listName: "pontosFelicidade",
     title: "Pontos de Referência de Felicidade",
     subtitle: "Pequenos consolos que sempre funcionam pra você — pensados pra estar a um toque de distância nos momentos difíceis.",
     fields: [{ key: "texto", label: "O que te conforta", multiline: true }],
+    week: 10,
   },
 
   // novas — tipo formulário único (singleton: um registro só, sobrescrito)
@@ -788,6 +819,7 @@ const TOOL_CONFIGS = {
     subtitle: "Escreva pra si mesmo(a) hoje, a partir da perspectiva de quem você será daqui a décadas.",
     singleton: true,
     fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+    week: 4,
   },
   carta8anos: {
     listName: "carta8anos",
@@ -795,6 +827,7 @@ const TOOL_CONFIGS = {
     subtitle: "A carta espelhada — escrita a partir de quem você foi quando criança.",
     singleton: true,
     fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+    week: 4,
   },
   oracaoArtista: {
     listName: "oracaoArtista",
@@ -802,6 +835,8 @@ const TOOL_CONFIGS = {
     subtitle: "Sua própria declaração de intenção e entrega — não precisa ser religiosa no sentido tradicional. Use-a todos os dias.",
     singleton: true,
     fields: [{ key: "texto", label: "Sua oração", multiline: true }],
+    week: 4,
+    weekNote: "reutilizada nas Semanas 6 e 11",
   },
   cartaEncorajamento: {
     listName: "cartaEncorajamento",
@@ -809,6 +844,7 @@ const TOOL_CONFIGS = {
     subtitle: "Fecha o ciclo aberto na carta de defesa da Semana 1 — uma carta de apoio, escrita já numa fase mais fortalecida.",
     singleton: true,
     fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+    week: 11,
   },
   metasNorteVerdadeiro: {
     listName: "metasNorteVerdadeiro",
@@ -825,6 +861,7 @@ const TOOL_CONFIGS = {
       { key: "horizonte1semana", label: "Em 1 semana", multiline: false },
       { key: "horizonteAgora", label: "Agora", multiline: false },
     ],
+    week: 8,
   },
   diaIdeal: {
     listName: "diaIdeal",
@@ -835,6 +872,7 @@ const TOOL_CONFIGS = {
       { key: "diaIdealAtual", label: "Dia ideal dentro da vida atual", multiline: true },
       { key: "diaIdealSemRestricoes", label: "Dia ideal sem nenhuma restrição", multiline: true },
     ],
+    week: 8,
   },
   cadernoDesejos: {
     listName: "cadernoDesejos",
@@ -850,6 +888,7 @@ const TOOL_CONFIGS = {
       { key: "carreira", label: "Carreira", multiline: true },
       { key: "espiritualidade", label: "Espiritualidade", multiline: true },
     ],
+    week: 11,
   },
   planoContinuidade: {
     listName: "planoContinuidade",
@@ -857,6 +896,7 @@ const TOOL_CONFIGS = {
     subtitle: "Como manter Morning Pages e Artist Date depois que o programa das 12 semanas terminar.",
     singleton: true,
     fields: [{ key: "texto", label: "Seu plano", multiline: true }],
+    week: 12,
   },
   totemArtista: {
     listName: "totemArtista",
@@ -864,6 +904,76 @@ const TOOL_CONFIGS = {
     subtitle: "Um objeto que desperte ternura pela sua criança-artista — guardado aqui pra não esquecer qual é.",
     singleton: true,
     fields: [{ key: "texto", label: "Seu totem", multiline: true }],
+    week: 9,
+  },
+
+  // Semana 1 — leva de "tudo na app" (cartas/listas sem ferramenta própria)
+  minhasAfirmacoes: {
+    listName: "minhasAfirmacoes",
+    title: "Minhas Afirmações",
+    subtitle: "Suas próprias afirmações — incluindo as que nascem de converter um 'blurt' (a réplica ácida que a mente solta) em algo positivo.",
+    fields: [
+      { key: "texto", label: "Afirmação", multiline: true },
+      { key: "blurt", label: "Blurt que ela responde (opcional)", multiline: true },
+    ],
+    week: 1,
+    weekNote: "reutilizada nas Semanas 2 e 12",
+  },
+  crencasNegativasViloes: {
+    listName: "crencasNegativasViloes",
+    title: "Vilões da Autoconfiança / Crenças Negativas",
+    subtitle: "Vilões antigos (professores, críticos, vozes internalizadas) e o episódio por trás de cada um.",
+    fields: [
+      { key: "vilao", label: "Vilão / quem disse", multiline: false },
+      { key: "detalhe", label: "O episódio em detalhe", multiline: true },
+    ],
+    week: 1,
+    weekNote: "reler na Semana 12",
+  },
+  cartaDefesaCrianca: {
+    listName: "cartaDefesaCrianca",
+    title: "Carta em Sua Defesa",
+    subtitle: "Escrita na voz da sua criança-artista ferida, respondendo a um dos vilões acima.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+    week: 1,
+  },
+  campeoesApoio: {
+    listName: "campeoesApoio",
+    title: "Campeões da Criatividade",
+    subtitle: "Quem apoiou sua criatividade — e a palavra de incentivo específica que lembra de cada um.",
+    fields: [
+      { key: "nome", label: "Nome", multiline: false },
+      { key: "palavraDeIncentivo", label: "Palavra de incentivo", multiline: true },
+    ],
+    week: 1,
+  },
+  cartaAgradecimentoCampeao: {
+    listName: "cartaAgradecimentoCampeao",
+    title: "Carta de Agradecimento a um Campeão",
+    subtitle: "Um agradecimento concreto e endereçado — a um campeão da lista acima, ou a um mentor específico.",
+    singleton: true,
+    fields: [{ key: "texto", label: "Sua carta", multiline: true }],
+    week: 1,
+  },
+
+  // Semana 2
+  queroVsDeveria: {
+    listName: "queroVsDeveria",
+    title: "Quero vs. Deveria",
+    subtitle: "As 5 atividades que mais tomaram seu tempo essa semana — e quanto foi 'quero' vs. 'deveria'.",
+    fields: [
+      { key: "atividade", label: "Atividade", multiline: false },
+      { key: "querOuDeveria", label: "Quero ou deveria?", multiline: false },
+    ],
+    week: 2,
+  },
+  pequenasMudancas: {
+    listName: "pequenasMudancas",
+    title: "Pequenas Mudanças",
+    subtitle: "10 pequenas mudanças que gostaria de fazer — execute pelo menos uma.",
+    fields: [{ key: "mudanca", label: "Mudança", multiline: false }],
+    week: 2,
   },
 };
 

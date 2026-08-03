@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -7,6 +11,18 @@ namespace ArtistWayUWP.Views
 {
     public sealed partial class FerramentasPage : Page
     {
+        // Telas de ferramenta que não são TOOL_CONFIGS (têm página própria
+        // em vez da genérica NamedListPage) — mesma "semana de introdução"
+        // do PWA (www/js/app.js, BESPOKE_TOOL_SCREENS), conferida linha a
+        // linha contra o texto original.
+        private sealed class BespokeToolScreen
+        {
+            public string Title;
+            public int? Week;
+            public string WeekNote;
+            public Action Navigate;
+        }
+
         public FerramentasPage()
         {
             this.InitializeComponent();
@@ -14,196 +30,104 @@ namespace ArtistWayUWP.Views
             // Cache a instância no Frame em vez de recriar a página a cada
             // navegação — sem isso, ao voltar de uma ferramenta (ex.:
             // Diário de Sincronicidade) o Pivot esquecia a aba selecionada
-            // e voltava sempre pra primeira ("Referência") em vez de
-            // manter a aba de onde a pessoa veio (ex.: "Diários").
+            // e voltava sempre pra primeira em vez de manter a aba de onde
+            // a pessoa veio.
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
-            // Títulos das abas vêm de UI_STRINGS (www/js/data.js), fonte
-            // única compartilhada com o PWA — ver ContentStore.S.
-            ReferenceTab.Header = ContentStore.S("recursos.reference.title");
-            ListsTab.Header = ContentStore.S("recursos.lists.title");
-            DiariesTab.Header = ContentStore.S("recursos.diaries.title");
-            LettersTab.Header = ContentStore.S("recursos.letters.title");
-            PlanningTab.Header = ContentStore.S("recursos.planning.title");
-            BoundariesTab.Header = ContentStore.S("recursos.boundaries.title");
-            HistoryTab.Header = ContentStore.S("recursos.history.title");
-            QuizTab.Header = ContentStore.S("recursos.quiz.title");
+            BuildPivot();
         }
 
-        // — Referência —
-
-        private void OpenRoadRules_Click(object sender, RoutedEventArgs e)
+        private void BuildPivot()
         {
-            MainPage.Current.ContentFrame.Navigate(typeof(RegrasDaEstradaPage));
+            List<BespokeToolScreen> bespoke = new List<BespokeToolScreen>
+            {
+                new BespokeToolScreen { Title = "Princípios Básicos", Week = null, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage)) },
+                new BespokeToolScreen { Title = "Crença → Positiva", Week = 1, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage)) },
+                new BespokeToolScreen { Title = "Regras da Estrada", Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(RegrasDaEstradaPage)) },
+                new BespokeToolScreen { Title = "Círculo de Segurança", Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(CirculoSegurancaPage)) },
+                new BespokeToolScreen { Title = "Life Pie", Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage)) },
+                new BespokeToolScreen { Title = "Banco de Afirmações", Week = 8, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(AfirmacoesPage)) },
+                new BespokeToolScreen { Title = "Histórico de Artist Dates", Week = null, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(ArtistDateHistoryPage)) },
+                new BespokeToolScreen { Title = "Reler Check-ins Antigos", Week = 9, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(CheckinHistoryPage)) },
+                new BespokeToolScreen
+                {
+                    Title = ContentStore.Content.QuizConfigs.FirstOrDefault(q => q.Key == "workaholismQuiz")?.Title ?? "Quiz",
+                    Week = 10,
+                    Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(QuizPage), "workaholismQuiz"),
+                },
+            };
+
+            RecursosPivot.Items.Clear();
+            for (int week = 1; week <= 12; week++)
+            {
+                PivotItem item = BuildWeekPivotItem($"Semana {week}", week, bespoke);
+                if (item != null)
+                {
+                    RecursosPivot.Items.Add(item);
+                }
+            }
+            PivotItem geral = BuildWeekPivotItem("Geral", null, bespoke);
+            if (geral != null)
+            {
+                RecursosPivot.Items.Add(geral);
+            }
         }
 
-        private void OpenPrinciples_Click(object sender, RoutedEventArgs e)
+        private PivotItem BuildWeekPivotItem(string header, int? week, List<BespokeToolScreen> bespoke)
         {
-            MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage));
+            List<NamedListConfig> tools = ContentStore.Content.ToolConfigs.Where(t => t.Week == week).ToList();
+            List<BespokeToolScreen> screens = bespoke.Where(b => b.Week == week).ToList();
+            if (tools.Count == 0 && screens.Count == 0)
+            {
+                return null;
+            }
+
+            StackPanel panel = new StackPanel();
+            bool first = true;
+            foreach (BespokeToolScreen screen in screens)
+            {
+                AddToolButton(panel, screen.Title, screen.WeekNote, screen.Navigate, first);
+                first = false;
+            }
+            foreach (NamedListConfig tool in tools)
+            {
+                string listName = tool.ListName;
+                AddToolButton(panel, tool.Title, tool.WeekNote, () => MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), listName), first);
+                first = false;
+            }
+
+            return new PivotItem
+            {
+                Header = header,
+                Content = new ScrollViewer
+                {
+                    Padding = new Thickness(16, 12, 16, 24),
+                    Content = panel,
+                },
+            };
         }
 
-        private void OpenBeliefTable_Click(object sender, RoutedEventArgs e)
+        private static void AddToolButton(StackPanel panel, string title, string weekNote, Action onClick, bool first)
         {
-            MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage));
-        }
+            Button button = new Button
+            {
+                Content = title,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, first ? 0 : 8, 0, 0),
+            };
+            button.Click += (s, e) => onClick();
+            panel.Children.Add(button);
 
-        private void OpenAfirmacoes_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(AfirmacoesPage));
-        }
-
-        // — Listas e mapas —
-
-        private void OpenImaginaryLives_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "imaginaryLives");
-        }
-
-        private void OpenThingsILike_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "thingsILike");
-        }
-
-        private void OpenJealousyMap_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "jealousyMap");
-        }
-
-        private void OpenSafetyCircle_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(CirculoSegurancaPage));
-        }
-
-        private void OpenLifePie_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage));
-        }
-
-        // — Diários —
-
-        private void OpenSincronicidade_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "sincronicidade");
-        }
-
-        private void OpenPocoCriativo_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "pocoCriativo");
-        }
-
-        private void OpenDiarioResistencia_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "diarioResistencia");
-        }
-
-        private void OpenCartaCriticoInterno_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "cartaCriticoInterno");
-        }
-
-        private void OpenDiarioLeitura_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "diarioLeitura");
-        }
-
-        // — Cartas —
-
-        private void OpenCarta80_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "carta80anos");
-        }
-
-        private void OpenCarta8_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "carta8anos");
-        }
-
-        private void OpenOracaoArtista_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "oracaoArtista");
-        }
-
-        private void OpenCartaEncorajamento_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "cartaEncorajamento");
-        }
-
-        // — Planejamento —
-
-        private void OpenMetasNorteVerdadeiro_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "metasNorteVerdadeiro");
-        }
-
-        private void OpenBuscaEstilo_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "buscaEstilo");
-        }
-
-        private void OpenDiaIdeal_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "diaIdeal");
-        }
-
-        private void OpenCadernoDesejos_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "cadernoDesejos");
-        }
-
-        private void OpenPlanoContinuidade_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "planoContinuidade");
-        }
-
-        // — Limites e memórias —
-
-        private void OpenResentimentosMedos_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "resentimentosMedos");
-        }
-
-        private void OpenRetornosEmU_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "retornosEmU");
-        }
-
-        private void OpenArqueologia_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "arqueologia");
-        }
-
-        private void OpenBottomLine_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "bottomLine");
-        }
-
-        private void OpenPontosFelicidade_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "pontosFelicidade");
-        }
-
-        private void OpenTotemArtista_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), "totemArtista");
-        }
-
-        // — Histórico —
-
-        private void OpenArtistDateHistory_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(ArtistDateHistoryPage));
-        }
-
-        private void OpenCheckinHistory_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(CheckinHistoryPage));
-        }
-
-        // — Quiz —
-
-        private void OpenWorkaholismQuiz_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.Current.ContentFrame.Navigate(typeof(QuizPage), "workaholismQuiz");
+            if (!string.IsNullOrEmpty(weekNote))
+            {
+                panel.Children.Add(new TextBlock
+                {
+                    Text = weekNote,
+                    Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
+                    Opacity = 0.7,
+                    Margin = new Thickness(0, 2, 0, 0),
+                });
+            }
         }
     }
 }

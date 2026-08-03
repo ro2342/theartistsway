@@ -21,5 +21,12 @@ namespace ArtistWayUWP.Models
         public string Subtitle { get; set; }
         public bool Singleton { get; set; }
         public List<ListFieldConfig> Fields { get; set; } = new List<ListFieldConfig>();
+
+        // Semana do livro em que a ferramenta é introduzida pela primeira
+        // vez — usado só pra agrupar a tela de Recursos por semana (null =
+        // "Geral"). WeekNote é um texto livre opcional (ex.: "cresce nas
+        // Semanas 2 e 5").
+        public int? Week { get; set; }
+        public string WeekNote { get; set; }
     }
 }
