@@ -554,7 +554,10 @@ fluent-text-input, fluent-textarea, fluent-select, fluent-combobox {
   width: 100%;
 }
 
-input[type="date"] {
+input[type="date"],
+input[type="text"],
+input[type="time"],
+textarea {
   width: 100%;
   padding: 8px 10px;
   border-radius: var(--radius);
@@ -563,6 +566,15 @@ input[type="date"] {
   color: var(--colorNeutralForeground1, #242424);
   font-family: inherit;
   font-size: var(--fontSizeBase300, 14px);
+  box-sizing: border-box;
+}
+
+/* Sem isso, um <textarea> sem linhas/estilo próprio cai no tamanho
+   padrão minúsculo do navegador (~2 linhas) — praticamente inutilizável
+   pras cartas/reflexões mais longas das ferramentas de Recursos. */
+textarea {
+  min-height: 140px;
+  resize: vertical;
 }
 
 /* — Quiz — */
