@@ -53,7 +53,7 @@ namespace ArtistWayUWP.Views
                 {
                     AcceptsReturn = true,
                     TextWrapping = TextWrapping.Wrap,
-                    Height = 96,
+                    Height = 160,
                     Tag = i.ToString(),
                 };
                 if (existing != null && existing.Answers.TryGetValue(i.ToString(), out string ans))

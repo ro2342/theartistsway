@@ -14,8 +14,8 @@ android {
         applicationId = "com.rodcarvalho.artistway"
         minSdk = 26
         targetSdk = 34
-        versionCode = 22
-        versionName = "42.2.0.14"
+        versionCode = 23
+        versionName = "42.2.0.15"
     }
 
     buildTypes {

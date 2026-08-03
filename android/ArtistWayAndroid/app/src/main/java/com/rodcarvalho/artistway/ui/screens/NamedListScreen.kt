@@ -74,7 +74,7 @@ fun NamedListScreen(listKey: String) {
                 value = fieldValues[field.key] ?: "",
                 onValueChange = { fieldValues[field.key] = it },
                 label = { Text(field.label) },
-                minLines = if (field.multiline) 3 else 1,
+                minLines = if (field.multiline) 6 else 1,
                 modifier = Modifier.fillMaxWidth(),
             )
         }

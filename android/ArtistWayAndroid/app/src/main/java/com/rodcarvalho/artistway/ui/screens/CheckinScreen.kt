@@ -62,7 +62,7 @@ fun CheckinScreen(weekId: Int, onSaved: () -> Unit) {
                         value = answers[i],
                         onValueChange = { answers[i] = it },
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 3,
+                        minLines = 6,
                     )
                 }
             }

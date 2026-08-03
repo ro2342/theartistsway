@@ -83,7 +83,10 @@ namespace ArtistWayUWP.Views
                 {
                     AcceptsReturn = field.Multiline,
                     TextWrapping = TextWrapping.Wrap,
-                    Height = field.Multiline ? 80 : double.NaN,
+                    // 80px era pequeno demais pra cartas/reflexões mais
+                    // longas (Semanas 1 e 2 em diante) — mesmo ajuste do
+                    // CSS do PWA (min-height 140px).
+                    Height = field.Multiline ? 160 : double.NaN,
                 };
                 FieldsPanel.Children.Add(box);
                 _inputs[field.Key] = box;
