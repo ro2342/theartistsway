@@ -211,7 +211,7 @@ fun HomeScreen(
         }
 
         if (!current.maintenanceMode) {
-            Card(modifier = Modifier.fillMaxWidth().weight(1f, fill = false)) {
+            Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Semana ${current.weekId} de 12", style = MaterialTheme.typography.labelLarge)
                     Text(current.weekTitle, style = MaterialTheme.typography.titleMedium)
