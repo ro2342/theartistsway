@@ -182,11 +182,21 @@ weekId, cycleStart }`.
   na mão**. `app/android/index.html` é estático, só editado à mão (não
   é regenerado). O workflow `03-generate-android-keystore.yml` só roda
   manualmente (uma vez) — não precisa rodar de novo depois que o
-  keystore existir. `02-build-appx.yml` e `04-build-apk.yml`
-  compartilham o mesmo `concurrency: group: pages` de propósito — os
-  dois podem disparar do mesmo push (ambos rodam em mudança de `www/**`)
-  e cada um faz commit+push próprio antes de implantar o Pages; sem
-  isso os dois rodando ao mesmo tempo poderiam colidir no `git push`.
+  keystore existir. `02-build-appx.yml` e `04-build-apk.yml` cada um tem
+  seu próprio `concurrency: group` (`pages-uwp` / `pages-android`) —
+  **não compartilham mais** desde que os dois passaram a ter retry com
+  `git pull --rebase` no commit automático (fix do push-race). Antes
+  compartilhavam um grupo só (`pages`) achando que isso evitava colisão
+  no `git push` entre os dois; na prática isso causava o problema
+  oposto — quando os dois disparavam do mesmo push (ambos rodam em
+  mudança de `www/**`), a fila do grupo compartilhado cancelava a
+  execução de um dos dois workflows sempre que um push novo chegava
+  antes do anterior rodar, mesmo com `cancel-in-progress: false`
+  (GitHub só mantém a *mais recente* na fila por grupo, cancelando as
+  outras já enfileiradas — não só a que está rodando). Grupos separados
+  eliminam essa corrida cruzada; o retry+rebase de cada workflow já
+  cobre a colisão de `git push` que a exclusividade compartilhada
+  tentava evitar.
 
 ## Onde ficam as coisas
 

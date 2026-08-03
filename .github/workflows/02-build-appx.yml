@@ -18,7 +18,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-uwp
   cancel-in-progress: false
 
 jobs:
