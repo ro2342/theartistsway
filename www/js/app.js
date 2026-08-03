@@ -779,6 +779,28 @@ route("/home", async () => {
 });
 
 // ================= WEEK DETAIL =================
+// Resolve um item.link ({type, key}) pro título de exibição e pro hash
+// de navegação — "list" busca o título já cadastrado em TOOL_CONFIGS
+// (mesma fonte da tela de Recursos); "screen" é um punhado fixo de
+// telas sem TOOL_CONFIGS (Life Pie, Círculo de Segurança, Princípios
+// Básicos).
+function resolveChecklistLink(link) {
+  if (!link) return null;
+  if (link.type === "list") {
+    const tool = TOOL_CONFIGS[link.key];
+    return tool ? { title: tool.title, hash: `#/list/${link.key}` } : null;
+  }
+  if (link.type === "screen") {
+    const screens = {
+      lifePie: { title: "Life Pie", hash: "#/life-pie" },
+      circuloSeguranca: { title: "Círculo de Segurança", hash: "#/circulo-seguranca" },
+      principiosBasicos: { title: "Princípios Básicos", hash: "#/principios-basicos" },
+    };
+    return screens[link.key] || null;
+  }
+  return null;
+}
+
 route("/week", async (rest) => {
   const weekId = Number(rest[0]) || 1;
   const week = WEEKS.find((w) => w.id === weekId);
@@ -826,16 +848,18 @@ route("/week", async (rest) => {
     <div class="spacer-sm"></div>
     <div class="card">
       ${week.checklist
-        .map(
-          (item, idx) => `
+        .map((item, idx) => {
+          const resolved = resolveChecklistLink(item.link);
+          return `
         <div class="checklist-item ${doneSet.has(idx) ? "done" : ""}" data-idx="${idx}">
           <div class="box">${doneSet.has(idx) ? `<span class="icon">${window.ArtistWayIcons.checkmarkCircle}</span>` : ""}</div>
           <div class="text">
             ${item.task}
             <div class="item-note">${item.detail}</div>
+            ${resolved ? `<div class="item-link" data-hash="${resolved.hash}">Toque aqui para abrir: ${resolved.title} →</div>` : ""}
           </div>
-        </div>`
-        )
+        </div>`;
+        })
         .join("")}
     </div>
     <a class="btn brass block" href="#/checkin/${week.id}">Fazer o check-in dessa semana</a>
@@ -848,6 +872,16 @@ route("/week", async (rest) => {
       const idx = Number(el.dataset.idx);
       const done = await DB.toggleChecklistItem(weekId, idx);
       el.classList.toggle("done", done);
+    });
+  });
+
+  // Link tocável pra ferramenta dedicada — captura o clique antes que
+  // borbulhe pro checklist-item (senão também marcaria/desmarcaria a
+  // tarefa como feita ao mesmo tempo que navega).
+  forEachNode(appEl.querySelectorAll(".item-link"), (el) => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      window.location.hash = el.dataset.hash;
     });
   });
 

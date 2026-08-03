@@ -2,10 +2,19 @@ package com.rodcarvalho.artistway.data.model
 
 import kotlinx.serialization.Serializable
 
+// "list" -> NamedListScreen(listKey); "screen" -> uma das poucas telas
+// fixas de ferramenta (lifePie, circuloSeguranca, principiosBasicos).
+@Serializable
+data class ChecklistLink(
+    val type: String = "",
+    val key: String = "",
+)
+
 @Serializable
 data class ChecklistItem(
     val task: String = "",
     val detail: String = "",
+    val link: ChecklistLink? = null,
 )
 
 @Serializable

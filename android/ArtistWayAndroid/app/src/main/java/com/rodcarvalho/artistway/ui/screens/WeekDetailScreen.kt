@@ -2,6 +2,7 @@ package com.rodcarvalho.artistway.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,12 +28,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
+import com.rodcarvalho.artistway.data.model.ChecklistLink
 import kotlinx.coroutines.launch
 
 // Espelha WeekDetailPage.xaml.cs: checklist da semana + cartão "esta é
 // (ou não) sua semana atual" com botão de correção manual.
 @Composable
-fun WeekDetailScreen(weekId: Int, onOpenEssay: () -> Unit, onOpenCheckin: () -> Unit) {
+fun WeekDetailScreen(
+    weekId: Int,
+    onOpenEssay: () -> Unit,
+    onOpenCheckin: () -> Unit,
+    onOpenLink: (ChecklistLink) -> Unit,
+) {
     val week = remember(weekId) { ContentStore.content.weeks.firstOrNull { it.id == weekId } }
     val scope = rememberCoroutineScope()
 
@@ -75,6 +83,19 @@ fun WeekDetailScreen(weekId: Int, onOpenEssay: () -> Unit, onOpenCheckin: () -> 
                     if (item.detail.isNotBlank()) {
                         Text(item.detail, style = MaterialTheme.typography.bodySmall)
                     }
+                    // Quando a tarefa tem uma ferramenta dedicada (ex.:
+                    // "Life Pie", uma lista de Recursos), mostra um link
+                    // tocável levando direto pra lá — sem isso, a tarefa
+                    // só dizia o que fazer, sem oferecer o caminho até a
+                    // ferramenta que já existe pronta pra fazer aquilo.
+                    resolveLinkTitle(item.link)?.let { title ->
+                        TextButton(
+                            onClick = { item.link?.let(onOpenLink) },
+                            contentPadding = PaddingValues(0.dp),
+                        ) {
+                            Text("Toque aqui para abrir: $title →", style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
                 }
             }
         }
@@ -100,5 +121,23 @@ fun WeekDetailScreen(weekId: Int, onOpenEssay: () -> Unit, onOpenCheckin: () -> 
                 }
             }
         }
+    }
+}
+
+// Título de exibição pra um ChecklistLink — "list" busca o título já
+// cadastrado em toolConfigs (mesma fonte da tela de Recursos); "screen"
+// é um punhado fixo de telas sem toolConfigs (Life Pie, Círculo de
+// Segurança, Princípios Básicos).
+private fun resolveLinkTitle(link: ChecklistLink?): String? {
+    if (link == null) return null
+    return when (link.type) {
+        "list" -> ContentStore.content.toolConfigs.firstOrNull { it.listName == link.key }?.title
+        "screen" -> when (link.key) {
+            "lifePie" -> "Life Pie"
+            "circuloSeguranca" -> "Círculo de Segurança"
+            "principiosBasicos" -> "Princípios Básicos"
+            else -> null
+        }
+        else -> null
     }
 }

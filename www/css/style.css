@@ -235,6 +235,18 @@ button { font-family: inherit; }
   border-left: 2px solid var(--colorBrandStroke2, #96c6fa);
 }
 
+.item-link {
+  font-size: var(--fontSizeBase200, 12px);
+  font-weight: 600;
+  color: var(--colorBrandForeground1, #0f6cbd);
+  margin-top: 6px;
+  cursor: pointer;
+}
+.item-link:hover,
+.item-link:active {
+  text-decoration: underline;
+}
+
 /* — Buttons — */
 /* Botões novos usam <fluent-button> de verdade; essas classes seguem
    valendo pra qualquer <a>/<button> que ainda precise do visual de botão

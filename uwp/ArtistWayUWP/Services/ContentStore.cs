@@ -70,10 +70,21 @@ namespace ArtistWayUWP.Services
                 foreach (JsonValue itemValue in weekObj.GetNamedArray("checklist"))
                 {
                     JsonObject itemObj = itemValue.GetObject();
+                    ChecklistLink link = null;
+                    if (itemObj.ContainsKey("link"))
+                    {
+                        JsonObject linkObj = itemObj.GetNamedObject("link");
+                        link = new ChecklistLink
+                        {
+                            Type = linkObj.GetNamedString("type"),
+                            Key = linkObj.GetNamedString("key"),
+                        };
+                    }
                     week.Checklist.Add(new ChecklistItem
                     {
                         Task = itemObj.GetNamedString("task"),
                         Detail = itemObj.GetNamedString("detail"),
+                        Link = link,
                     });
                 }
 

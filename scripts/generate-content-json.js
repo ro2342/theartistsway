@@ -21,7 +21,7 @@ const content = {
     title: w.title,
     intro: w.intro,
     essay: w.essay,
-    checklist: w.checklist.map((c) => ({ task: c.task, detail: c.detail })),
+    checklist: w.checklist.map((c) => ({ task: c.task, detail: c.detail, ...(c.link ? { link: c.link } : {}) })),
     checkinBonus: w.checkinBonus,
   })),
   checkinCoreQuestions: data.CHECKIN_CORE_QUESTIONS,

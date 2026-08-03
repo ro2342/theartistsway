@@ -124,6 +124,15 @@ weekId, cycleStart }`.
   de commitar. Pra varredura em massa em `.cs`/`.js`/`.css`: regex
   `(?<=\s)-{2,}(?=\s)` → `—` (exige espaço dos dois lados, não toca em
   `i--` nem em `var(--nome-css)`).
+- **Desde a 42.2.0.13, UWP e Android compartilham o mesmo número de
+  versão** (`Package.appxmanifest` `Identity/@Version` == Android
+  `versionName`, string idêntica nos dois) — decisão do usuário, com
+  `42` fixo como primeiro número pra sempre (easter egg, número
+  favorito dele; nunca muda). Formato: `42.X.Y.Z`, 4 partes inteiras
+  (limite rígido do UWP — `Identity/@Version` só aceita exatamente 4
+  números 0–65535, PWA e Android não têm essa restrição mas seguem o
+  mesmo formato por consistência). Toda mudança em qualquer um dos dois
+  apps nativos incrementa a mesma versão nos dois — nunca só num.
 - **Toda mudança em `uwp/ArtistWayUWP` precisa de bump de versão** em
   `uwp/ArtistWayUWP/Package.appxmanifest` (`Identity/@Version`), senão
   o checador de atualização do app não detecta que existe uma versão
@@ -132,7 +141,9 @@ weekId, cycleStart }`.
   versão** (`versionCode` E `versionName`) em
   `android/ArtistWayAndroid/app/build.gradle.kts`, mesmo espírito da
   regra do UWP acima — o update-checker do app Android compara contra
-  isso.
+  isso. `versionCode` é só um inteiro interno do Android (nunca
+  aparece pro usuário) e segue sua própria sequência crescente,
+  independente do `versionName` compartilhado.
 - **`uwp/ArtistWayUWP/ArtistWayUWP.csproj` é old-style, sem wildcard**:
   todo `.xaml`/`.xaml.cs`/`.cs` novo precisa de entrada manual
   (`<Compile Include>` / `<Page Include>`), senão o build falha

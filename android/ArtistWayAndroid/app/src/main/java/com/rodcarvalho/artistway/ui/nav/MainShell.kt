@@ -128,6 +128,19 @@ fun MainShell() {
                     weekId = weekId,
                     onOpenEssay = { navController.navigate(AppDestinations.essay(weekId)) },
                     onOpenCheckin = { navController.navigate(AppDestinations.checkin(weekId)) },
+                    onOpenLink = { link ->
+                        val route = when (link.type) {
+                            "list" -> AppDestinations.list(link.key)
+                            "screen" -> when (link.key) {
+                                "lifePie" -> AppDestinations.LIFE_PIE
+                                "circuloSeguranca" -> AppDestinations.CIRCULO_SEGURANCA
+                                "principiosBasicos" -> AppDestinations.PRINCIPIOS_BASICOS
+                                else -> null
+                            }
+                            else -> null
+                        }
+                        route?.let { navController.navigate(it) }
+                    },
                 )
             }
             composable(

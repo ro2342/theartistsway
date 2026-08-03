@@ -70,6 +70,26 @@ namespace ArtistWayUWP.Views
                 textPanel.Children.Add(new TextBlock { Text = item.Task, TextWrapping = TextWrapping.Wrap });
                 textPanel.Children.Add(detailBorder);
 
+                // Quando a tarefa tem uma ferramenta dedicada (ex.: "Life
+                // Pie", uma das listas de Recursos), mostra um link
+                // tocável levando direto pra lá — sem isso, a tarefa só
+                // dizia o que fazer, sem oferecer o caminho até a
+                // ferramenta que já existe pronta pra fazer exatamente
+                // aquilo.
+                string linkTitle = ResolveLinkTitle(item.Link);
+                if (linkTitle != null)
+                {
+                    HyperlinkButton linkButton = new HyperlinkButton
+                    {
+                        Content = $"Toque aqui para abrir: {linkTitle} →",
+                        Margin = new Thickness(0, 4, 0, 0),
+                        Padding = new Thickness(0),
+                        Tag = item.Link,
+                    };
+                    linkButton.Click += ChecklistLink_Click;
+                    textPanel.Children.Add(linkButton);
+                }
+
                 CheckBox cb = new CheckBox
                 {
                     Content = textPanel,
@@ -134,6 +154,58 @@ namespace ArtistWayUWP.Views
             await LocalDataStore.SetCurrentWeekAsync(_profile, _weekId);
             await TileService.UpdateAsync();
             await LoadAsync();
+        }
+
+        // Título de exibição pra um ChecklistLink — "list" busca o título
+        // já cadastrado em ToolConfigs (mesma fonte da tela de Recursos);
+        // "screen" é um punhado fixo de telas sem TOOL_CONFIGS (Life Pie,
+        // Círculo de Segurança, Princípios Básicos).
+        private static string ResolveLinkTitle(ChecklistLink link)
+        {
+            if (link == null)
+            {
+                return null;
+            }
+            if (link.Type == "list")
+            {
+                return ContentStore.Content.ToolConfigs
+                    .FirstOrDefault(t => t.ListName == link.Key)?.Title;
+            }
+            if (link.Type == "screen")
+            {
+                switch (link.Key)
+                {
+                    case "lifePie": return "Life Pie";
+                    case "circuloSeguranca": return "Círculo de Segurança";
+                    case "principiosBasicos": return "Princípios Básicos";
+                    default: return null;
+                }
+            }
+            return null;
+        }
+
+        private void ChecklistLink_Click(object sender, RoutedEventArgs e)
+        {
+            ChecklistLink link = (ChecklistLink)((HyperlinkButton)sender).Tag;
+            if (link.Type == "list")
+            {
+                MainPage.Current.ContentFrame.Navigate(typeof(NamedListPage), link.Key);
+            }
+            else if (link.Type == "screen")
+            {
+                switch (link.Key)
+                {
+                    case "lifePie":
+                        MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage));
+                        break;
+                    case "circuloSeguranca":
+                        MainPage.Current.ContentFrame.Navigate(typeof(CirculoSegurancaPage));
+                        break;
+                    case "principiosBasicos":
+                        MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage));
+                        break;
+                }
+            }
         }
     }
 }

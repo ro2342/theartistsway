@@ -45,7 +45,11 @@
         },
         {
           "task": "Liste 5 vidas imaginárias que você gostaria de ter vivido; escolha uma e faça algo dela essa semana.",
-          "detail": "As 'vidas imaginárias' revelam desejos que você talvez tenha engavetado (ex.: 'seria astrônomo'). A ideia não é mudar de carreira, mas roubar um pedacinho real dessa vida — uma aula, uma visita, uma leitura."
+          "detail": "As 'vidas imaginárias' revelam desejos que você talvez tenha engavetado (ex.: 'seria astrônomo'). A ideia não é mudar de carreira, mas roubar um pedacinho real dessa vida — uma aula, uma visita, uma leitura.",
+          "link": {
+            "type": "list",
+            "key": "imaginaryLives"
+          }
         },
         {
           "task": "Faça seu primeiro Artist Date da jornada, sozinho(a).",
@@ -71,7 +75,11 @@
       "checklist": [
         {
           "task": "Leia os Princípios Básicos em voz alta, de manhã e à noite.",
-          "detail": "São as ideias centrais que sustentam o programa (ex.: a criatividade é um recurso espiritual, não um talento raro reservado a poucos). Repetir em voz alta ajuda a internalizar aos poucos, mesmo sem concordar 100% de cara."
+          "detail": "São as ideias centrais que sustentam o programa (ex.: a criatividade é um recurso espiritual, não um talento raro reservado a poucos). Repetir em voz alta ajuda a internalizar aos poucos, mesmo sem concordar 100% de cara.",
+          "link": {
+            "type": "screen",
+            "key": "principiosBasicos"
+          }
         },
         {
           "task": "Liste as 5 atividades que mais tomaram seu tempo essa semana e quanto foi 'quero' vs. 'deveria'.",
@@ -79,11 +87,19 @@
         },
         {
           "task": "Desenhe um mapa de segurança: quem apoia sua criatividade agora e de quem você precisa se proteger por um tempo.",
-          "detail": "Não é sobre cortar pessoas para sempre — é sobre reconhecer que, num momento frágil de recomeço criativo, algumas conversas fazem mais mal que bem por ora."
+          "detail": "Não é sobre cortar pessoas para sempre — é sobre reconhecer que, num momento frágil de recomeço criativo, algumas conversas fazem mais mal que bem por ora.",
+          "link": {
+            "type": "screen",
+            "key": "circuloSeguranca"
+          }
         },
         {
           "task": "Liste 20 coisas que você gosta de fazer, com a data da última vez que fez cada uma.",
-          "detail": "É comum a lista mostrar prazeres simples abandonados há anos. Essa lista também vira um banco de ideias prontas para os futuros Artist Dates."
+          "detail": "É comum a lista mostrar prazeres simples abandonados há anos. Essa lista também vira um banco de ideias prontas para os futuros Artist Dates.",
+          "link": {
+            "type": "list",
+            "key": "thingsILike"
+          }
         },
         {
           "task": "Escolha duas dessas coisas 'esquecidas' como metas para essa semana.",
@@ -95,11 +111,19 @@
         },
         {
           "task": "Adicione mais 5 vidas imaginárias à sua lista da semana passada.",
-          "detail": "Quanto mais vidas você lista, mais claro fica um padrão do que realmente te atrai (aventura? cuidado? risco? arte?)."
+          "detail": "Quanto mais vidas você lista, mais claro fica um padrão do que realmente te atrai (aventura? cuidado? risco? arte?).",
+          "link": {
+            "type": "list",
+            "key": "imaginaryLives"
+          }
         },
         {
           "task": "Desenhe seu 'Life Pie': divida um círculo em fatias (espiritualidade, exercício, lazer, trabalho, amigos, romance) e marque o quanto está satisfeito em cada uma.",
-          "detail": "É um raio-x visual e rápido de onde sua vida está desequilibrada. A ideia é revisitar esse mesmo desenho mais adiante no programa e comparar."
+          "detail": "É um raio-x visual e rápido de onde sua vida está desequilibrada. A ideia é revisitar esse mesmo desenho mais adiante no programa e comparar.",
+          "link": {
+            "type": "screen",
+            "key": "lifePie"
+          }
         },
         {
           "task": "Liste 10 pequenas mudanças que gostaria de fazer e execute uma delas.",
@@ -174,11 +198,19 @@
         },
         {
           "task": "Escreva uma carta de você aos 80 anos para você hoje.",
-          "detail": "Escrever do futuro traz uma perspectiva mais generosa e menos urgente — o 'eu' de 80 anos raramente se importa com os medos pequenos de hoje."
+          "detail": "Escrever do futuro traz uma perspectiva mais generosa e menos urgente — o 'eu' de 80 anos raramente se importa com os medos pequenos de hoje.",
+          "link": {
+            "type": "list",
+            "key": "carta80anos"
+          }
         },
         {
           "task": "Escreva uma carta de você aos 8 anos para você hoje.",
-          "detail": "O oposto do exercício anterior: a criança de 8 anos costuma lembrar o que você amava antes de aprender a se policiar."
+          "detail": "O oposto do exercício anterior: a criança de 8 anos costuma lembrar o que você amava antes de aprender a se policiar.",
+          "link": {
+            "type": "list",
+            "key": "carta8anos"
+          }
         },
         {
           "task": "Veja se há um canto da casa que possa virar seu espaço criativo secreto.",
@@ -186,11 +218,19 @@
         },
         {
           "task": "Revise o 'Life Pie' da Semana 2 — o que já mudou de forma?",
-          "detail": "Comparar o mesmo desenho em momentos diferentes mostra progresso que, no dia a dia, é fácil não perceber."
+          "detail": "Comparar o mesmo desenho em momentos diferentes mostra progresso que, no dia a dia, é fácil não perceber.",
+          "link": {
+            "type": "screen",
+            "key": "lifePie"
+          }
         },
         {
           "task": "Escreva sua própria Oração do Artista e use-a todos os dias dessa semana.",
-          "detail": "Não precisa ser religiosa no sentido tradicional — é mais uma declaração de intenção e entrega, tipo 'não preciso controlar como vai ficar, só preciso aparecer e tentar'."
+          "detail": "Não precisa ser religiosa no sentido tradicional — é mais uma declaração de intenção e entrega, tipo 'não preciso controlar como vai ficar, só preciso aparecer e tentar'.",
+          "link": {
+            "type": "list",
+            "key": "oracaoArtista"
+          }
         },
         {
           "task": "Planeje um Artist Date estendido (um dia ou fim de semana só seu).",
@@ -232,7 +272,11 @@
         },
         {
           "task": "Revise sua lista de vidas imaginárias — mudou algo? Adicione imagens dela ao arquivo.",
-          "detail": "Ver se as vidas imaginárias mudam ao longo das semanas é um termômetro de como sua noção de possibilidade está se abrindo."
+          "detail": "Ver se as vidas imaginárias mudam ao longo das semanas é um termômetro de como sua noção de possibilidade está se abrindo.",
+          "link": {
+            "type": "list",
+            "key": "imaginaryLives"
+          }
         },
         {
           "task": "Liste 5 aventuras que faria se tivesse 20 anos e dinheiro sobrando.",
@@ -382,15 +426,27 @@
       "checklist": [
         {
           "task": "Nomeie um sonho secreto: 'Em um mundo perfeito, eu adoraria ser ___'.",
-          "detail": "É o ponto de partida da 'busca de metas' — dizer o sonho em voz alta (ou no papel) já é o primeiro ato de coragem."
+          "detail": "É o ponto de partida da 'busca de metas' — dizer o sonho em voz alta (ou no papel) já é o primeiro ato de coragem.",
+          "link": {
+            "type": "list",
+            "key": "metasNorteVerdadeiro"
+          }
         },
         {
           "task": "Defina uma meta concreta que sinalizaria a realização desse sonho.",
-          "detail": "O livro chama isso de 'norte verdadeiro': duas pessoas podem ter o mesmo sonho (ser atriz, por exemplo) mas motivadas por coisas bem diferentes (fama vs. respeito). Saber o seu norte muda o caminho a seguir."
+          "detail": "O livro chama isso de 'norte verdadeiro': duas pessoas podem ter o mesmo sonho (ser atriz, por exemplo) mas motivadas por coisas bem diferentes (fama vs. respeito). Saber o seu norte muda o caminho a seguir.",
+          "link": {
+            "type": "list",
+            "key": "metasNorteVerdadeiro"
+          }
         },
         {
           "task": "Trace um plano de ação em camadas: 5 anos, 3 anos, 1 ano, 1 mês, 1 semana, agora.",
-          "detail": "Quebrar um sonho grande em horizontes de tempo cada vez menores até chegar numa ação possível hoje mesmo."
+          "detail": "Quebrar um sonho grande em horizontes de tempo cada vez menores até chegar numa ação possível hoje mesmo.",
+          "link": {
+            "type": "list",
+            "key": "metasNorteVerdadeiro"
+          }
         },
         {
           "task": "Escreva sobre a infância que você teria tido com o cuidado perfeito.",
@@ -406,11 +462,19 @@
         },
         {
           "task": "Liste 20 coisas que gosta de fazer e categorize (custa dinheiro? sozinho ou acompanhado? relacionado a trabalho?).",
-          "detail": "Esse mapeamento revela seu 'estilo' criativo real — muita gente descobre que prefere coisas bem diferentes do que 'deveria' gostar."
+          "detail": "Esse mapeamento revela seu 'estilo' criativo real — muita gente descobre que prefere coisas bem diferentes do que 'deveria' gostar.",
+          "link": {
+            "type": "list",
+            "key": "buscaEstilo"
+          }
         },
         {
           "task": "Planeje seu Dia Ideal dentro da vida atual — e depois um Dia Ideal sem nenhuma restrição.",
-          "detail": "Comparar os dois planos mostra a distância real entre onde você está e onde quer chegar — geralmente menor do que parece."
+          "detail": "Comparar os dois planos mostra a distância real entre onde você está e onde quer chegar — geralmente menor do que parece.",
+          "link": {
+            "type": "list",
+            "key": "diaIdeal"
+          }
         },
         {
           "task": "Viva hoje um pedacinho festivo do seu Dia Ideal.",
@@ -459,7 +523,11 @@
         },
         {
           "task": "Nomeie um projeto criativo abandonado ('retorno em U') — ele pode ser resgatado agora?",
-          "detail": "'Retorno em U' é o termo do livro pra quando a gente começa algo e desiste no meio por medo, não por falta de valor no projeto. Nem tudo precisa ser resgatado — mas vale perguntar."
+          "detail": "'Retorno em U' é o termo do livro pra quando a gente começa algo e desiste no meio por medo, não por falta de valor no projeto. Nem tudo precisa ser resgatado — mas vale perguntar.",
+          "link": {
+            "type": "list",
+            "key": "retornosEmU"
+          }
         },
         {
           "task": "Se bater vontade de abandonar as Morning Pages agora, não desista — só perceba a resistência e escreva mesmo assim.",
@@ -471,7 +539,11 @@
         },
         {
           "task": "Escolha um objeto para ser seu 'totem de artista' — algo que desperte ternura pela sua criança-artista.",
-          "detail": "Ter um objeto físico associado a autocompaixão (um bichinho, uma figura, um brinquedo) dá um lugar concreto pra depositar gentileza consigo mesmo(a) nos dias difíceis."
+          "detail": "Ter um objeto físico associado a autocompaixão (um bichinho, uma figura, um brinquedo) dá um lugar concreto pra depositar gentileza consigo mesmo(a) nos dias difíceis.",
+          "link": {
+            "type": "list",
+            "key": "totemArtista"
+          }
         }
       ],
       "checkinBonus": "Que gentileza você teve com seu próprio processo criativo essa semana?"
@@ -493,7 +565,11 @@
         },
         {
           "task": "Liste seus 'pontos de referência de felicidade' — pequenas coisas que sempre te consolam — e deixe a lista visível.",
-          "detail": "Ter essa lista à mão facilita recorrer a ela em momentos difíceis, em vez de tentar lembrar 'o que me faz bem' no meio de uma crise."
+          "detail": "Ter essa lista à mão facilita recorrer a ela em momentos difíceis, em vez de tentar lembrar 'o que me faz bem' no meio de uma crise.",
+          "link": {
+            "type": "list",
+            "key": "pontosFelicidade"
+          }
         },
         {
           "task": "Responda com honestidade: qual hábito mais atrapalha sua criatividade hoje? Qual o 'ganho' de mantê-lo?",
@@ -505,7 +581,11 @@
         },
         {
           "task": "Defina um 'limite mínimo': escolha 5 comportamentos dolorosos que você vai parar de aceitar.",
-          "detail": "'Bottom line' no livro é a ideia de linhas claras e não-negociáveis (ex.: 'não trabalho fins de semana') — funciona melhor como regra fixa do que como decisão renegociada toda vez."
+          "detail": "'Bottom line' no livro é a ideia de linhas claras e não-negociáveis (ex.: 'não trabalho fins de semana') — funciona melhor como regra fixa do que como decisão renegociada toda vez.",
+          "link": {
+            "type": "list",
+            "key": "bottomLine"
+          }
         },
         {
           "task": "Liste 5 pequenas vitórias recentes e 3 ações de cuidado que você já tomou por si.",
@@ -539,11 +619,19 @@
         },
         {
           "task": "Escreva à mão sua Oração do Artista (da Semana 4) e guarde-a com você.",
-          "detail": "Levar essa declaração de intenção fisicamente com você é um lembrete de bolso do compromisso que você fez consigo mesmo(a)."
+          "detail": "Levar essa declaração de intenção fisicamente com você é um lembrete de bolso do compromisso que você fez consigo mesmo(a).",
+          "link": {
+            "type": "list",
+            "key": "oracaoArtista"
+          }
         },
         {
           "task": "Comece um caderno de desejos com 7 áreas (saúde, posses, lazer, relações, criatividade, carreira, espiritualidade); liste 10 desejos em cada uma.",
-          "detail": "Cobrir várias áreas da vida evita o erro comum de só sonhar sobre 'trabalho e arte' e esquecer o resto da vida que também merece atenção."
+          "detail": "Cobrir várias áreas da vida evita o erro comum de só sonhar sobre 'trabalho e arte' e esquecer o resto da vida que também merece atenção.",
+          "link": {
+            "type": "list",
+            "key": "cadernoDesejos"
+          }
         },
         {
           "task": "Faça um inventário: como você mudou desde que começou esse processo? Liste também 5 formas como pretende continuar mudando.",
@@ -559,7 +647,11 @@
         },
         {
           "task": "Escreva e envie (a si mesmo, por carta ou mensagem) uma carta de encorajamento para sua criança-artista interior.",
-          "detail": "Fechar o ciclo iniciado na Semana 1 (a carta de defesa) com uma mensagem de apoio, agora vindo de um lugar mais fortalecido."
+          "detail": "Fechar o ciclo iniciado na Semana 1 (a carta de defesa) com uma mensagem de apoio, agora vindo de um lugar mais fortalecido.",
+          "link": {
+            "type": "list",
+            "key": "cartaEncorajamento"
+          }
         },
         {
           "task": "Reexamine seu conceito de força espiritual/criativa: ele apoia ou limita sua expansão?",
@@ -567,7 +659,11 @@
         },
         {
           "task": "Liste 10 exemplos pessoais de sincronicidade — momentos em que algo pareceu 'colaborar' com você depois que se comprometeu com algo.",
-          "detail": "Reunir os exemplos num só lugar (em vez de deixá-los soltos na memória) reforça a confiança de que esse padrão é real na sua vida, não coincidência isolada."
+          "detail": "Reunir os exemplos num só lugar (em vez de deixá-los soltos na memória) reforça a confiança de que esse padrão é real na sua vida, não coincidência isolada.",
+          "link": {
+            "type": "list",
+            "key": "sincronicidade"
+          }
         }
       ],
       "checkinBonus": "Que passo de autonomia criativa você deu essa semana?"
@@ -621,7 +717,11 @@
         },
         {
           "task": "Decida como você vai manter as Morning Pages e o Artist Date depois dessas 12 semanas.",
-          "detail": "As duas ferramentas básicas não têm prazo de validade — a intenção é que continuem fazendo parte da rotina bem depois do programa acabar."
+          "detail": "As duas ferramentas básicas não têm prazo de validade — a intenção é que continuem fazendo parte da rotina bem depois do programa acabar.",
+          "link": {
+            "type": "list",
+            "key": "planoContinuidade"
+          }
         }
       ],
       "checkinBonus": "O que você quer levar dessas 12 semanas para o que vem agora?"
