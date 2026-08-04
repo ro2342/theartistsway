@@ -81,6 +81,22 @@ precisa ser replicada nas três plataformas na mesma sessão, não só numa.
   - Login: Google via Device Authorization Grant (fluxo de Smart TV —
     sem Store ID, sem redirect URI). Ver `sincronizacao-nuvem-setup.md`
     pro histórico completo da decisão.
+  - **Segurança**: o único formato de caminho que as três plataformas
+    usam é `users/{uid}/stores/{store}`, sempre com o idToken do
+    próprio usuário como Bearer token. A regra correspondente está
+    versionada em `firestore.rules` na raiz do repo — **esse arquivo
+    não é deployado automaticamente** (não há `firebase.json`/Firebase
+    CLI configurado aqui), só serve de fonte de verdade documentada;
+    precisa ser colado manualmente em Firebase Console > Firestore
+    Database > Rules > Publish sempre que for conferir ou restaurar a
+    regra em produção. **Já aconteceu de a regra em produção ser
+    resetada pro template padrão de "modo teste" do Firebase**
+    (`allow read, write: if request.time < ...`, sem checar
+    `request.auth` nenhum — abre o banco inteiro pra qualquer um, sem
+    login) — checar isso deve ser o primeiro passo de qualquer revisão
+    de segurança futura neste projeto, já que não há como essa
+    regressão aparecer num `git diff` (o console e o repo podem
+    divergir silenciosamente).
 
 ## Cursor de semana (`profile.weekCursor`) — desde a 2.0.2.8
 

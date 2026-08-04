@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Fonte de verdade versionada da regra de segurança do Firestore — cole
+// isto no Firebase Console (Firestore Database > Rules > Publish)
+// sempre que precisar conferir ou restaurar a regra em produção; este
+// arquivo por si só não é deployado automaticamente (não há
+// firebase.json/CLI configurado neste repo).
+//
+// PWA (www/js/sync.js), UWP (Services/SyncService.cs) e Android
+// (sync/SyncService.kt) só leem/escrevem em um único formato de
+// caminho: users/{uid}/stores/{store} — um documento por "store" de
+// sincronização (settings, morningPages, artistDates, checklist,
+// checkins, lists), sempre com o idToken do próprio usuário logado
+// como Bearer token. A regra abaixo restringe cada uid a ler/escrever
+// só dentro do seu próprio caminho.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/stores/{store} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
