@@ -80,6 +80,33 @@ namespace ArtistWayUWP
             }
         }
 
+        // Toque num toast agendado (NotificationService.cs) chega aqui, não
+        // em OnLaunched — mesmo com o app já rodando em segundo plano. Sem
+        // esse override, o toque simplesmente não fazia nada: o app nunca
+        // vinha pra frente. Espelha a mesma montagem de Frame/navegação de
+        // OnLaunched acima.
+        protected override async void OnActivated(IActivatedEventArgs e)
+        {
+            Frame rootFrame = Window.Current.Content as Frame;
+
+            if (rootFrame == null)
+            {
+                rootFrame = new Frame();
+                rootFrame.NavigationFailed += OnNavigationFailed;
+                Window.Current.Content = rootFrame;
+            }
+
+            if (rootFrame.Content == null)
+            {
+                await ContentStore.InitializeAsync();
+                ProfileSettings profile = await LocalDataStore.GetProfileAsync();
+                ThemeModeService.Apply(profile?.ThemeMode ?? "auto");
+                rootFrame.Navigate(typeof(MainPage));
+            }
+            Window.Current.Activate();
+            _ = SyncThenUpdateTileAsync();
+        }
+
         // A tile só faz sentido depois que a sincronização trouxer o que
         // mudou em outro aparelho — senão a Live Tile podia mostrar uma
         // sequência desatualizada logo ao abrir.

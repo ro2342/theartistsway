@@ -1,10 +1,12 @@
 package com.rodcarvalho.artistway.notifications
 
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.rodcarvalho.artistway.MainActivity
 import com.rodcarvalho.artistway.R
 import com.rodcarvalho.artistway.data.LocalDataStore
 import kotlinx.coroutines.CoroutineScope
@@ -56,11 +58,22 @@ class NotificationAlarmReceiver : BroadcastReceiver() {
             else -> return
         }
 
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val contentIntent = PendingIntent.getActivity(
+            context,
+            content.notificationId,
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
         val notification = NotificationCompat.Builder(context, content.channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(content.title)
             .setContentText(content.body)
             .setAutoCancel(true)
+            .setContentIntent(contentIntent)
             .build()
 
         NotificationManagerCompat.from(context).notify(content.notificationId, notification)
