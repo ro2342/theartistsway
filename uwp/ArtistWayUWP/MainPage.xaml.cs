@@ -1,7 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
 using ArtistWayUWP.Views;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -186,15 +188,49 @@ namespace ArtistWayUWP
         private async void SyncNowButton_Click(object sender, RoutedEventArgs e)
         {
             NavSync.IsEnabled = false;
-            string result = await SyncService.SyncAllAsync();
+            SyncButton.IsEnabled = false;
+            string result = await RunSyncAsync();
             NavSync.IsEnabled = true;
+            SyncButton.IsEnabled = true;
             SetPaneOpen(false);
 
             Flyout flyout = new Flyout
             {
                 Content = new TextBlock { Text = result, TextWrapping = TextWrapping.Wrap, MaxWidth = 240 },
             };
-            flyout.ShowAt(MenuButton);
+            // Sempre ancorado no ícone fixo do cabeçalho (não em "sender")
+            // — se o toque veio do NavSync no painel deslizante, o painel
+            // já fechou na linha acima e NavSync não está mais visível pra
+            // ancorar um flyout nele.
+            flyout.ShowAt(SyncButton);
+        }
+
+        // Chamado tanto pelo toque manual (SyncNowButton_Click, nas duas
+        // entradas — painel deslizante e ícone fixo do cabeçalho) quanto
+        // pelo auto-sync em segundo plano (SyncScheduler) — os dois
+        // precisam do mesmo indicador visual em dia. Ícone do cabeçalho
+        // fica verde numa sincronização bem-sucedida; ProgressRing
+        // substitui o ícone enquanto está em andamento.
+        public async Task<string> RunSyncAsync()
+        {
+            SyncIcon.Visibility = Visibility.Collapsed;
+            SyncProgressRing.Visibility = Visibility.Visible;
+            SyncProgressRing.IsActive = true;
+
+            string result = await SyncService.SyncAllAsync();
+
+            SyncProgressRing.IsActive = false;
+            SyncProgressRing.Visibility = Visibility.Collapsed;
+            SyncIcon.Visibility = Visibility.Visible;
+            if (result.StartsWith("Sincronizado"))
+            {
+                SyncIcon.Foreground = new SolidColorBrush(Color.FromArgb(0xFF, 0x2E, 0x7D, 0x32));
+            }
+            else
+            {
+                SyncIcon.ClearValue(SymbolIcon.ForegroundProperty);
+            }
+            return result;
         }
 
         public void NavigateToTab(Type pageType, object parameter = null)

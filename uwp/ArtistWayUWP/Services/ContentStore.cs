@@ -132,6 +132,13 @@ namespace ArtistWayUWP.Services
                 {
                     tool.WeekNote = toolObj.GetNamedString("weekNote");
                 }
+                if (toolObj.ContainsKey("alsoWeeks"))
+                {
+                    foreach (JsonValue alsoWeekValue in toolObj.GetNamedArray("alsoWeeks"))
+                    {
+                        tool.AlsoWeeks.Add((int)alsoWeekValue.GetNumber());
+                    }
+                }
                 content.ToolConfigs.Add(tool);
             }
 

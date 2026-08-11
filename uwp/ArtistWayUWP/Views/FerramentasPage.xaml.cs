@@ -75,7 +75,9 @@ namespace ArtistWayUWP.Views
 
         private PivotItem BuildWeekPivotItem(string header, int? week, List<BespokeToolScreen> bespoke)
         {
-            List<NamedListConfig> tools = ContentStore.Content.ToolConfigs.Where(t => t.Week == week).ToList();
+            List<NamedListConfig> tools = ContentStore.Content.ToolConfigs
+                .Where(t => t.Week == week || (week.HasValue && t.AlsoWeeks.Contains(week.Value)))
+                .ToList();
             List<BespokeToolScreen> screens = bespoke.Where(b => b.Week == week).ToList();
             if (tools.Count == 0 && screens.Count == 0)
             {

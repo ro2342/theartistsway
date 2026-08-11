@@ -95,6 +95,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button x:Name="MenuButton"
                     Grid.Column="0"
@@ -117,6 +118,23 @@
                        VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis"
                        Margin="12,0,16,0" />
+
+            <!-- Ícone de sync fixo no cabeçalho — visível em toda tela, não
+                 só no painel deslizante (NavSync ali embaixo continua
+                 existindo, os dois chamam o mesmo SyncNowButton_Click).
+                 Fica verde quando a última sincronização deu certo (ver
+                 RunSyncAsync); o ProgressRing substitui o ícone enquanto
+                 está em andamento. -->
+            <Button x:Name="SyncButton"
+                    Grid.Column="2"
+                    Click="SyncNowButton_Click"
+                    Background="Transparent"
+                    Style="{StaticResource HamburgerButtonStyle}">
+                <Grid>
+                    <SymbolIcon x:Name="SyncIcon" Symbol="Sync" />
+                    <ProgressRing x:Name="SyncProgressRing" IsActive="False" Visibility="Collapsed" Width="20" Height="20" />
+                </Grid>
+            </Button>
         </Grid>
 
         <SplitView x:Name="NavSplitView"

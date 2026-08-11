@@ -21,7 +21,7 @@ object SyncScheduler {
         pendingJob?.cancel()
         pendingJob = scope.launch {
             delay(5000)
-            SyncService.syncAll()
+            SyncStatus.run()
         }
     }
 }

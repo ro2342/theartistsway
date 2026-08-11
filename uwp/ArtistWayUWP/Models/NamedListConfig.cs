@@ -25,8 +25,10 @@ namespace ArtistWayUWP.Models
         // Semana do livro em que a ferramenta é introduzida pela primeira
         // vez — usado só pra agrupar a tela de Recursos por semana (null =
         // "Geral"). WeekNote é um texto livre opcional (ex.: "cresce nas
-        // Semanas 2 e 5").
+        // Semanas 2 e 5"); AlsoWeeks lista essas mesmas semanas em número,
+        // pra ferramenta aparecer de verdade nas abas delas também.
         public int? Week { get; set; }
         public string WeekNote { get; set; }
+        public List<int> AlsoWeeks { get; set; } = new List<int>();
     }
 }

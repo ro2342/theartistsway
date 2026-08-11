@@ -1,9 +1,12 @@
 package com.rodcarvalho.artistway.ui.nav
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -14,7 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +28,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.rodcarvalho.artistway.data.ContentStore
+import com.rodcarvalho.artistway.sync.SyncPhase
+import com.rodcarvalho.artistway.sync.SyncStatus
 import com.rodcarvalho.artistway.ui.screens.ArtistDateHistoryScreen
 import com.rodcarvalho.artistway.ui.screens.ArtistDateScreen
 import com.rodcarvalho.artistway.ui.screens.CheckinHistoryScreen
@@ -39,6 +47,7 @@ import com.rodcarvalho.artistway.ui.screens.QuizScreen
 import com.rodcarvalho.artistway.ui.screens.SettingsScreen
 import com.rodcarvalho.artistway.ui.screens.TabelaCrencasScreen
 import com.rodcarvalho.artistway.ui.screens.WeekDetailScreen
+import kotlinx.coroutines.launch
 
 // Shell principal depois do onboarding: Material 3 NavigationBar (barra
 // inferior, 5 destinos) em vez do menu-hambúrguer/drawer usado antes — é
@@ -56,6 +65,7 @@ fun MainShell() {
     val currentRoute = backStackEntry?.destination?.route ?: AppDestinations.HOME
     val currentItem = AppDestinations.ITEMS.firstOrNull { it.route == currentRoute }
     val isBottomNavRoute = AppDestinations.BOTTOM_NAV_ITEMS.any { it.route == currentRoute }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -69,6 +79,22 @@ fun MainShell() {
                     }
                 },
                 actions = {
+                    // Ícone de sync fixo em toda tela (não só em Ajustes) —
+                    // fica verde quando a última sincronização deu certo,
+                    // gira enquanto está em andamento, e o próprio toque
+                    // dispara uma nova. SyncStatus é compartilhado com o
+                    // auto-sync em segundo plano (SyncScheduler), então os
+                    // dois mantêm o mesmo indicador em dia.
+                    val phase = SyncStatus.phase.value
+                    IconButton(onClick = { scope.launch { SyncStatus.run() } }) {
+                        if (phase == SyncPhase.SYNCING) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        } else if (phase == SyncPhase.SUCCESS) {
+                            Icon(Icons.Filled.Refresh, contentDescription = "Sincronizar", tint = Color(0xFF2E7D32))
+                        } else {
+                            Icon(Icons.Filled.Refresh, contentDescription = "Sincronizar")
+                        }
+                    }
                     if (isBottomNavRoute) {
                         IconButton(onClick = { navController.navigate(AppDestinations.SETTINGS) }) {
                             Icon(Icons.Filled.Settings, contentDescription = ContentStore.s("nav.settings"))

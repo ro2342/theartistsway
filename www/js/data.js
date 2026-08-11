@@ -83,19 +83,18 @@ const AFFIRMATIONS = [
 ];
 
 // Princípios Básicos — a base filosófica que abre o livro (também citada na
-// Semana 2, pra ser relida em voz alta). Conteúdo original, redigido no
-// mesmo espírito de paráfrase própria do resto deste arquivo.
+// Semana 2, pra ser relida em voz alta).
 const BASIC_PRINCIPLES = [
-  "Criatividade é a ordem natural da vida. Toda forma de vida se expressa e cresce — a sua não é diferente.",
-  "Existe uma força criativa subjacente ao universo (chame como quiser: fé, natureza, energia) e essa força quer se expressar através de você tanto quanto através de qualquer outra pessoa.",
-  "Recusar-se a explorar seus talentos criativos vai contra sua própria natureza — não é humildade, é resistência desnecessária a quem você já é.",
-  "Quando você abre um canal pra criatividade, sua vida inteira tende a melhorar, não só a parte 'artística' dela.",
-  "É seguro abrir os canais de criatividade que existem dentro de você.",
-  "Nossa criatividade cresce em direção a algo maior, mesmo quando o caminho parece incerto ou lento demais.",
-  "É próprio da natureza humana ser criativo em algum grau — não é traço reservado a poucos escolhidos.",
-  "Quando exploramos nossa criatividade, nos conectamos com nossa própria energia interior — e essa energia é generosa, não escassa.",
-  "Nossa criatividade sempre nos leva, no fim, à verdade e ao autoconhecimento, mesmo quando o processo parece confuso no meio do caminho.",
-  "Nunca é tarde demais, ou cedo demais, pra explorar sua criatividade — o único momento disponível pra começar é sempre agora.",
+  "A criatividade é a ordem natural da vida. A vida é energia: pura energia criativa.",
+  "Por trás de toda vida há uma força criativa que permeia tudo — inclusive nós mesmos.",
+  "Quando nos abrimos à nossa criatividade, nós nos abrimos à criatividade do criador dentro de nós e de nossa vida.",
+  "Nós mesmos somos criações. E fomos feitos para continuar a criação sendo nós mesmos criativos.",
+  "A criatividade é uma dádiva de Deus. Usá-la é o presente que damos a Deus em retribuição.",
+  "A recusa em ser criativo é uma escolha que contraria nossa verdadeira natureza.",
+  "Quando nos abrimos a explorar nossa criatividade, nós nos abrimos a Deus: a direção boa e ordenada.",
+  "Ao abrir nosso canal criativo ao criador, muitas mudanças sutis mas poderosas podem acontecer.",
+  "É seguro nos abrirmos para uma criatividade cada vez maior.",
+  "Nossos sonhos e desejos criativos vêm de uma fonte divina. Ao nos lançarmos rumo a nossos sonhos, nós nos lançamos rumo à nossa divindade.",
 ];
 
 const CHECKIN_CORE_QUESTIONS = [
@@ -682,7 +681,11 @@ const UI_STRINGS = {
 // primeira vez (usado só pra agrupar a tela de Recursos por semana —
 // null = "Geral", não presa a nenhuma semana específica). `weekNote`
 // é um texto livre opcional pra casos de reaproveitamento em semanas
-// futuras (ex.: "reutilizada nas Semanas 6 e 11").
+// futuras (ex.: "reutilizada nas Semanas 6 e 11"); quando existe,
+// `alsoWeeks` lista essas mesmas semanas em número pra que a
+// ferramenta apareça de verdade nas abas delas também (mesmo
+// `listName`/rota — é a mesma lista/registro em todo lugar que
+// aparece, não uma cópia nova).
 const TOOL_CONFIGS = {
   // já existiam antes desta leva
   imaginaryLives: {
@@ -692,6 +695,7 @@ const TOOL_CONFIGS = {
     fields: [{ key: "text", label: "Uma vida imaginária", multiline: true }],
     week: 1,
     weekNote: "cresce nas Semanas 2 e 5",
+    alsoWeeks: [2, 5],
   },
   thingsILike: {
     listName: "thingsILike",
@@ -837,6 +841,7 @@ const TOOL_CONFIGS = {
     fields: [{ key: "texto", label: "Sua oração", multiline: true }],
     week: 4,
     weekNote: "reutilizada nas Semanas 6 e 11",
+    alsoWeeks: [6, 11],
   },
   cartaEncorajamento: {
     listName: "cartaEncorajamento",
@@ -918,6 +923,7 @@ const TOOL_CONFIGS = {
     ],
     week: 1,
     weekNote: "reutilizada nas Semanas 2 e 12",
+    alsoWeeks: [2, 12],
   },
   crencasNegativasViloes: {
     listName: "crencasNegativasViloes",
@@ -929,6 +935,7 @@ const TOOL_CONFIGS = {
     ],
     week: 1,
     weekNote: "reler na Semana 12",
+    alsoWeeks: [12],
   },
   cartaDefesaCrianca: {
     listName: "cartaDefesaCrianca",

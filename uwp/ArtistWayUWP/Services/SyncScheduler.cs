@@ -25,7 +25,14 @@ namespace ArtistWayUWP.Services
                 _timer.Tick += async (s, e) =>
                 {
                     _timer.Stop();
-                    await SyncService.SyncAllAsync();
+                    if (MainPage.Current != null)
+                    {
+                        await MainPage.Current.RunSyncAsync();
+                    }
+                    else
+                    {
+                        await SyncService.SyncAllAsync();
+                    }
                 };
             }
 

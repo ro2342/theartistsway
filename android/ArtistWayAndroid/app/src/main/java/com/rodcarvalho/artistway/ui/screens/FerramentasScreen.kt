@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -13,14 +15,13 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.ui.nav.AppDestinations
+import kotlinx.coroutines.launch
 
 private sealed interface FerramentasRow {
     data class Link(val label: String, val route: String, val weekNote: String? = null) : FerramentasRow
@@ -51,7 +52,8 @@ private fun bespokeScreens(): List<BespokeToolScreen> = listOf(
 private fun rowsForWeek(week: Int?, bespoke: List<BespokeToolScreen>): List<FerramentasRow.Link> {
     val fromBespoke = bespoke.filter { it.week == week }
         .map { FerramentasRow.Link(it.title, it.route, it.weekNote) }
-    val fromTools = ContentStore.content.toolConfigs.filter { it.week == week }
+    val fromTools = ContentStore.content.toolConfigs
+        .filter { it.week == week || (week != null && it.alsoWeeks.contains(week)) }
         .map { FerramentasRow.Link(it.title, AppDestinations.list(it.listName), it.weekNote) }
     return fromBespoke + fromTools
 }
@@ -72,29 +74,46 @@ fun FerramentasScreen(onNavigate: (String) -> Unit) {
         }
         weekTabs + ("Geral" to rowsForWeek(null, bespoke))
     }
-    var selected by remember { mutableIntStateOf(0) }
+    // rememberPagerState guarda a página com rememberSaveable por baixo
+    // (PagerState.Saver) — abrir uma ferramenta empilha uma nova tela por
+    // cima, descartando esta composição; sem isso, ao voltar ela seria
+    // recriada do zero e sempre voltaria pra Semana 1. Mesmo bug já
+    // corrigido uma vez no UWP via NavigationCacheMode.Enabled (ver
+    // FerramentasPage.xaml.cs) e evitado por acidente no PWA
+    // (ferramentasTabState vive fora do ciclo de render em app.js).
+    val pagerState = rememberPagerState(pageCount = { allTabs.size })
+    val scope = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        ScrollableTabRow(selectedTabIndex = selected) {
+        ScrollableTabRow(selectedTabIndex = pagerState.currentPage) {
             allTabs.forEachIndexed { i, (label, _) ->
-                Tab(selected = selected == i, onClick = { selected = i }, text = { Text(label) })
+                Tab(
+                    selected = pagerState.currentPage == i,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
+                    text = { Text(label) },
+                )
             }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            allTabs[selected].second.forEach { row ->
-                Column {
-                    OutlinedButton(
-                        onClick = { onNavigate(row.route) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text(row.label) }
-                    row.weekNote?.let {
-                        Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
+        // HorizontalPager (em vez de só mostrar allTabs[selected]) deixa
+        // arrastar o conteúdo pra trocar de semana, igual ao gesto nativo
+        // do Pivot no UWP — não só tocar no nome da aba lá em cima.
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                allTabs[page].second.forEach { row ->
+                    Column {
+                        OutlinedButton(
+                            onClick = { onNavigate(row.route) },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) { Text(row.label) }
+                        row.weekNote?.let {
+                            Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
+                        }
                     }
                 }
             }

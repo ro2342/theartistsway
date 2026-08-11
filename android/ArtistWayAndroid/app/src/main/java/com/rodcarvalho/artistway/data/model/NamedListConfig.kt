@@ -22,7 +22,9 @@ data class NamedListConfig(
     // Semana do livro em que a ferramenta é introduzida pela primeira vez
     // — usado só pra agrupar a tela de Recursos por semana (null =
     // "Geral"). weekNote é um texto livre opcional (ex.: "cresce nas
-    // Semanas 2 e 5").
+    // Semanas 2 e 5"); alsoWeeks lista essas mesmas semanas em número,
+    // pra ferramenta aparecer de verdade nas abas delas também.
     val week: Int? = null,
     val weekNote: String? = null,
+    val alsoWeeks: List<Int> = emptyList(),
 )

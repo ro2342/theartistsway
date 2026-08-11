@@ -1575,7 +1575,10 @@ const BESPOKE_TOOL_SCREENS = [
 function toolsForWeek(week) {
   const bespoke = BESPOKE_TOOL_SCREENS.filter((s) => s.week === week);
   const configured = Object.keys(TOOL_CONFIGS)
-    .filter((key) => (TOOL_CONFIGS[key].week ?? null) === week)
+    .filter((key) => {
+      const cfg = TOOL_CONFIGS[key];
+      return (cfg.week ?? null) === week || (cfg.alsoWeeks || []).includes(week);
+    })
     .map((key) => ({ title: TOOL_CONFIGS[key].title, hash: `#/list/${key}`, weekNote: TOOL_CONFIGS[key].weekNote }));
   return bespoke.concat(configured);
 }

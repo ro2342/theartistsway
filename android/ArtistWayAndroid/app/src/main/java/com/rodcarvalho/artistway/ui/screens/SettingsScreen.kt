@@ -35,6 +35,7 @@ import com.rodcarvalho.artistway.auth.AuthService
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.sync.SyncService
+import com.rodcarvalho.artistway.sync.SyncStatus
 import com.rodcarvalho.artistway.ui.theme.AppThemeState
 import com.rodcarvalho.artistway.update.UpdateCheckService
 import com.rodcarvalho.artistway.update.UpdateDownloader
@@ -184,7 +185,7 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
                     if (outcome.success) {
                         onLoggedInChange(true)
                         status = "Login OK — sincronizando..."
-                        status = SyncService.syncAll()
+                        status = SyncStatus.run()
                     } else {
                         status = outcome.errorMessage
                     }
@@ -199,7 +200,7 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
             style = MaterialTheme.typography.bodyMedium,
         )
         Button(
-            onClick = { scope.launch { status = SyncService.syncAll() } },
+            onClick = { scope.launch { status = SyncStatus.run() } },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Sincronizar agora") }
         OutlinedButton(
