@@ -1,5 +1,6 @@
 package com.rodcarvalho.artistway.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rodcarvalho.artistway.data.ContentStore
@@ -58,6 +60,7 @@ private data class HomeUiState(
     val advanceMeansFinish: Boolean,
     val weekDoneCount: Int,
     val weekTotalItems: Int,
+    val streakDates: List<String>,
     val streakDone: List<Boolean>,
     val todayDone: Boolean,
     val affirmation: String,
@@ -89,7 +92,8 @@ private suspend fun loadHomeState(): HomeUiState? {
     val allMp = LocalDataStore.getAllMorningPages()
     val today = LocalDate.now()
     val weekStart = WeekCalculator.currentStreakWeekStart(profile, today)
-    val streakDone = (0..6).map { i -> allMp[WeekCalculator.dateToStr(weekStart.plusDays(i.toLong()))] == true }
+    val streakDates = (0..6).map { i -> WeekCalculator.dateToStr(weekStart.plusDays(i.toLong())) }
+    val streakDone = streakDates.map { allMp[it] == true }
     val todayIndex = ChronoUnit.DAYS.between(weekStart, today).toInt()
     val todayDone = streakDone.getOrElse(todayIndex) { false }
 
@@ -117,6 +121,7 @@ private suspend fun loadHomeState(): HomeUiState? {
         advanceMeansFinish = cursor.weekId >= 12,
         weekDoneCount = doneCount,
         weekTotalItems = totalItems,
+        streakDates = streakDates,
         streakDone = streakDone,
         todayDone = todayDone,
         affirmation = affirmation,
@@ -230,10 +235,25 @@ fun HomeScreen(
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Morning Pages", style = MaterialTheme.typography.titleMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+                    val todayStr = WeekCalculator.dateToStr(LocalDate.now())
                     current.streakDone.forEachIndexed { i, done ->
-                        StreakDot(letter = WEEKDAY_LETTERS[i], done = done, modifier = Modifier.weight(1f))
+                        val date = current.streakDates[i]
+                        StreakDot(
+                            letter = WEEKDAY_LETTERS[i],
+                            done = done,
+                            enabled = date <= todayStr,
+                            onClick = { scope.launch { LocalDataStore.toggleMorningPage(date); reload() } },
+                            modifier = Modifier.weight(1f),
+                        )
                     }
                 }
+                // Bolinhas de dias passados (não só "hoje") são tocáveis —
+                // dá pra fazer check-in retroativo de um dia esquecido, sem
+                // precisar de tela própria só pra isso.
+                Text(
+                    "Esqueceu de marcar um dia? Toque na bolinha dele.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
                 Button(
                     onClick = {
                         scope.launch {
@@ -289,14 +309,28 @@ fun HomeScreen(
 }
 
 @Composable
-private fun StreakDot(letter: String, done: Boolean, modifier: Modifier = Modifier) {
+private fun StreakDot(
+    letter: String,
+    done: Boolean,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = false,
+    onClick: (() -> Unit)? = null,
+) {
     val background = if (done) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     val foreground = if (done) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
     Box(
         modifier = modifier.aspectRatio(1f),
         contentAlignment = Alignment.Center,
     ) {
-        Surface(shape = CircleShape, color = background, modifier = Modifier.fillMaxSize()) {
+        Surface(
+            shape = CircleShape,
+            color = background,
+            modifier = if (enabled && onClick != null) {
+                Modifier.fillMaxSize().clickable(onClick = onClick)
+            } else {
+                Modifier.fillMaxSize().alpha(0.4f)
+            },
+        ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 Text(letter, color = foreground, style = MaterialTheme.typography.labelSmall)
             }

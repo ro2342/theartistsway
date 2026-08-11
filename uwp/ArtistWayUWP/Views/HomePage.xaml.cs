@@ -107,6 +107,25 @@ namespace ArtistWayUWP.Views
                     VerticalAlignment = VerticalAlignment.Center,
                     FontSize = 12,
                 };
+
+                // Bolinha tocável pra qualquer dia até hoje (não só "hoje")
+                // — dá pra fazer check-in retroativo de um dia esquecido,
+                // sem precisar de tela própria só pra isso. Dias futuros
+                // ficam esmaecidos e sem toque (não dá pra marcar um dia
+                // que ainda não aconteceu).
+                if (d <= today)
+                {
+                    dot.Tapped += async (s, e) =>
+                    {
+                        await LocalDataStore.ToggleMorningPageAsync(key);
+                        await LoadAsync();
+                        await TileService.UpdateAsync();
+                    };
+                }
+                else
+                {
+                    dot.Opacity = 0.4;
+                }
                 StreakPanel.Children.Add(dot);
             }
 

@@ -596,6 +596,21 @@ route("/onboarding", async () => {
 });
 
 // ================= HOME =================
+
+// Deixa cada bolinha de Morning Pages da semana (não só "hoje") tocável,
+// pra dar check-in retroativo num dia esquecido — dias futuros ficam sem
+// clique (não dá pra marcar um dia que ainda não aconteceu).
+function bindStreakDotClicks() {
+  document.querySelectorAll(".streak-dot.clickable[data-date]").forEach((el) => {
+    el.addEventListener("click", async () => {
+      const date = el.dataset.date;
+      const done = await DB.toggleMorningPage(date);
+      toast(done ? "Marcado ✓" : "Desmarcado");
+      render();
+    });
+  });
+}
+
 route("/home", async () => {
   const settings = await DB.getSetting("profile", null);
   if (!settings || !settings.onboarded) {
@@ -668,10 +683,12 @@ route("/home", async () => {
             const dt = new Date(d + "T00:00:00");
             const label = "DSTQQSS"[dt.getDay()];
             const isToday = d === todayStr();
-            return `<div class="streak-dot ${mpMap[d] ? "done" : ""}" style="${isToday ? "box-shadow:0 0 0 2px var(--brass);" : ""}">${label}</div>`;
+            const isFuture = d > todayStr();
+            return `<div class="streak-dot ${mpMap[d] ? "done" : ""} ${isFuture ? "" : "clickable"}" data-date="${d}" style="${isToday ? "box-shadow:0 0 0 2px var(--brass);" : ""}${isFuture ? "opacity:0.4;" : "cursor:pointer;"}">${label}</div>`;
           })
           .join("")}
       </div>
+      <p class="muted" style="font-size:0.85em;margin-top:4px;">Esqueceu de marcar um dia? Toque na bolinha dele.</p>
       <div class="spacer-sm"></div>
       <button class="btn ${todayDone ? "secondary" : "moss"} block" id="toggleMP">
         ${todayDone ? "✓ Páginas de hoje feitas" : "Marcar páginas de hoje como feitas"}
@@ -709,6 +726,7 @@ route("/home", async () => {
       toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
       render();
     });
+    bindStreakDotClicks();
     return;
   }
 
@@ -751,6 +769,7 @@ route("/home", async () => {
     toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
     render();
   });
+  bindStreakDotClicks();
 
   if (cyclePending) {
     document.getElementById("stayWeek").addEventListener("click", async () => {

@@ -21,6 +21,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -66,6 +68,13 @@ fun MainShell() {
     val currentItem = AppDestinations.ITEMS.firstOrNull { it.route == currentRoute }
     val isBottomNavRoute = AppDestinations.BOTTOM_NAV_ITEMS.any { it.route == currentRoute }
     val scope = rememberCoroutineScope()
+
+    // Sincroniza ao abrir o app e sempre que ele volta pro primeiro plano
+    // (não só depois de editar algo) — mesmo gatilho que o PWA já tem em
+    // visibilitychange/focus e o UWP em OnLaunched/OnResuming.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        scope.launch { SyncStatus.run() }
+    }
 
     Scaffold(
         topBar = {

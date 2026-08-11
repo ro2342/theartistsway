@@ -29,7 +29,7 @@ namespace ArtistWayUWP
         // de sincronização em sincronizacao-nuvem-setup.md).
         private async void OnResuming(object sender, object e)
         {
-            await SyncService.SyncAllAsync();
+            await RunSyncAsync();
             ProfileSettings profile = await LocalDataStore.GetProfileAsync();
             ThemeModeService.Apply(profile?.ThemeMode ?? "auto");
             await TileService.UpdateAsync();
@@ -112,8 +112,24 @@ namespace ArtistWayUWP
         // sequência desatualizada logo ao abrir.
         private static async Task SyncThenUpdateTileAsync()
         {
-            await SyncService.SyncAllAsync();
+            await RunSyncAsync();
             await TileService.UpdateAsync();
+        }
+
+        // Passa pelo MainPage.RunSyncAsync (ícone do cabeçalho) quando ele
+        // já existe, senão cai pro SyncService puro — mesmo padrão
+        // defensivo do SyncScheduler.cs (MainPage.Current pode ainda não
+        // ter sido montado neste ponto específico do ciclo de vida).
+        private static async Task RunSyncAsync()
+        {
+            if (MainPage.Current != null)
+            {
+                await MainPage.Current.RunSyncAsync();
+            }
+            else
+            {
+                await SyncService.SyncAllAsync();
+            }
         }
 
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
