@@ -53,12 +53,12 @@ const ANDROID_LAUNCHER_SIZES = { mdpi: 48, hdpi: 72, xhdpi: 96, xxhdpi: 144, xxx
 addSet(
   "android/ArtistWayAndroid/app/src/main/res/mipmap-{density}/ic_launcher.png",
   ANDROID_LAUNCHER_SIZES,
-  { bg: BRAND_BG, scale: 0.8, shape: "square" }
+  { bg: BRAND_BG, scale: 0.7, shape: "square" }
 );
 addSet(
   "android/ArtistWayAndroid/app/src/main/res/mipmap-{density}/ic_launcher_round.png",
   ANDROID_LAUNCHER_SIZES,
-  { bg: BRAND_BG, scale: 0.8, shape: "circle" }
+  { bg: BRAND_BG, scale: 0.7, shape: "circle" }
 );
 
 // --- Android: adaptive icon foreground (Android 8+, transparente, zona segura ~61%) ---
@@ -66,7 +66,7 @@ const ANDROID_ADAPTIVE_SIZES = { mdpi: 108, hdpi: 162, xhdpi: 216, xxhdpi: 324, 
 addSet(
   "android/ArtistWayAndroid/app/src/main/res/mipmap-{density}/ic_launcher_foreground.png",
   ANDROID_ADAPTIVE_SIZES,
-  { bg: null, scale: 0.58, shape: "square" }
+  { bg: null, scale: 0.51, shape: "square" }
 );
 
 // --- Android: ícone de notificação (status bar, transparente, quase sem margem) ---
@@ -87,16 +87,16 @@ const UWP_WIDE = {
   "scale-200": [620, 300],
   "scale-240": [744, 360],
 };
-addSet("uwp/ArtistWayUWP/Assets/Square44x44Logo.{density}.png", UWP_44, { bg: null, scale: 0.8 });
-addSet("uwp/ArtistWayUWP/Assets/Square71x71Logo.{density}.png", UWP_71, { bg: null, scale: 0.8 });
-addSet("uwp/ArtistWayUWP/Assets/Square150x150Logo.{density}.png", UWP_150, { bg: null, scale: 0.8 });
-addSet("uwp/ArtistWayUWP/Assets/Wide310x150Logo.{density}.png", UWP_WIDE, { bg: null, scale: 0.8 });
-SPECS.push({ file: "uwp/ArtistWayUWP/Assets/StoreLogo.png", w: 50, h: 50, bg: null, scale: 0.8, shape: "square" });
+addSet("uwp/ArtistWayUWP/Assets/Square44x44Logo.{density}.png", UWP_44, { bg: null, scale: 0.7 });
+addSet("uwp/ArtistWayUWP/Assets/Square71x71Logo.{density}.png", UWP_71, { bg: null, scale: 0.7 });
+addSet("uwp/ArtistWayUWP/Assets/Square150x150Logo.{density}.png", UWP_150, { bg: null, scale: 0.7 });
+addSet("uwp/ArtistWayUWP/Assets/Wide310x150Logo.{density}.png", UWP_WIDE, { bg: null, scale: 0.7 });
+SPECS.push({ file: "uwp/ArtistWayUWP/Assets/StoreLogo.png", w: 50, h: 50, bg: null, scale: 0.7, shape: "square" });
 
 // --- PWA: ícones do manifest (fundo sólido; maskable com zona segura ~62%) ---
-SPECS.push({ file: "www/icons/icon-192.png", w: 192, h: 192, bg: BRAND_BG, scale: 0.8, shape: "square" });
-SPECS.push({ file: "www/icons/icon-512.png", w: 512, h: 512, bg: BRAND_BG, scale: 0.8, shape: "square" });
-SPECS.push({ file: "www/icons/icon-maskable-1024.png", w: 1024, h: 1024, bg: BRAND_BG, scale: 0.62, shape: "square" });
+SPECS.push({ file: "www/icons/icon-192.png", w: 192, h: 192, bg: BRAND_BG, scale: 0.7, shape: "square" });
+SPECS.push({ file: "www/icons/icon-512.png", w: 512, h: 512, bg: BRAND_BG, scale: 0.7, shape: "square" });
+SPECS.push({ file: "www/icons/icon-maskable-1024.png", w: 1024, h: 1024, bg: BRAND_BG, scale: 0.54, shape: "square" });
 
 function httpGetJson(url) {
   return fetch(url).then((r) => r.json());

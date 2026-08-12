@@ -8,9 +8,9 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.20`** (`versionCode`
-  Android = 28).
-- PWA: `CACHE_NAME = "artist-way-companion-v8"` no service worker.
+- **Versão compartilhada (UWP + Android): `42.2.0.21`** (`versionCode`
+  Android = 29).
+- PWA: `CACHE_NAME = "artist-way-companion-v9"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
   momento.
@@ -41,6 +41,12 @@
    regras novas: sempre responder em PT-BR, sempre relatar mudanças e
    manter este `PROGRESS.md`, e documentar cores/design no `CLAUDE.md`
    do projeto (ver seção nova "Identidade visual" lá).
+5. **Ícone grande demais** (feedback do usuário comparando com o app
+   eBoox lado a lado): reduzida a escala do glifo em `generate-icons.js`
+   em todo mundo — launcher/round Android `0.8→0.7`, adaptive icon
+   foreground `0.58→0.51`, tiles UWP `0.8→0.7`, PWA `icon-192`/`icon-512`
+   `0.8→0.7` e `icon-maskable-1024` `0.62→0.54` (mesma proporção,
+   mantendo a zona segura do maskable).
 
 ## Identidade visual (referência rápida)
 
