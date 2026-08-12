@@ -8,9 +8,9 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.21`** (`versionCode`
-  Android = 29).
-- PWA: `CACHE_NAME = "artist-way-companion-v9"` no service worker.
+- **Versão compartilhada (UWP + Android): `42.2.0.22`** (`versionCode`
+  Android = 30).
+- PWA: `CACHE_NAME = "artist-way-companion-v10"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
   momento.
@@ -47,6 +47,33 @@
    foreground `0.58→0.51`, tiles UWP `0.8→0.7`, PWA `icon-192`/`icon-512`
    `0.8→0.7` e `icon-maskable-1024` `0.62→0.54` (mesma proporção,
    mantendo a zona segura do maskable).
+6. **Semanas 3 e 7 sem "toque pra abrir" no checklist**: varredura em
+   todas as 12 semanas mostrou que só a 3 e a 7 tinham **zero** itens de
+   checklist com `link` pra uma ferramenta (as outras semanas têm pelo
+   menos os itens list-worthy linkados). Corrigido:
+   - **Semana 3**: 6 ferramentas novas em `TOOL_CONFIGS`
+     (`tracosInfancia`, `conquistasComidasInfancia`,
+     `habitosAutodestrutivos`, `amigosQueNutrem`, `pessoasQueAdmiro`,
+     `pessoasFalecidas`), linkadas nos itens correspondentes do
+     checklist.
+   - **Semana 7**: a ferramenta `jealousyMap` ("Mapa do Ciúme") já
+     existia com `week: 7` mas nunca tinha item de checklist —
+     adicionado um novo item linkando ela (o ensaio da semana já
+     descrevia esse exercício, só faltava a entrada no checklist). Os
+     itens "filmes favoritos"/"temas de leitura" ganharam ferramenta
+     nova `filmesTemasLeitura` (não reaproveitei `meusFavoritos` porque
+     o formato não bate: lá é um valor único por categoria, aqui é uma
+     lista de 5).
+   - `arqueologia` (também `week: 7`) **continua sem uso** — o conteúdo
+     dela (o que faltou na infância / inventário positivo de hoje) não
+     bate tematicamente com o ensaio da Semana 7 (perfeccionismo, risco,
+     inveja, colagem). Provavelmente devia ser `week: 9` ou `10`
+     (mesmo grupo de "Limites e memórias" que `resentimentosMedos`,
+     `retornosEmU`, `bottomLine`, `pontosFelicidade`, `totemArtista`) —
+     não mexi nisso ainda, fica registrado pra decidir depois.
+   - Testado de ponta a ponta via Chrome headless antes de commitar:
+     todos os 6+3 links renderizam o "Toque aqui para abrir" certo e
+     abrem a tela da ferramenta, sem erro de console.
 
 ## Identidade visual (referência rápida)
 
@@ -70,11 +97,15 @@
 ## Possíveis próximos passos (não decididos ainda)
 
 - Testar manualmente nos dois aparelhos (Lumia 830 e o Android físico
-  usado pra teste): ícone com o tamanho novo (reduzido na 42.2.0.21),
-  notificação, e tile UWP herdando a cor de acento certa.
+  usado pra teste): ícone com o tamanho novo (reduzido na 42.2.0.22),
+  notificação, tile UWP herdando a cor de acento certa, e os novos
+  links tocáveis das Semanas 3 e 7.
 - Retrofit de `UI_STRINGS` ainda não é 100% completo (decisão
   consciente de escopo, não pendência urgente) — ver seção "Fonte
   única de conteúdo e texto de UI" no `CLAUDE.md`.
+- Decidir o que fazer com `arqueologia` (`TOOL_CONFIGS`, hoje
+  `week: 7`) — parece atribuída à semana errada, ver item 6 em "Últimas
+  mudanças" acima.
 
 `settings.json` global (`remoteControlAtStartup`) já foi ligado nesta
 sessão — não é mais pendência, é config global, fora deste repo.
