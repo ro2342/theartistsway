@@ -8,9 +8,9 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.22`** (`versionCode`
-  Android = 30).
-- PWA: `CACHE_NAME = "artist-way-companion-v10"` no service worker.
+- **Versão compartilhada (UWP + Android): `42.2.0.23`** (`versionCode`
+  Android = 31).
+- PWA: `CACHE_NAME = "artist-way-companion-v11"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
   momento.
@@ -74,6 +74,40 @@
    - Testado de ponta a ponta via Chrome headless antes de commitar:
      todos os 6+3 links renderizam o "Toque aqui para abrir" certo e
      abrem a tela da ferramenta, sem erro de console.
+7. **Auditoria completa nas 12 semanas** (usuário pediu pra verificar
+   tudo, não só o que já tinha sido reportado): lidas as 12 semanas
+   inteiras (não só contagem de link) pra separar item "ação/físico"
+   (legitimamente sem ferramenta) de item "liste X" sem lugar nenhum
+   pra escrever. Fechados os 8 gaps reais nas Semanas 8-12:
+   - 2 links fáceis (ferramenta já existia, só faltava o item de
+     checklist apontar pra ela): Semana 12 → `crencasNegativasViloes` e
+     `minhasAfirmacoes` (esta última já tinha `alsoWeeks: [12]` mas
+     nenhum item usava).
+   - 8 ferramentas novas: `coisasQueNaoPosso` (Semana 8),
+     `metasAnoMesSemana` (Semana 9), `osFatais`, `amizadesDuvidaCrenca`,
+     `vitoriasCuidado` (Semana 10), `inventarioMudanca`,
+     `cuidado6Meses` (Semana 11), `pessoasCompartilharSonhos`
+     (Semana 12).
+   - Testado de ponta a ponta via Chrome headless de novo antes de
+     commitar, sem erro de console.
+   - **Zona cinzenta registrada, não implementada** (usuário decidiu
+     adiar): ~11 prompts de escrita única (não são "liste 5", são só
+     uma reflexão) que poderiam virar tela própria mas hoje ficam sem
+     link, sem quebrar o padrão das semanas já fechadas:
+     - Semana 4: "que ganho em continuar travado(a) numa situação que
+       deveria mudar"
+     - Semana 8: "infância com cuidado perfeito"; "escreva-se como se
+       fosse uma cor"
+     - Semana 9: "reconhecer por escrito o valor das Morning Pages";
+       "cena ideal" da meta realizada (2 itens do checklist já
+       referenciam essa mesma cena — dá pra linkar os dois na mesma
+       ferramenta se decidir fazer)
+     - Semana 10: "qual hábito mais atrapalha + qual o ganho"; "3
+       promessas gentis"
+     - Semana 11: "planeje uma semana de autocuidado, uma ação por dia"
+     - Semana 12: "resistências/medos/raivas sobre continuar sem
+       suporte"; "áreas de procrastinação + medo por trás"; "recipiente
+       de preocupações" (tipo diário, ongoing)
 
 ## Identidade visual (referência rápida)
 
@@ -97,9 +131,12 @@
 ## Possíveis próximos passos (não decididos ainda)
 
 - Testar manualmente nos dois aparelhos (Lumia 830 e o Android físico
-  usado pra teste): ícone com o tamanho novo (reduzido na 42.2.0.22),
+  usado pra teste): ícone com o tamanho novo (reduzido na 42.2.0.23),
   notificação, tile UWP herdando a cor de acento certa, e os novos
-  links tocáveis das Semanas 3 e 7.
+  links tocáveis das Semanas 3, 7, 8, 9, 10, 11 e 12.
+- **Zona cinzenta da auditoria** (item 7 em "Últimas mudanças" acima):
+  ~11 prompts de escrita única sem link, em decisão adiada — perguntar
+  se/quando vale criar telas pra eles.
 - Retrofit de `UI_STRINGS` ainda não é 100% completo (decisão
   consciente de escopo, não pendência urgente) — ver seção "Fonte
   única de conteúdo e texto de UI" no `CLAUDE.md`.

@@ -582,7 +582,11 @@
         },
         {
           "task": "Liste 5 coisas que você 'não pode' fazer — e expresse uma delas no papel, no desenho ou dançando.",
-          "detail": "Extravasar simbolicamente (escrever, desenhar, dançar) uma regra rígida ajuda a diferenciar limites reais de auto-repressão desnecessária."
+          "detail": "Extravasar simbolicamente (escrever, desenhar, dançar) uma regra rígida ajuda a diferenciar limites reais de auto-repressão desnecessária.",
+          "link": {
+            "type": "list",
+            "key": "coisasQueNaoPosso"
+          }
         },
         {
           "task": "Liste 20 coisas que gosta de fazer e categorize (custa dinheiro? sozinho ou acompanhado? relacionado a trabalho?).",
@@ -643,7 +647,11 @@
         },
         {
           "task": "Liste suas metas criativas do ano, do mês e da semana.",
-          "detail": "Alinhar os três horizontes de tempo evita o erro comum de ter metas anuais grandiosas sem nenhuma ação semanal que as sustente."
+          "detail": "Alinhar os três horizontes de tempo evita o erro comum de ter metas anuais grandiosas sem nenhuma ação semanal que as sustente.",
+          "link": {
+            "type": "list",
+            "key": "metasAnoMesSemana"
+          }
         },
         {
           "task": "Nomeie um projeto criativo abandonado ('retorno em U') — ele pode ser resgatado agora?",
@@ -685,7 +693,11 @@
       "checklist": [
         {
           "task": "Sorteie um entre 7 temas sensíveis (álcool, drogas, sexo, trabalho, dinheiro, comida, família/amigos) e escreva 5 formas como ele impactou negativamente sua criatividade; repita o sorteio ao longo da semana, podendo repetir temas.",
-          "detail": "O livro chama isso de 'os fatais' — o tema que mais te incomoda sortear de novo costuma ser, segundo a autora, exatamente o que mais precisa de atenção."
+          "detail": "O livro chama isso de 'os fatais' — o tema que mais te incomoda sortear de novo costuma ser, segundo a autora, exatamente o que mais precisa de atenção.",
+          "link": {
+            "type": "list",
+            "key": "osFatais"
+          }
         },
         {
           "task": "Liste seus 'pontos de referência de felicidade' — pequenas coisas que sempre te consolam — e deixe a lista visível.",
@@ -701,7 +713,11 @@
         },
         {
           "task": "Identifique quais amizades alimentam sua dúvida e quais acreditam genuinamente em você.",
-          "detail": "Não é sobre cortar ninguém definitivamente — é sobre ter clareza de quem procurar (ou evitar) em fases mais sensíveis do processo criativo."
+          "detail": "Não é sobre cortar ninguém definitivamente — é sobre ter clareza de quem procurar (ou evitar) em fases mais sensíveis do processo criativo.",
+          "link": {
+            "type": "list",
+            "key": "amizadesDuvidaCrenca"
+          }
         },
         {
           "task": "Defina um 'limite mínimo': escolha 5 comportamentos dolorosos que você vai parar de aceitar.",
@@ -713,7 +729,11 @@
         },
         {
           "task": "Liste 5 pequenas vitórias recentes e 3 ações de cuidado que você já tomou por si.",
-          "detail": "Reconhecer vitórias pequenas contrabalança a tendência de só notar o que ainda falta fazer."
+          "detail": "Reconhecer vitórias pequenas contrabalança a tendência de só notar o que ainda falta fazer.",
+          "link": {
+            "type": "list",
+            "key": "vitoriasCuidado"
+          }
         },
         {
           "task": "Faça 3 promessas gentis a si mesmo(a) — e cumpra-as.",
@@ -759,11 +779,19 @@
         },
         {
           "task": "Faça um inventário: como você mudou desde que começou esse processo? Liste também 5 formas como pretende continuar mudando.",
-          "detail": "Esse balanço geral, perto do fim das 12 semanas, costuma revelar uma transformação maior do que a pessoa percebeu dia a dia."
+          "detail": "Esse balanço geral, perto do fim das 12 semanas, costuma revelar uma transformação maior do que a pessoa percebeu dia a dia.",
+          "link": {
+            "type": "list",
+            "key": "inventarioMudanca"
+          }
         },
         {
           "task": "Liste 5 formas como pretende se cuidar nos próximos 6 meses.",
-          "detail": "Pensar além da duração do programa ajuda a não tratar essas 12 semanas como um evento isolado, e sim como o início de um hábito permanente."
+          "detail": "Pensar além da duração do programa ajuda a não tratar essas 12 semanas como um evento isolado, e sim como o início de um hábito permanente.",
+          "link": {
+            "type": "list",
+            "key": "cuidado6Meses"
+          }
         },
         {
           "task": "Planeje uma semana inteira de autocuidado: uma ação concreta por dia.",
@@ -813,11 +841,19 @@
         },
         {
           "task": "Releia as Crenças Centrais Negativas que você escreveu na Semana 1 e note o quanto avançou.",
-          "detail": "Fechar o círculo com o primeiro exercício do programa é uma forma concreta de medir a distância percorrida."
+          "detail": "Fechar o círculo com o primeiro exercício do programa é uma forma concreta de medir a distância percorrida.",
+          "link": {
+            "type": "list",
+            "key": "crencasNegativasViloes"
+          }
         },
         {
           "task": "Escreva novas afirmações sobre sua criatividade daqui para frente.",
-          "detail": "As afirmações da Semana 1 foram sobre curar o passado; essas são sobre sustentar o futuro."
+          "detail": "As afirmações da Semana 1 foram sobre curar o passado; essas são sobre sustentar o futuro.",
+          "link": {
+            "type": "list",
+            "key": "minhasAfirmacoes"
+          }
         },
         {
           "task": "Faça um pequeno gesto de cuidado com algo ao seu redor — conserte algo que precisa de conserto, ou replante uma planta enfraquecida.",
@@ -837,7 +873,11 @@
         },
         {
           "task": "Liste 5 pessoas com quem você pode compartilhar seus sonhos criativos e planos futuros.",
-          "detail": "A recuperação criativa não precisa ser solitária depois que o programa termina — vale já ter em mente quem vai te acompanhar daqui pra frente."
+          "detail": "A recuperação criativa não precisa ser solitária depois que o programa termina — vale já ter em mente quem vai te acompanhar daqui pra frente.",
+          "link": {
+            "type": "list",
+            "key": "pessoasCompartilharSonhos"
+          }
         },
         {
           "task": "Decida como você vai manter as Morning Pages e o Artist Date depois dessas 12 semanas.",
@@ -1920,6 +1960,143 @@
         }
       ],
       "week": 6
+    },
+    {
+      "listName": "coisasQueNaoPosso",
+      "title": "Coisas que 'Não Posso' Fazer",
+      "subtitle": "5 coisas que você 'não pode' fazer — extravasar uma delas simbolicamente ajuda a diferenciar limite real de auto-repressão desnecessária.",
+      "fields": [
+        {
+          "key": "coisa",
+          "label": "Coisa",
+          "multiline": false
+        }
+      ],
+      "week": 8
+    },
+    {
+      "listName": "metasAnoMesSemana",
+      "title": "Metas Criativas: Ano, Mês, Semana",
+      "subtitle": "Alinhar os três horizontes de tempo evita o erro comum de metas anuais grandiosas sem nenhuma ação semanal que as sustente.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "metaAno",
+          "label": "Meta do ano",
+          "multiline": true
+        },
+        {
+          "key": "metaMes",
+          "label": "Meta do mês",
+          "multiline": true
+        },
+        {
+          "key": "metaSemana",
+          "label": "Meta da semana",
+          "multiline": true
+        }
+      ],
+      "week": 9
+    },
+    {
+      "listName": "osFatais",
+      "title": "Os Fatais",
+      "subtitle": "Sorteie um tema sensível (álcool, drogas, sexo, trabalho, dinheiro, comida, família/amigos) e liste como ele impactou negativamente sua criatividade — repita o sorteio ao longo da semana, pode repetir tema.",
+      "fields": [
+        {
+          "key": "tema",
+          "label": "Tema sorteado",
+          "multiline": false
+        },
+        {
+          "key": "impacto",
+          "label": "Como impactou sua criatividade",
+          "multiline": true
+        }
+      ],
+      "week": 10
+    },
+    {
+      "listName": "amizadesDuvidaCrenca",
+      "title": "Amizades: Dúvida vs. Crença",
+      "subtitle": "Quem alimenta sua dúvida e quem acredita genuinamente em você — não é sobre cortar ninguém, é sobre clareza de quem procurar em fases sensíveis.",
+      "fields": [
+        {
+          "key": "nome",
+          "label": "Nome",
+          "multiline": false
+        },
+        {
+          "key": "tipo",
+          "label": "Alimenta dúvida ou acredita em mim?",
+          "multiline": false
+        }
+      ],
+      "week": 10
+    },
+    {
+      "listName": "vitoriasCuidado",
+      "title": "Pequenas Vitórias e Ações de Cuidado",
+      "subtitle": "5 vitórias recentes e 3 ações de cuidado que você já tomou por si — reconhecer progresso contrabalança a tendência de só notar o que falta.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "vitorias",
+          "label": "5 pequenas vitórias recentes",
+          "multiline": true
+        },
+        {
+          "key": "cuidados",
+          "label": "3 ações de cuidado que já tomei por mim",
+          "multiline": true
+        }
+      ],
+      "week": 10
+    },
+    {
+      "listName": "inventarioMudanca",
+      "title": "Inventário de Mudança",
+      "subtitle": "Como você mudou desde a Semana 1, e 5 formas como pretende continuar mudando — esse balanço, perto do fim, costuma revelar mais transformação do que você percebeu dia a dia.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "comoMudei",
+          "label": "Como mudei desde o início",
+          "multiline": true
+        },
+        {
+          "key": "comoVouContinuar",
+          "label": "5 formas como pretendo continuar mudando",
+          "multiline": true
+        }
+      ],
+      "week": 11
+    },
+    {
+      "listName": "cuidado6Meses",
+      "title": "Como Vou Me Cuidar nos Próximos 6 Meses",
+      "subtitle": "5 formas — pensar além da duração do programa ajuda a tratar essas 12 semanas como início de um hábito, não um evento isolado.",
+      "fields": [
+        {
+          "key": "forma",
+          "label": "Forma de cuidado",
+          "multiline": false
+        }
+      ],
+      "week": 11
+    },
+    {
+      "listName": "pessoasCompartilharSonhos",
+      "title": "Pessoas com Quem Compartilhar Meus Sonhos",
+      "subtitle": "5 pessoas com quem você pode compartilhar seus sonhos criativos e planos futuros — a recuperação criativa não precisa ser solitária depois que o programa termina.",
+      "fields": [
+        {
+          "key": "pessoa",
+          "label": "Pessoa",
+          "multiline": false
+        }
+      ],
+      "week": 12
     }
   ],
   "quizConfigs": [
