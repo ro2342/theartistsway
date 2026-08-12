@@ -19,13 +19,6 @@
 
 ## Últimas mudanças desta sessão (2026-08-12)
 
-0. **Regra nova de commit**: `PROGRESS.md` (e o `CLAUDE.md`, quando a
-   mudança mexe em arquitetura/convenção) agora **têm que entrar no
-   mesmo commit** de qualquer mudança no projeto — ver bullet novo em
-   "Fluxo padrão de toda mudança" no `CLAUDE.md`. Motivo: manter o
-   estado do projeto registrado dentro do repo, não só na sessão atual,
-   pra qualquer sessão futura (computador diferente, sessão remota)
-   conseguir retomar sem perder contexto.
 1. **Ícones pequenos demais no Android** (launcher + notificação): o
    glifo de `logo.svg` ocupava só ~35% do canvas nos PNGs gerados.
    Criado `scripts/generate-icons.js` (Chrome headless + CDP, sem

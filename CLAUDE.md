@@ -216,12 +216,7 @@ weekId, cycleStart }`.
   local esperando o usuário perguntar por quê não subiu. Depois
   acompanhar o Actions (`gh run list --branch main --limit 1` / `gh run
   watch <id>`) até terminar; se falhar, ler o log (`gh run view <id>
-  --log-failed`), corrigir sozinho e re-push. **`PROGRESS.md` (e este
-  `CLAUDE.md`, quando a mudança afeta arquitetura/convenção) entram no
-  mesmo commit** — nunca deixar a doc pra depois: é o que garante que o
-  estado do projeto fica registrado *dentro do repo* (não só na memória
-  da sessão), disponível pra qualquer sessão futura, computador
-  diferente, ou sessão remota que precise retomar de onde parou.
+  --log-failed`), corrigir sozinho e re-push.
 - `app/app.appxbundle` e `app/version.json` são **gerados pelo
   workflow** `.github/workflows/02-build-appx.yml` (lê a versão do
   `Package.appxmanifest`, builda o appxbundle, sobrescreve os dois
