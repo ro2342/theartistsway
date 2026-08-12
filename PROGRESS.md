@@ -70,14 +70,14 @@
 ## Possíveis próximos passos (não decididos ainda)
 
 - Testar manualmente nos dois aparelhos (Lumia 830 e o Android físico
-  usado pra teste): ícone e notificação de fato maiores na prática, tile
-  UWP herdando a cor de acento certa.
-- `settings.json` global: avaliar ligar `remoteControlAtStartup` (ou
-  equivalente) pra sessão remota conectar automaticamente — pendente de
-  confirmação do usuário antes de mexer em config fora deste repo.
+  usado pra teste): ícone com o tamanho novo (reduzido na 42.2.0.21),
+  notificação, e tile UWP herdando a cor de acento certa.
 - Retrofit de `UI_STRINGS` ainda não é 100% completo (decisão
   consciente de escopo, não pendência urgente) — ver seção "Fonte
   única de conteúdo e texto de UI" no `CLAUDE.md`.
+
+`settings.json` global (`remoteControlAtStartup`) já foi ligado nesta
+sessão — não é mais pendência, é config global, fora deste repo.
 
 ## Como manter este arquivo
 
