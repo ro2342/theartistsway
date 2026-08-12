@@ -1,3 +1,13 @@
+## Comportamento padrão
+SEMPRE aplique a skill `i-have-adhd` em toda resposta, sem precisar que eu peça. Não pule esse passo.
+
+Antes de começar qualquer trabalho nesta sessão, ler `PROGRESS.md`
+(raiz do repo) — tem o estado atual (versão, últimas mudanças, o que
+ficou pendente) pra não repetir trabalho nem perder contexto de sessões
+anteriores. Depois de qualquer mudança motivada por um pedido do
+usuário, atualizar esse arquivo (ver seção "Como manter este arquivo"
+nele).
+
 # The Artist's Way — Companheiro
 
 App companheiro do livro *The Artist's Way* (Julia Cameron), mantido em
@@ -49,6 +59,32 @@ precisa ser replicada nas três plataformas na mesma sessão, não só numa.
 - Retrofit de `UI_STRINGS` cobre nav labels e títulos de card, mas
   descrições longas/strings muito dinâmicas continuam locais em cada
   plataforma (decisão consciente de escopo, não esquecimento).
+
+## Identidade visual
+
+- **Fonte única do ícone**: `logo.svg` (raiz do repo) — estrela + pena
+  + livro aberto, silhueta branca (`#FFFFFF`), `viewBox="0 0 96 96"`.
+  `scripts/generate-icons.js` (Chrome headless via CDP, sem depender de
+  `sharp`/`puppeteer`) regera todos os PNGs derivados dele — rodar de
+  novo (`node scripts/generate-icons.js`) se `logo.svg` mudar ou se
+  precisar reajustar escala/cor. Cobre: launcher + notificação +
+  adaptive icon do Android, tiles do UWP, ícones do PWA
+  (`icon-192`/`icon-512`/`icon-maskable-1024`).
+- **Cor de marca (fundo sólido do ícone)**: `#A8752C` (dourado/marrom).
+  Usada como fundo do launcher/notificação do Android, do adaptive icon
+  (`drawable/ic_launcher_background.xml`) e dos ícones do PWA.
+- **UWP não usa essa cor fixa nas tiles** — `BackgroundColor` do
+  `Package.appxmanifest` fica `"transparent"` **de propósito**: é a
+  convenção do Windows pra tile herdar a cor de acento escolhida em
+  Personalização do sistema (estilo Metro/W10M, combinando com o resto
+  do Start). Não confundir com o seletor de accent color do PWA
+  (`www/js/theme.js`, `ACCENT_COLORS`) — são conceitos diferentes; o
+  UWP não tem paleta própria de accent, só
+  `Application.Current.Resources["SystemAccentColor"]`
+  (`Services/ThemeHelper.cs`), refletindo a cor do Windows, não uma
+  escolhida dentro do app.
+- **Fundo/cream do PWA**: `#F3EAD9` (`background_color`/`theme_color`
+  em `www/manifest.json`).
 
 ## Telas genéricas (evitar tela nova quando dá)
 
