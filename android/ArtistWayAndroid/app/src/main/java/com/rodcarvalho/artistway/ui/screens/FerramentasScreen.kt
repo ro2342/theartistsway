@@ -34,14 +34,14 @@ private sealed interface FerramentasRow {
 private data class BespokeToolScreen(val title: String, val route: String, val week: Int?, val weekNote: String? = null)
 
 private fun bespokeScreens(): List<BespokeToolScreen> = listOf(
-    BespokeToolScreen("Princípios Básicos", AppDestinations.PRINCIPIOS_BASICOS, week = null),
-    BespokeToolScreen("Crença → Positiva", AppDestinations.TABELA_CRENCAS, week = 1),
-    BespokeToolScreen("Regras da Estrada", AppDestinations.REGRAS_DA_ESTRADA, week = 2),
-    BespokeToolScreen("Círculo de Segurança", AppDestinations.CIRCULO_SEGURANCA, week = 2),
-    BespokeToolScreen("Life Pie", AppDestinations.LIFE_PIE, week = 2),
-    BespokeToolScreen("Banco de Afirmações", AppDestinations.BANCO_AFIRMACOES, week = 8),
-    BespokeToolScreen("Histórico de Artist Dates", AppDestinations.ARTIST_DATE_HISTORY, week = null),
-    BespokeToolScreen("Reler Check-ins Antigos", AppDestinations.CHECKIN_HISTORY, week = 9),
+    BespokeToolScreen(ContentStore.s("tools.principiosBasicos"), AppDestinations.PRINCIPIOS_BASICOS, week = null),
+    BespokeToolScreen(ContentStore.s("tools.tabelaCrencas"), AppDestinations.TABELA_CRENCAS, week = 1),
+    BespokeToolScreen(ContentStore.s("tools.regrasDaEstrada"), AppDestinations.REGRAS_DA_ESTRADA, week = 2),
+    BespokeToolScreen(ContentStore.s("tools.circuloSeguranca"), AppDestinations.CIRCULO_SEGURANCA, week = 2),
+    BespokeToolScreen(ContentStore.s("tools.lifePie"), AppDestinations.LIFE_PIE, week = 2),
+    BespokeToolScreen(ContentStore.s("tools.bancoAfirmacoes"), AppDestinations.BANCO_AFIRMACOES, week = 8),
+    BespokeToolScreen(ContentStore.s("tools.artistDateHistory"), AppDestinations.ARTIST_DATE_HISTORY, week = null),
+    BespokeToolScreen(ContentStore.s("tools.checkinHistory"), AppDestinations.CHECKIN_HISTORY, week = 9),
     BespokeToolScreen(
         ContentStore.content.quizConfigs.firstOrNull { it.key == "workaholismQuiz" }?.title ?: "Quiz",
         AppDestinations.quiz("workaholismQuiz"),

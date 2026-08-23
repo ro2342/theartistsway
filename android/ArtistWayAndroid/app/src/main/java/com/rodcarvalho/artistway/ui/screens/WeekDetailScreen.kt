@@ -133,9 +133,9 @@ private fun resolveLinkTitle(link: ChecklistLink?): String? {
     return when (link.type) {
         "list" -> ContentStore.content.toolConfigs.firstOrNull { it.listName == link.key }?.title
         "screen" -> when (link.key) {
-            "lifePie" -> "Life Pie"
-            "circuloSeguranca" -> "Círculo de Segurança"
-            "principiosBasicos" -> "Princípios Básicos"
+            "lifePie" -> ContentStore.s("tools.lifePie")
+            "circuloSeguranca" -> ContentStore.s("tools.circuloSeguranca")
+            "principiosBasicos" -> ContentStore.s("tools.principiosBasicos")
             "artistDate" -> "Artist Date"
             else -> null
         }

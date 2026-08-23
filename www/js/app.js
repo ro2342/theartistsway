@@ -213,7 +213,7 @@ function confirmDialog(title, message, confirmLabel) {
         <div slot="title">${title}</div>
         <p class="muted">${message}</p>
         <fluent-button slot="action" appearance="primary" id="confirmDialogYes">${confirmLabel}</fluent-button>
-        <fluent-button slot="action" id="confirmDialogNo">Cancelar</fluent-button>
+        <fluent-button slot="action" id="confirmDialogNo">${UI_STRINGS["common.cancel"]}</fluent-button>
       </fluent-dialog-body>
     `;
     document.body.appendChild(dialog);
@@ -811,9 +811,9 @@ function resolveChecklistLink(link) {
   }
   if (link.type === "screen") {
     const screens = {
-      lifePie: { title: "Life Pie", hash: "#/life-pie" },
-      circuloSeguranca: { title: "Círculo de Segurança", hash: "#/circulo-seguranca" },
-      principiosBasicos: { title: "Princípios Básicos", hash: "#/principios-basicos" },
+      lifePie: { title: UI_STRINGS["tools.lifePie"], hash: "#/life-pie" },
+      circuloSeguranca: { title: UI_STRINGS["tools.circuloSeguranca"], hash: "#/circulo-seguranca" },
+      principiosBasicos: { title: UI_STRINGS["tools.principiosBasicos"], hash: "#/principios-basicos" },
       artistDate: { title: "Artist Date", hash: "#/artist-date" },
     };
     return screens[link.key] || null;
@@ -931,21 +931,21 @@ function renderReferenceScreen(title, sub, items) {
 }
 
 route("/regras-da-estrada", async () => {
-  renderReferenceScreen("Regras da Estrada", "sempre por perto", ROAD_RULES);
+  renderReferenceScreen(UI_STRINGS["tools.regrasDaEstrada"], "sempre por perto", ROAD_RULES);
 });
 
 route("/principios-basicos", async () => {
-  renderReferenceScreen("Princípios Básicos", "a base de tudo", BASIC_PRINCIPLES);
+  renderReferenceScreen(UI_STRINGS["tools.principiosBasicos"], "a base de tudo", BASIC_PRINCIPLES);
 });
 
 route("/banco-afirmacoes", async () => {
-  renderReferenceScreen("Banco de Afirmações", "20 frases prontas", AFFIRMATIONS);
+  renderReferenceScreen(UI_STRINGS["tools.bancoAfirmacoes"], "20 frases prontas", AFFIRMATIONS);
 });
 
 route("/tabela-crencas", async () => {
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Crença → Positiva<span class="sub">contraponto rápido</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["tools.tabelaCrencas"]}<span class="sub">contraponto rápido</span></div>
     </div>
     <div class="card">
       ${BELIEF_TABLE.map(
@@ -1145,7 +1145,7 @@ route("/circulo-seguranca", async () => {
 
     appEl.innerHTML = `
       <div class="top-bar">
-        <div class="logo" style="text-align:right">Círculo de Segurança<span class="sub">quem apoia, quem exige cautela</span></div>
+        <div class="logo" style="text-align:right">${UI_STRINGS["tools.circuloSeguranca"]}<span class="sub">quem apoia, quem exige cautela</span></div>
       </div>
       <p class="muted">Quem apoia — e de quem se proteger por enquanto.</p>
       <div class="card">
@@ -1208,7 +1208,7 @@ route("/life-pie", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Life Pie<span class="sub">seu círculo de vida</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["tools.lifePie"]}<span class="sub">seu círculo de vida</span></div>
     </div>
     <p class="muted">Arraste cada eixo pra marcar o quanto essa área está satisfeita hoje (0 a 10). ${previous ? "A silhueta clara mostra o snapshot anterior, pra comparar." : ""}</p>
     <div class="card text-center">
@@ -1497,7 +1497,7 @@ route("/artist-date-history", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Histórico de Artist Dates<span class="sub">todos os encontros já registrados</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["tools.artistDateHistory"]}<span class="sub">todos os encontros já registrados</span></div>
     </div>
     <div class="card">
       ${
@@ -1524,7 +1524,7 @@ route("/checkin-history", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Reler Check-ins Antigos<span class="sub">toque numa semana com check-in salvo</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["tools.checkinHistory"]}<span class="sub">toque numa semana com check-in salvo</span></div>
     </div>
     <div class="card">
       ${Array.from({ length: 12 }, (_, i) => i + 1)
@@ -1578,14 +1578,14 @@ route("/progress", async () => {
 // linha a linha contra o texto original, só que aqui centralizada em
 // vez de espalhada em várias abas por categoria.
 const BESPOKE_TOOL_SCREENS = [
-  { title: "Princípios Básicos", hash: "#/principios-basicos", week: null },
-  { title: "Crença → Positiva", hash: "#/tabela-crencas", week: 1 },
-  { title: "Regras da Estrada", hash: "#/regras-da-estrada", week: 2 },
-  { title: "Círculo de Segurança", hash: "#/circulo-seguranca", week: 2 },
-  { title: "Life Pie", hash: "#/life-pie", week: 2 },
-  { title: "Banco de Afirmações", hash: "#/banco-afirmacoes", week: 8 },
-  { title: "Histórico de Artist Dates", hash: "#/artist-date-history", week: null },
-  { title: "Reler Check-ins Antigos", hash: "#/checkin-history", week: 9 },
+  { title: UI_STRINGS["tools.principiosBasicos"], hash: "#/principios-basicos", week: null },
+  { title: UI_STRINGS["tools.tabelaCrencas"], hash: "#/tabela-crencas", week: 1 },
+  { title: UI_STRINGS["tools.regrasDaEstrada"], hash: "#/regras-da-estrada", week: 2 },
+  { title: UI_STRINGS["tools.circuloSeguranca"], hash: "#/circulo-seguranca", week: 2 },
+  { title: UI_STRINGS["tools.lifePie"], hash: "#/life-pie", week: 2 },
+  { title: UI_STRINGS["tools.bancoAfirmacoes"], hash: "#/banco-afirmacoes", week: 8 },
+  { title: UI_STRINGS["tools.artistDateHistory"], hash: "#/artist-date-history", week: null },
+  { title: UI_STRINGS["tools.checkinHistory"], hash: "#/checkin-history", week: 9 },
   { title: QUIZ_CONFIGS.workaholismQuiz.title, hash: "#/quiz/workaholismQuiz", week: 10 },
 ];
 
@@ -1757,11 +1757,11 @@ route("/settings", async () => {
           <div class="card">
             <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.data.title"]}</div>
             <p class="muted">Tudo fica só no seu aparelho. Faça backup de vez em quando.</p>
-            <button class="btn secondary block" id="exportData">Exportar backup (.json)</button>
+            <button class="btn secondary block" id="exportData">${UI_STRINGS["settings.export"]}</button>
             ${
               isUwpHost()
-                ? `<div class="spacer-sm"></div><button class="btn secondary block" id="importDataUwp">Importar backup (.json)</button>`
-                : `<div class="spacer-sm"></div><label>Importar backup</label><input type="file" id="importFile" accept=".json" />`
+                ? `<div class="spacer-sm"></div><button class="btn secondary block" id="importDataUwp">${UI_STRINGS["settings.import"]}</button>`
+                : `<div class="spacer-sm"></div><label>${UI_STRINGS["settings.import"]}</label><input type="file" id="importFile" accept=".json" />`
             }
           </div>
 
@@ -1770,7 +1770,7 @@ route("/settings", async () => {
             <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o app do Windows, no mesmo login.</p>
             <p class="muted" id="syncStatus">Verificando...</p>
             <button class="btn brass block" id="googleLogin">Entrar com Google</button>
-            <button class="btn secondary block" id="signOut" style="display:none;">Sair</button>
+            <button class="btn secondary block" id="signOut" style="display:none;">${UI_STRINGS["settings.signOut"]}</button>
           </div>
         `,
       },
@@ -1794,9 +1794,9 @@ route("/settings", async () => {
           <div class="card">
             <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.dangerZone.title"]}</div>
             <p class="muted">Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa.</p>
-            <button class="btn secondary block" id="clearData">Apagar todos os dados (mantém login)</button>
+            <button class="btn secondary block" id="clearData">${UI_STRINGS["settings.clearData.button"]}</button>
             <div class="spacer-sm"></div>
-            <button class="btn secondary block" id="fullReset">Resetar o app completamente (sai da conta)</button>
+            <button class="btn secondary block" id="fullReset">${UI_STRINGS["settings.fullReset.button"]}</button>
           </div>
         `,
       },
@@ -1945,9 +1945,9 @@ route("/settings", async () => {
   document.getElementById("clearData").addEventListener("click", async () => {
     const session = await window.ArtistWayAuth.getSession();
     const msg = session
-      ? "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer."
-      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer.";
-    if (!(await confirmDialog("Apagar todos os dados?", msg, "Apagar dados"))) return;
+      ? UI_STRINGS["settings.clearData.confirmMessageLoggedIn"]
+      : UI_STRINGS["settings.clearData.confirmMessageLocal"];
+    if (!(await confirmDialog(UI_STRINGS["settings.clearData.confirmTitle"], msg, UI_STRINGS["settings.clearData.confirmButton"]))) return;
     if (session) await window.ArtistWaySync.clearCloudData();
     await DB.resetAllData({ keepSession: true });
     location.reload();
@@ -1957,9 +1957,9 @@ route("/settings", async () => {
   document.getElementById("fullReset").addEventListener("click", async () => {
     const session = await window.ArtistWayAuth.getSession();
     const msg = session
-      ? "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer."
-      : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer.";
-    if (!(await confirmDialog("Resetar o app completamente?", msg, "Resetar tudo"))) return;
+      ? UI_STRINGS["settings.fullReset.confirmMessageLoggedIn"]
+      : UI_STRINGS["settings.clearData.confirmMessageLocal"];
+    if (!(await confirmDialog(UI_STRINGS["settings.fullReset.confirmTitle"], msg, UI_STRINGS["settings.fullReset.confirmButton"]))) return;
     if (session) {
       await window.ArtistWaySync.clearCloudData();
       await window.ArtistWayAuth.signOut();

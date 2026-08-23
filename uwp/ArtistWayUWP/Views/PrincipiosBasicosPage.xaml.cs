@@ -10,6 +10,7 @@ namespace ArtistWayUWP.Views
         public PrincipiosBasicosPage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.principiosBasicos");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

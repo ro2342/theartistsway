@@ -29,7 +29,7 @@ fun TabelaCrencasScreen() {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Crença → Positiva", style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("tools.tabelaCrencas"), style = MaterialTheme.typography.headlineSmall)
         ContentStore.content.beliefTable.forEach { pair ->
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(

@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.NamedListItem
 import kotlinx.coroutines.launch
@@ -54,7 +55,7 @@ fun CirculoSegurancaScreen() {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Círculo de Segurança", style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("tools.circuloSeguranca"), style = MaterialTheme.typography.headlineSmall)
         Text("quem apoia, quem exige cautela", style = MaterialTheme.typography.bodyMedium)
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

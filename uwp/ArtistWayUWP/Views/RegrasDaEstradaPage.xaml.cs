@@ -10,6 +10,7 @@ namespace ArtistWayUWP.Views
         public RegrasDaEstradaPage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.regrasDaEstrada");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

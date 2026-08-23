@@ -14,6 +14,7 @@ namespace ArtistWayUWP.Views
         public ArtistDateHistoryPage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.artistDateHistory");
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)

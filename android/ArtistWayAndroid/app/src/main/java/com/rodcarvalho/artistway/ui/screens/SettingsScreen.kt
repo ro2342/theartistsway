@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.rodcarvalho.artistway.auth.AuthService
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.sync.SyncService
@@ -42,8 +43,6 @@ import com.rodcarvalho.artistway.update.UpdateDownloader
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-private val TAB_TITLES = listOf("Aparência", "Dados e Sincronização", "Avançado")
-
 // Espelha SettingsPage.xaml.cs — três abas, tudo funcionando de ponta a
 // ponta: tema, backup, login/logout com Google (Credential Manager +
 // Firebase Auth SDK), sincronizar agora, verificação/instalação de
@@ -51,6 +50,11 @@ private val TAB_TITLES = listOf("Aparência", "Dados e Sincronização", "Avanç
 // também quando logado).
 @Composable
 fun SettingsScreen() {
+    val tabTitles = listOf(
+        ContentStore.s("settings.tabs.appearance"),
+        ContentStore.s("settings.tabs.dataSync"),
+        ContentStore.s("settings.tabs.advanced"),
+    )
     var selectedTab by remember { mutableIntStateOf(0) }
     var profile by remember { mutableStateOf(ProfileSettings()) }
     var loaded by remember { mutableStateOf(false) }
@@ -75,7 +79,7 @@ fun SettingsScreen() {
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(selectedTabIndex = selectedTab) {
-            TAB_TITLES.forEachIndexed { i, title ->
+            tabTitles.forEachIndexed { i, title ->
                 Tab(selected = selectedTab == i, onClick = { selectedTab = i }, text = { Text(title) })
             }
         }
@@ -166,11 +170,11 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
     Button(
         onClick = { exportLauncher.launch("artist-way-backup-${LocalDate.now()}.json") },
         modifier = Modifier.fillMaxWidth(),
-    ) { Text("Exportar backup") }
+    ) { Text(ContentStore.s("settings.export")) }
     OutlinedButton(
         onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) },
         modifier = Modifier.fillMaxWidth(),
-    ) { Text("Importar backup") }
+    ) { Text(ContentStore.s("settings.import")) }
     status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
 
     Text("Sincronização com a nuvem", style = MaterialTheme.typography.titleMedium)
@@ -212,7 +216,7 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Sair") }
+        ) { Text(ContentStore.s("settings.signOut")) }
     }
 }
 
@@ -277,16 +281,16 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
             scope.launch { LocalDataStore.setProfile(next) }
         },
         modifier = Modifier.fillMaxWidth(),
-    ) { Text(if (profile.maintenanceMode) "Desligar modo manutenção" else "Ligar modo manutenção") }
+    ) { Text(if (profile.maintenanceMode) ContentStore.s("settings.maintenance.toggleOff") else ContentStore.s("settings.maintenance.toggleOn")) }
 
     Text("Zona de perigo", style = MaterialTheme.typography.titleMedium)
     OutlinedButton(onClick = { showResetConfirm = true }, modifier = Modifier.fillMaxWidth()) {
-        Text("Apagar todos os dados")
+        Text(ContentStore.s("settings.clearData.button"))
     }
     // Mantém a sessão logada (a conta continua existindo, só fica vazia) —
     // útil pra recomeçar o programa do zero sem precisar logar de novo.
     OutlinedButton(onClick = { showFullResetConfirm = true }, modifier = Modifier.fillMaxWidth()) {
-        Text("Resetar tudo (e sair da conta)")
+        Text(ContentStore.s("settings.fullReset.button"))
     }
     if (resetDone) {
         Text("Dados apagados — reinicie o app pra configurar de novo.", style = MaterialTheme.typography.bodyMedium)
@@ -295,13 +299,13 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
     if (showResetConfirm) {
         AlertDialog(
             onDismissRequest = { showResetConfirm = false },
-            title = { Text("Apagar todos os dados?") },
+            title = { Text(ContentStore.s("settings.clearData.confirmTitle")) },
             text = {
                 Text(
                     if (loggedIn) {
-                        "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer. Tem certeza?"
+                        ContentStore.s("settings.clearData.confirmMessageLoggedIn")
                     } else {
-                        "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?"
+                        ContentStore.s("settings.clearData.confirmMessageLocal")
                     },
                 )
             },
@@ -313,10 +317,10 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
                         if (loggedIn) SyncService.clearCloudData()
                         resetDone = true
                     }
-                }) { Text("Apagar dados") }
+                }) { Text(ContentStore.s("settings.clearData.confirmButton")) }
             },
             dismissButton = {
-                TextButton(onClick = { showResetConfirm = false }) { Text("Cancelar") }
+                TextButton(onClick = { showResetConfirm = false }) { Text(ContentStore.s("common.cancel")) }
             },
         )
     }
@@ -324,13 +328,13 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
     if (showFullResetConfirm) {
         AlertDialog(
             onDismissRequest = { showFullResetConfirm = false },
-            title = { Text("Resetar o app completamente?") },
+            title = { Text(ContentStore.s("settings.fullReset.confirmTitle")) },
             text = {
                 Text(
                     if (loggedIn) {
-                        "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer. Tem certeza?"
+                        ContentStore.s("settings.fullReset.confirmMessageLoggedIn")
                     } else {
-                        "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?"
+                        ContentStore.s("settings.clearData.confirmMessageLocal")
                     },
                 )
             },
@@ -345,10 +349,10 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
                         }
                         resetDone = true
                     }
-                }) { Text("Resetar tudo") }
+                }) { Text(ContentStore.s("settings.fullReset.confirmButton")) }
             },
             dismissButton = {
-                TextButton(onClick = { showFullResetConfirm = false }) { Text("Cancelar") }
+                TextButton(onClick = { showFullResetConfirm = false }) { Text(ContentStore.s("common.cancel")) }
             },
         )
     }

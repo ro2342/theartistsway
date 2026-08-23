@@ -15,6 +15,7 @@ namespace ArtistWayUWP.Views
         public CirculoSegurancaPage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.circuloSeguranca");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

@@ -242,3 +242,112 @@
    - **Nada foi implementado ainda** — só o mapeamento. Fica registrado
      em "Possíveis próximos passos" do `PROGRESS.md` como próxima
      prioridade.
+
+## 2026-08-23 (2)
+
+1. **Retrofit de `UI_STRINGS` — baldes 1, 2 e 3 implementados** (usuário
+   pediu explicitamente pra fazer os três depois de ver a auditoria da
+   entrada anterior). 20 chaves novas adicionadas em `UI_STRINGS`
+   (`www/js/data.js`):
+   - Bucket 1 (8 chaves `tools.*`): `principiosBasicos`,
+     `tabelaCrencas`, `regrasDaEstrada`, `circuloSeguranca`, `lifePie`,
+     `bancoAfirmacoes`, `artistDateHistory`, `checkinHistory`.
+   - Buckets 2+3 (12 chaves `settings.*`): `export`, `import`,
+     `signOut`, `clearData.button`, `clearData.confirmTitle`,
+     `clearData.confirmMessageLoggedIn`, `clearData.confirmMessageLocal`,
+     `clearData.confirmButton`, `fullReset.button`,
+     `fullReset.confirmTitle`, `fullReset.confirmMessageLoggedIn`,
+     `fullReset.confirmButton` (o botão "Cancelar" dos diálogos
+     reaproveita a chave `common.cancel` já existente, não criou
+     duplicata).
+2. **PWA** (`www/js/app.js`): 19 pontos trocados de literal pra
+   `UI_STRINGS[...]` — `BESPOKE_TOOL_SCREENS` (9 entradas), cada rota
+   bespoke individual (`/principios-basicos`, `/tabela-crencas`,
+   `/regras-da-estrada`, `/circulo-seguranca`, `/life-pie`,
+   `/banco-afirmacoes`, `/artist-date-history`, `/checkin-history`),
+   `resolveChecklistLink`'s `screens` map, os botões de Ajustes
+   (export/import/signOut/clearData/fullReset), os dois `confirmDialog(...)`
+   de zona de risco, e o botão "Cancelar" genérico dentro do próprio
+   `confirmDialog`. Descoberta no processo: cada um dos 8 títulos
+   bespoke já aparecia **duas vezes só dentro do PWA** (uma na lista de
+   Ferramentas, outra no cabeçalho da própria tela) — a duplicação não
+   era só entre plataformas.
+3. **UWP**: confirmado que `ContentStore.S(key)` já existe e já é usado
+   extensivamente em `SettingsPage.xaml.cs` (a doc do `CLAUDE.md`
+   dizendo que isso "ainda por portar" estava desatualizada, pelo menos
+   pro lado UWP). Mudanças:
+   - 8 páginas (`PrincipiosBasicosPage`, `TabelaCrencasPage`,
+     `RegrasDaEstradaPage`, `CirculoSegurancaPage`, `LifePiePage`,
+     `AfirmacoesPage`, `ArtistDateHistoryPage`, `CheckinHistoryPage`):
+     `TextBlock` do título ganhou `x:Name="TitleText"` no `.xaml`, e o
+     construtor do `.xaml.cs` passou a setar
+     `TitleText.Text = ContentStore.S("tools.xxx")` (mesmo padrão já
+     usado por `MaintenanceTitleText` etc. em `SettingsPage.xaml.cs`).
+   - `FerramentasPage.xaml.cs` (lista de ferramentas bespoke) e
+     `WeekDetailPage.xaml.cs` (`ResolveLinkTitle`, resolve o título do
+     "toque pra abrir" do checklist) trocados pra `ContentStore.S(...)`.
+   - `SettingsPage.xaml`: `ExportButton`/`ImportButton` ganharam
+     `x:Name`; os dois `TextBlock` dentro dos botões de zona de risco
+     ganharam `x:Name="ClearDataText"`/`"FullResetText"`.
+     `SettingsPage.xaml.cs`: construtor seta os 5 novos textos
+     (export/import/signOut/clearData/fullReset), e os dois
+     `ContentDialog` de confirmação (`ClearData_Click`/`FullReset_Click`)
+     trocados pra `ContentStore.S(...)` — incluindo o `CloseButtonText`,
+     que passou a usar `ContentStore.S("common.cancel")` em vez de
+     `"Cancelar"` hardcoded.
+   - Todos os 9 `.xaml` tocados validados com
+     `python -c "import xml.dom.minidom as m; m.parse(...)"` (usado
+     `/c/Python314/python`, já que `python3` não está no PATH desta
+     máquina) — todos OK.
+4. **Android**: confirmado que `ContentStore.kt` já tinha `fun s(key)`
+   funcional lendo de `AppContent.uiStrings` (a mesma nota desatualizada
+   do `CLAUDE.md` também não se aplicava aqui — só faltava *usar* a
+   função, a infra já existia). Mudanças:
+   - `FerramentasScreen.kt` (`bespokeScreens()`), `WeekDetailScreen.kt`
+     (`resolveLinkTitle`) e `MainShell.kt` (3 chamadas de
+     `NumberedListScreen(title, ...)` pra Regras da Estrada/Princípios
+     Básicos/Banco de Afirmações) trocados pra `ContentStore.s(...)`.
+   - 5 telas dedicadas (`ArtistDateHistoryScreen.kt`,
+     `CirculoSegurancaScreen.kt`, `LifePieScreen.kt`,
+     `TabelaCrencasScreen.kt`, `CheckinHistoryScreen.kt`) tiveram o
+     `Text(...)` do cabeçalho trocado, com `import
+     com.rodcarvalho.artistway.data.ContentStore` adicionado onde
+     faltava. `CheckinHistoryScreen.kt` tinha "Reler check-ins antigos"
+     em minúsculo — divergia da capitalização usada em PWA/UWP, agora
+     unificado.
+   - `SettingsScreen.kt`: import de `ContentStore` adicionado. `private
+     val TAB_TITLES = listOf(...)` (nível de arquivo) **removido** e
+     substituído por um `val tabTitles = listOf(ContentStore.s(...), ...)`
+     local dentro do composable `SettingsScreen()` — decisão deliberada
+     pra evitar um bug de ordem de inicialização: um `val` de nível de
+     arquivo referenciando `ContentStore.s()` rodaria no carregamento
+     estático da classe (JVM class-init), que pode acontecer antes de
+     `ContentStore.initialize()` terminar (chamada assíncrona feita em
+     outro lugar do app), travando esses 3 títulos pra sempre no valor
+     de fallback (`s()` devolve a própria chave se `ContentStore` ainda
+     não carregou). Recalcular dentro do composable custa quase nada (3
+     strings) e garante que sempre lê depois do `ContentStore` pronto.
+     Descoberta no processo: o texto original da aba "Dados &
+     Sincronização" no Android era **"Dados e Sincronização"**,
+     divergente de `settings.tabs.dataSync` = "Dados & Sync" (PWA/UWP)
+     — corrigido junto, mesmo não estando na lista original dos 3
+     baldes (era trivial e já estava ali no meio do arquivo).
+     Export/Import/Sair/toggle de manutenção/botões e diálogos de zona
+     de perigo trocados pro mesmo padrão `ContentStore.s(...)`.
+5. **Validação**: `node scripts/generate-content-json.js --check`
+   confirma os dois `content.json` em dia depois de cada rodada de
+   edição em `data.js`. Varredura de `--` literal
+   (`\s--\s` via Grep) em todos os arquivos tocados: nenhuma ocorrência.
+   Teste E2E via Chrome headless/CDP no PWA
+   (`test-uistrings.js`, scratchpad): navegou pelas 8 rotas bespoke +
+   Ferramentas + Ajustes, confirmou que cada título/botão renderiza o
+   texto certo vindo de `UI_STRINGS`, zero erro de console.
+6. Versão bumpada nas 3 plataformas: UWP `42.2.0.24 → 42.2.0.25`;
+   Android `versionCode 32→33`, `versionName "42.2.0.24"→"42.2.0.25"`;
+   PWA `CACHE_NAME` `"...v12"→"...v13"`.
+7. **Não coberto nesta rodada** (fica pros baldes 4 e 5, decisão
+   futura): textos de onboarding (33 ocorrências XAML no UWP + 9 no
+   Android) e os textos dinâmicos da Home (`"Dia X de Y"`, saudação com
+   nome) — este último exige redesenho de paridade de componente entre
+   UWP e Android antes de sequer cogitar unificar o texto, não é só
+   mover string.

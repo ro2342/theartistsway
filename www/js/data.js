@@ -692,6 +692,18 @@ const UI_STRINGS = {
   "settings.maintenance.description": "Depois das 12 semanas, desliga o checklist e o check-in semanal — fica só Morning Pages e Artist Date rodando indefinidamente.",
   "settings.maintenance.toggleOn": "Ativar modo manutenção",
   "settings.maintenance.toggleOff": "Desativar modo manutenção",
+  "settings.export": "Exportar backup (.json)",
+  "settings.import": "Importar backup (.json)",
+  "settings.signOut": "Sair",
+  "settings.clearData.button": "Apagar todos os dados (mantém login)",
+  "settings.clearData.confirmTitle": "Apagar todos os dados?",
+  "settings.clearData.confirmMessageLoggedIn": "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer. Tem certeza?",
+  "settings.clearData.confirmMessageLocal": "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?",
+  "settings.clearData.confirmButton": "Apagar dados",
+  "settings.fullReset.button": "Resetar o app completamente (sai da conta)",
+  "settings.fullReset.confirmTitle": "Resetar o app completamente?",
+  "settings.fullReset.confirmMessageLoggedIn": "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer. Tem certeza?",
+  "settings.fullReset.confirmButton": "Resetar tudo",
 
   "recursos.title": "Recursos",
   "recursos.subtitle": "ferramentas e exercícios vivos do livro",
@@ -711,6 +723,15 @@ const UI_STRINGS = {
   "recursos.history.description": "Reveja Artist Dates e check-ins de semanas passadas.",
   "recursos.quiz.title": "Quiz",
   "recursos.quiz.description": "Um teste rápido de autoavaliação do livro.",
+
+  "tools.principiosBasicos": "Princípios Básicos",
+  "tools.tabelaCrencas": "Crença → Positiva",
+  "tools.regrasDaEstrada": "Regras da Estrada",
+  "tools.circuloSeguranca": "Círculo de Segurança",
+  "tools.lifePie": "Life Pie",
+  "tools.bancoAfirmacoes": "Banco de Afirmações",
+  "tools.artistDateHistory": "Histórico de Artist Dates",
+  "tools.checkinHistory": "Reler Check-ins Antigos",
 };
 
 // TOOL_CONFIGS — substitui o antigo LIST_CONFIGS (que só existia dentro de

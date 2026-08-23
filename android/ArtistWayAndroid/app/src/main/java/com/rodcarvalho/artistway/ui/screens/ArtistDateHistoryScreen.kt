@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ArtistDateHistoryItem
 
@@ -38,7 +39,7 @@ fun ArtistDateHistoryScreen() {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Histórico de Artist Dates", style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("tools.artistDateHistory"), style = MaterialTheme.typography.headlineSmall)
         if (loaded && items.isEmpty()) {
             Text("Nenhum Artist Date registrado ainda.", style = MaterialTheme.typography.bodyMedium)
         }

@@ -54,9 +54,14 @@ precisa ser replicada nas três plataformas na mesma sessão, não só numa.
   e commitar os dois.
 - `uwp/ArtistWayUWP/Services/ContentStore.cs` — carrega o
   `content.json` empacotado e expõe `ContentStore.Content` tipado;
-  `ContentStore.S("chave")` lê `UiStrings`. Equivalente Android
-  (`ContentStore.kt`, lendo de `assets/`) ainda por portar.
-- Retrofit de `UI_STRINGS` cobre nav labels e títulos de card, mas
+  `ContentStore.S("chave")` lê `UiStrings`. Equivalente Android já
+  existe (`data/ContentStore.kt`, lendo de `assets/`, com `fun
+  s(key)`) — usar sempre que um texto de UI puder vir de `UI_STRINGS`
+  em vez de string local, nas duas plataformas.
+- Retrofit de `UI_STRINGS` cobre nav labels, títulos de card, títulos
+  de tela "bespoke" (`tools.*`) e os textos de botão/diálogo da tela de
+  Ajustes (`settings.*` — exportar/importar, sair, apagar dados,
+  resetar), mas
   descrições longas/strings muito dinâmicas continuam locais em cada
   plataforma (decisão consciente de escopo, não esquecimento).
 

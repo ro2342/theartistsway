@@ -11,6 +11,7 @@ namespace ArtistWayUWP.Views
         public TabelaCrencasPage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.tabelaCrencas");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

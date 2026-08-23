@@ -40,6 +40,11 @@ namespace ArtistWayUWP.Views
             SyncTitleText.Text = ContentStore.S("settings.sync.title");
             MaintenanceTitleText.Text = ContentStore.S("settings.maintenance.title");
             DangerZoneTitleText.Text = ContentStore.S("settings.dangerZone.title");
+            ExportButton.Content = ContentStore.S("settings.export");
+            ImportButton.Content = ContentStore.S("settings.import");
+            SignOutButton.Content = ContentStore.S("settings.signOut");
+            ClearDataText.Text = ContentStore.S("settings.clearData.button");
+            FullResetText.Text = ContentStore.S("settings.fullReset.button");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -292,12 +297,12 @@ namespace ArtistWayUWP.Views
             bool loggedIn = SessionService.GetSession() != null;
             ContentDialog confirm = new ContentDialog
             {
-                Title = "Apagar todos os dados?",
+                Title = ContentStore.S("settings.clearData.confirmTitle"),
                 Content = loggedIn
-                    ? "Isso apaga todo o progresso salvo nesse aparelho e na nuvem (a conta continua logada, só fica vazia). Não tem como desfazer. Tem certeza?"
-                    : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?",
-                PrimaryButtonText = "Apagar dados",
-                CloseButtonText = "Cancelar",
+                    ? ContentStore.S("settings.clearData.confirmMessageLoggedIn")
+                    : ContentStore.S("settings.clearData.confirmMessageLocal"),
+                PrimaryButtonText = ContentStore.S("settings.clearData.confirmButton"),
+                CloseButtonText = ContentStore.S("common.cancel"),
                 DefaultButton = ContentDialogButton.Close,
             };
             if (await confirm.ShowAsync() != ContentDialogResult.Primary)
@@ -321,12 +326,12 @@ namespace ArtistWayUWP.Views
             bool loggedIn = SessionService.GetSession() != null;
             ContentDialog confirm = new ContentDialog
             {
-                Title = "Resetar o app completamente?",
+                Title = ContentStore.S("settings.fullReset.confirmTitle"),
                 Content = loggedIn
-                    ? "Isso apaga todo o progresso (aparelho e nuvem) e sai da conta logada. Não tem como desfazer. Tem certeza?"
-                    : "Isso apaga todo o progresso salvo nesse aparelho e não tem como desfazer. Tem certeza?",
-                PrimaryButtonText = "Resetar tudo",
-                CloseButtonText = "Cancelar",
+                    ? ContentStore.S("settings.fullReset.confirmMessageLoggedIn")
+                    : ContentStore.S("settings.clearData.confirmMessageLocal"),
+                PrimaryButtonText = ContentStore.S("settings.fullReset.confirmButton"),
+                CloseButtonText = ContentStore.S("common.cancel"),
                 DefaultButton = ContentDialogButton.Close,
             };
             if (await confirm.ShowAsync() != ContentDialogResult.Primary)

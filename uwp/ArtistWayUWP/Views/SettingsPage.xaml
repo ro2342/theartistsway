@@ -44,8 +44,8 @@
                     <StackPanel>
                         <TextBlock x:Name="DataTitleText" Text="Seus dados" Style="{StaticResource SubtitleTextBlockStyle}" />
                         <TextBlock Text="Tudo fica só no seu aparelho. Faça backup de vez em quando." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
-                        <Button Content="Exportar backup (.json)" Click="Export_Click" HorizontalAlignment="Stretch" />
-                        <Button Content="Importar backup (.json)" Click="Import_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                        <Button x:Name="ExportButton" Content="Exportar backup (.json)" Click="Export_Click" HorizontalAlignment="Stretch" />
+                        <Button x:Name="ImportButton" Content="Importar backup (.json)" Click="Import_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
 
                         <Border Style="{StaticResource SectionDividerStyle}" />
 
@@ -81,10 +81,10 @@
                         <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa."
                                    Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <Button Click="ClearData_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                            <TextBlock Text="Apagar todos os dados (mantém login)" TextWrapping="Wrap" TextAlignment="Center" />
+                            <TextBlock x:Name="ClearDataText" Text="Apagar todos os dados (mantém login)" TextWrapping="Wrap" TextAlignment="Center" />
                         </Button>
                         <Button Click="FullReset_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,8,0,0">
-                            <TextBlock Text="Resetar o app completamente (sai da conta)" TextWrapping="Wrap" TextAlignment="Center" />
+                            <TextBlock x:Name="FullResetText" Text="Resetar o app completamente (sai da conta)" TextWrapping="Wrap" TextAlignment="Center" />
                         </Button>
                     </StackPanel>
                 </ScrollViewer>

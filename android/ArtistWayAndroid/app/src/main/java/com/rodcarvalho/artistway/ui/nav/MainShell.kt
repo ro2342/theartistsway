@@ -203,13 +203,13 @@ fun MainShell() {
             }
             composable(AppDestinations.ARTIST_DATE_HISTORY) { ArtistDateHistoryScreen() }
             composable(AppDestinations.REGRAS_DA_ESTRADA) {
-                NumberedListScreen("Regras da Estrada", ContentStore.content.roadRules)
+                NumberedListScreen(ContentStore.s("tools.regrasDaEstrada"), ContentStore.content.roadRules)
             }
             composable(AppDestinations.PRINCIPIOS_BASICOS) {
-                NumberedListScreen("Princípios Básicos", ContentStore.content.basicPrinciples)
+                NumberedListScreen(ContentStore.s("tools.principiosBasicos"), ContentStore.content.basicPrinciples)
             }
             composable(AppDestinations.BANCO_AFIRMACOES) {
-                NumberedListScreen("Banco de Afirmações", ContentStore.content.affirmations)
+                NumberedListScreen(ContentStore.s("tools.bancoAfirmacoes"), ContentStore.content.affirmations)
             }
             composable(AppDestinations.TABELA_CRENCAS) { TabelaCrencasScreen() }
             composable(AppDestinations.CIRCULO_SEGURANCA) { CirculoSegurancaScreen() }

@@ -51,6 +51,7 @@ namespace ArtistWayUWP.Views
         public LifePiePage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.lifePie");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

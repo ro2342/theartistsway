@@ -175,9 +175,9 @@ namespace ArtistWayUWP.Views
             {
                 switch (link.Key)
                 {
-                    case "lifePie": return "Life Pie";
-                    case "circuloSeguranca": return "Círculo de Segurança";
-                    case "principiosBasicos": return "Princípios Básicos";
+                    case "lifePie": return ContentStore.S("tools.lifePie");
+                    case "circuloSeguranca": return ContentStore.S("tools.circuloSeguranca");
+                    case "principiosBasicos": return ContentStore.S("tools.principiosBasicos");
                     case "artistDate": return "Artist Date";
                     default: return null;
                 }

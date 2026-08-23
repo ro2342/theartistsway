@@ -10,6 +10,7 @@ namespace ArtistWayUWP.Views
         public AfirmacoesPage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.bancoAfirmacoes");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

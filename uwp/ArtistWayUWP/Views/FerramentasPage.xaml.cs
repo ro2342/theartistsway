@@ -41,14 +41,14 @@ namespace ArtistWayUWP.Views
         {
             List<BespokeToolScreen> bespoke = new List<BespokeToolScreen>
             {
-                new BespokeToolScreen { Title = "Princípios Básicos", Week = null, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage)) },
-                new BespokeToolScreen { Title = "Crença → Positiva", Week = 1, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage)) },
-                new BespokeToolScreen { Title = "Regras da Estrada", Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(RegrasDaEstradaPage)) },
-                new BespokeToolScreen { Title = "Círculo de Segurança", Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(CirculoSegurancaPage)) },
-                new BespokeToolScreen { Title = "Life Pie", Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage)) },
-                new BespokeToolScreen { Title = "Banco de Afirmações", Week = 8, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(AfirmacoesPage)) },
-                new BespokeToolScreen { Title = "Histórico de Artist Dates", Week = null, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(ArtistDateHistoryPage)) },
-                new BespokeToolScreen { Title = "Reler Check-ins Antigos", Week = 9, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(CheckinHistoryPage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.principiosBasicos"), Week = null, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(PrincipiosBasicosPage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.tabelaCrencas"), Week = 1, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(TabelaCrencasPage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.regrasDaEstrada"), Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(RegrasDaEstradaPage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.circuloSeguranca"), Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(CirculoSegurancaPage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.lifePie"), Week = 2, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(LifePiePage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.bancoAfirmacoes"), Week = 8, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(AfirmacoesPage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.artistDateHistory"), Week = null, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(ArtistDateHistoryPage)) },
+                new BespokeToolScreen { Title = ContentStore.S("tools.checkinHistory"), Week = 9, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(CheckinHistoryPage)) },
                 new BespokeToolScreen
                 {
                     Title = ContentStore.Content.QuizConfigs.FirstOrDefault(q => q.Key == "workaholismQuiz")?.Title ?? "Quiz",

@@ -14,6 +14,7 @@ namespace ArtistWayUWP.Views
         public CheckinHistoryPage()
         {
             this.InitializeComponent();
+            TitleText.Text = ContentStore.S("tools.checkinHistory");
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)

@@ -10,7 +10,7 @@
 
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
-            <TextBlock Text="Life Pie" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock x:Name="TitleText" Text="Life Pie" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock Text="seu círculo de vida" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,8" />
             <TextBlock x:Name="HintText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,16" />
 

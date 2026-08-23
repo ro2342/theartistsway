@@ -10,7 +10,7 @@
 
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
-            <TextBlock Text="Banco de Afirmações" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock x:Name="TitleText" Text="Banco de Afirmações" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock Text="20 frases prontas" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
             <StackPanel x:Name="ItemsPanel" />
         </StackPanel>

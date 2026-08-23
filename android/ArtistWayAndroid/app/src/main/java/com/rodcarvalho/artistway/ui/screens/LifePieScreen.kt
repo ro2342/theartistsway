@@ -34,6 +34,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.NamedListItem
 import kotlinx.coroutines.launch
@@ -89,7 +90,7 @@ fun LifePieScreen() {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Life Pie", style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("tools.lifePie"), style = MaterialTheme.typography.headlineSmall)
         Text(
             "Arraste dentro do gráfico pra ajustar o eixo mais próximo (0 a 10)." +
                 if (previousRatings != null) " A silhueta clara mostra o snapshot anterior, pra comparar." else "",
