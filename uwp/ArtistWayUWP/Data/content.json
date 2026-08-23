@@ -310,7 +310,11 @@
         },
         {
           "task": "Olhe para uma situação da sua vida que você sabe que deveria mudar mas ainda não mudou — o que você ganha, hoje, em continuar travado(a) nela?",
-          "detail": "Antes de tentar resolver, o livro pede pra encarar o benefício escondido de não resolver. Quase sempre existe um, mesmo que pareça contraintuitivo."
+          "detail": "Antes de tentar resolver, o livro pede pra encarar o benefício escondido de não resolver. Quase sempre existe um, mesmo que pareça contraintuitivo.",
+          "link": {
+            "type": "list",
+            "key": "situacaoQueDeveriaMudar"
+          }
         },
         {
           "task": "Considere uma semana de 'jejum de leitura' (sem livros, TV ou redes por alguns dias) — se topar, registre como foi.",
@@ -574,11 +578,19 @@
         },
         {
           "task": "Escreva sobre a infância que você teria tido com o cuidado perfeito.",
-          "detail": "Imaginar esse cenário ajuda a identificar o que faltou — e, principalmente, o que você pode agora dar a si mesmo(a) nessa direção."
+          "detail": "Imaginar esse cenário ajuda a identificar o que faltou — e, principalmente, o que você pode agora dar a si mesmo(a) nessa direção.",
+          "link": {
+            "type": "list",
+            "key": "arqueologia"
+          }
         },
         {
           "task": "Escolha uma cor e escreva-se na primeira pessoa como se você fosse ela.",
-          "detail": "Um exercício de escrita livre e lúdico — costuma soltar associações emocionais que a escrita 'séria' não alcança."
+          "detail": "Um exercício de escrita livre e lúdico — costuma soltar associações emocionais que a escrita 'séria' não alcança.",
+          "link": {
+            "type": "list",
+            "key": "euComoCor"
+          }
         },
         {
           "task": "Liste 5 coisas que você 'não pode' fazer — e expresse uma delas no papel, no desenho ou dançando.",
@@ -635,15 +647,27 @@
         },
         {
           "task": "Reconheça, por escrito, o valor que as próprias Morning Pages já trouxeram até aqui — dar-se crédito por ter sustentado a prática.",
-          "detail": "As páginas permitiram desabafar sem se destruir, planejar sem interferência, sonhar sem restrição. O livro pede pra você reconhecer isso explicitamente, não só a si mesmo em silêncio."
+          "detail": "As páginas permitiram desabafar sem se destruir, planejar sem interferência, sonhar sem restrição. O livro pede pra você reconhecer isso explicitamente, não só a si mesmo em silêncio.",
+          "link": {
+            "type": "list",
+            "key": "valorMorningPages"
+          }
         },
         {
           "task": "Escreva, no presente, uma 'cena ideal' de você vivendo sua meta plenamente realizada.",
-          "detail": "Escrever no presente (não no futuro) engana a mente pra sentir a cena como possível e próxima, não distante e abstrata."
+          "detail": "Escrever no presente (não no futuro) engana a mente pra sentir a cena como possível e próxima, não distante e abstrata.",
+          "link": {
+            "type": "list",
+            "key": "cenaIdeal"
+          }
         },
         {
           "task": "Leia essa cena em voz alta e deixe-a visível no seu espaço de trabalho.",
-          "detail": "Repetição e visibilidade diária mantêm a meta 'quente' na sua atenção, em vez de esquecida numa gaveta mental."
+          "detail": "Repetição e visibilidade diária mantêm a meta 'quente' na sua atenção, em vez de esquecida numa gaveta mental.",
+          "link": {
+            "type": "list",
+            "key": "cenaIdeal"
+          }
         },
         {
           "task": "Liste suas metas criativas do ano, do mês e da semana.",
@@ -709,7 +733,11 @@
         },
         {
           "task": "Responda com honestidade: qual hábito mais atrapalha sua criatividade hoje? Qual o 'ganho' de mantê-lo?",
-          "detail": "Mesma lógica de semanas anteriores: todo hábito autossabotador tem uma função escondida (alívio, distração, controle). Nomear o ganho tira o peso da autocrítica pura."
+          "detail": "Mesma lógica de semanas anteriores: todo hábito autossabotador tem uma função escondida (alívio, distração, controle). Nomear o ganho tira o peso da autocrítica pura.",
+          "link": {
+            "type": "list",
+            "key": "habitoQueAtrapalha"
+          }
         },
         {
           "task": "Identifique quais amizades alimentam sua dúvida e quais acreditam genuinamente em você.",
@@ -737,7 +765,11 @@
         },
         {
           "task": "Faça 3 promessas gentis a si mesmo(a) — e cumpra-as.",
-          "detail": "Diferente de 'fazer algo gentil todo dia': aqui a promessa é específica e feita com antecedência, testando se você mantém compromissos consigo mesmo do jeito que manteria com outra pessoa."
+          "detail": "Diferente de 'fazer algo gentil todo dia': aqui a promessa é específica e feita com antecedência, testando se você mantém compromissos consigo mesmo do jeito que manteria com outra pessoa.",
+          "link": {
+            "type": "list",
+            "key": "promessasGentis"
+          }
         },
         {
           "task": "Faça uma coisa gentil por você mesmo(a) todos os dias dessa semana.",
@@ -795,7 +827,11 @@
         },
         {
           "task": "Planeje uma semana inteira de autocuidado: uma ação concreta por dia.",
-          "detail": "Colocar no papel, dia a dia, transforma a intenção vaga de 'me cuidar mais' em algo executável de verdade."
+          "detail": "Colocar no papel, dia a dia, transforma a intenção vaga de 'me cuidar mais' em algo executável de verdade.",
+          "link": {
+            "type": "list",
+            "key": "semanaAutocuidado"
+          }
         },
         {
           "task": "Escreva e envie (a si mesmo, por carta ou mensagem) uma carta de encorajamento para sua criança-artista interior.",
@@ -833,11 +869,19 @@
       "checklist": [
         {
           "task": "Escreva suas resistências, medos e raivas sobre continuar esse processo sem o suporte estruturado das 12 semanas.",
-          "detail": "É normal sentir insegurança ao perder a estrutura semanal — nomear esse medo é o primeiro passo pra criar sua própria estrutura daqui pra frente."
+          "detail": "É normal sentir insegurança ao perder a estrutura semanal — nomear esse medo é o primeiro passo pra criar sua própria estrutura daqui pra frente.",
+          "link": {
+            "type": "list",
+            "key": "resistenciasMedosContinuar"
+          }
         },
         {
           "task": "Observe suas áreas atuais de procrastinação — qual medo está escondido por trás delas?",
-          "detail": "Procrastinação raramente é preguiça pura — quase sempre existe um medo específico por trás (de errar, de julgamento, de sucesso até)."
+          "detail": "Procrastinação raramente é preguiça pura — quase sempre existe um medo específico por trás (de errar, de julgamento, de sucesso até).",
+          "link": {
+            "type": "list",
+            "key": "areasProcrastinacao"
+          }
         },
         {
           "task": "Releia as Crenças Centrais Negativas que você escreveu na Semana 1 e note o quanto avançou.",
@@ -865,7 +909,11 @@
         },
         {
           "task": "Use esse recipiente: escreva um medo, coloque-o ali e tome a próxima pequena ação possível mesmo assim.",
-          "detail": "A ideia não é que o medo desapareça — é agir apesar dele, confiando que o processo (não o controle total) é o que sustenta a criatividade."
+          "detail": "A ideia não é que o medo desapareça — é agir apesar dele, confiando que o processo (não o controle total) é o que sustenta a criatividade.",
+          "link": {
+            "type": "list",
+            "key": "recipientePreocupacoes"
+          }
         },
         {
           "task": "Pergunte-se com sinceridade: o que você mais gostaria de criar, sem nenhuma restrição?",
@@ -1215,6 +1263,25 @@
       "week": 4
     },
     {
+      "listName": "situacaoQueDeveriaMudar",
+      "title": "Situação que Eu Sei que Deveria Mudar",
+      "subtitle": "Uma situação que você sabe que deveria mudar mas ainda não mudou — e o que você ganha, hoje, em continuar travado(a) nela.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "situacao",
+          "label": "A situação",
+          "multiline": true
+        },
+        {
+          "key": "ganho",
+          "label": "O que eu ganho em continuar travado(a) nela",
+          "multiline": true
+        }
+      ],
+      "week": 4
+    },
+    {
       "listName": "resentimentosMedos",
       "title": "Resentimentos, Medos e Ganho Oculto",
       "subtitle": "Pra um projeto específico: o que te ressente nele, o que teme, e o que ganha (mesmo sem querer) em não fazê-lo.",
@@ -1281,7 +1348,7 @@
           "multiline": true
         }
       ],
-      "week": 7
+      "week": 8
     },
     {
       "listName": "buscaEstilo",
@@ -1975,6 +2042,25 @@
       "week": 8
     },
     {
+      "listName": "euComoCor",
+      "title": "Eu Como Cor",
+      "subtitle": "Escolha uma cor e escreva-se na primeira pessoa como se você fosse ela.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "cor",
+          "label": "A cor escolhida",
+          "multiline": false
+        },
+        {
+          "key": "texto",
+          "label": "Você, na primeira pessoa, como essa cor",
+          "multiline": true
+        }
+      ],
+      "week": 8
+    },
+    {
       "listName": "metasAnoMesSemana",
       "title": "Metas Criativas: Ano, Mês, Semana",
       "subtitle": "Alinhar os três horizontes de tempo evita o erro comum de metas anuais grandiosas sem nenhuma ação semanal que as sustente.",
@@ -1993,6 +2079,34 @@
         {
           "key": "metaSemana",
           "label": "Meta da semana",
+          "multiline": true
+        }
+      ],
+      "week": 9
+    },
+    {
+      "listName": "valorMorningPages",
+      "title": "O Valor das Minhas Morning Pages",
+      "subtitle": "Reconheça, por escrito, o que as Morning Pages já trouxeram até aqui — dar-se crédito por ter sustentado a prática.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "texto",
+          "label": "O que as Morning Pages já trouxeram pra mim",
+          "multiline": true
+        }
+      ],
+      "week": 9
+    },
+    {
+      "listName": "cenaIdeal",
+      "title": "Cena Ideal",
+      "subtitle": "Você, no presente, vivendo sua meta plenamente realizada — escrita pra ler em voz alta e manter visível.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "texto",
+          "label": "Sua cena ideal (escrita no presente)",
           "multiline": true
         }
       ],
@@ -2054,6 +2168,38 @@
       "week": 10
     },
     {
+      "listName": "habitoQueAtrapalha",
+      "title": "Hábito que Mais Atrapalha",
+      "subtitle": "O hábito que mais atrapalha sua criatividade hoje, e o 'ganho' escondido em mantê-lo.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "habito",
+          "label": "O hábito",
+          "multiline": false
+        },
+        {
+          "key": "ganho",
+          "label": "O ganho em mantê-lo",
+          "multiline": true
+        }
+      ],
+      "week": 10
+    },
+    {
+      "listName": "promessasGentis",
+      "title": "Promessas Gentis",
+      "subtitle": "Promessas específicas que você faz a si mesmo(a) — e se compromete a cumprir, do jeito que cumpriria com outra pessoa.",
+      "fields": [
+        {
+          "key": "promessa",
+          "label": "Promessa",
+          "multiline": false
+        }
+      ],
+      "week": 10
+    },
+    {
       "listName": "inventarioMudanca",
       "title": "Inventário de Mudança",
       "subtitle": "Como você mudou desde a Semana 1, e 5 formas como pretende continuar mudando — esse balanço, perto do fim, costuma revelar mais transformação do que você percebeu dia a dia.",
@@ -2086,6 +2232,24 @@
       "week": 11
     },
     {
+      "listName": "semanaAutocuidado",
+      "title": "Semana de Autocuidado",
+      "subtitle": "Uma ação concreta de autocuidado por dia — planeje a semana inteira, um dia de cada vez.",
+      "fields": [
+        {
+          "key": "dia",
+          "label": "Dia",
+          "multiline": false
+        },
+        {
+          "key": "acao",
+          "label": "Ação de autocuidado",
+          "multiline": true
+        }
+      ],
+      "week": 11
+    },
+    {
       "listName": "pessoasCompartilharSonhos",
       "title": "Pessoas com Quem Compartilhar Meus Sonhos",
       "subtitle": "5 pessoas com quem você pode compartilhar seus sonhos criativos e planos futuros — a recuperação criativa não precisa ser solitária depois que o programa termina.",
@@ -2094,6 +2258,51 @@
           "key": "pessoa",
           "label": "Pessoa",
           "multiline": false
+        }
+      ],
+      "week": 12
+    },
+    {
+      "listName": "resistenciasMedosContinuar",
+      "title": "Resistências, Medos e Raivas sobre Continuar",
+      "subtitle": "O que você sente sobre seguir esse processo sem o suporte estruturado das 12 semanas.",
+      "singleton": true,
+      "fields": [
+        {
+          "key": "texto",
+          "label": "Suas resistências, medos e raivas",
+          "multiline": true
+        }
+      ],
+      "week": 12
+    },
+    {
+      "listName": "areasProcrastinacao",
+      "title": "Áreas de Procrastinação",
+      "subtitle": "Onde você está procrastinando agora, e o medo escondido por trás de cada área.",
+      "fields": [
+        {
+          "key": "area",
+          "label": "Área",
+          "multiline": false
+        },
+        {
+          "key": "medo",
+          "label": "O medo por trás",
+          "multiline": true
+        }
+      ],
+      "week": 12
+    },
+    {
+      "listName": "recipientePreocupacoes",
+      "title": "Recipiente de Preocupações",
+      "subtitle": "Seu 'pote de preocupações' digital — escreva um medo, solte o controle sobre ele, e tome a próxima pequena ação possível mesmo assim.",
+      "fields": [
+        {
+          "key": "medo",
+          "label": "O medo que estou soltando aqui",
+          "multiline": true
         }
       ],
       "week": 12
