@@ -74,7 +74,7 @@ async function exchangeWithFirebase(token, tokenParamName) {
   );
   const json = await response.json();
   if (!response.ok) {
-    throw new Error(json.error ? json.error.message : "Falha no login com o Firebase.");
+    throw new Error(json.error ? json.error.message : UI_STRINGS["auth.firebaseLoginFailed"]);
   }
   return {
     uid: json.localId,

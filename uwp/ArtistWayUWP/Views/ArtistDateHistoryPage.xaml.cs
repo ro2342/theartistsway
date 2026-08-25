@@ -15,6 +15,7 @@ namespace ArtistWayUWP.Views
         {
             this.InitializeComponent();
             TitleText.Text = ContentStore.S("tools.artistDateHistory");
+            SubtitleText.Text = ContentStore.S("artistDateHistory.subtitle");
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -27,7 +28,7 @@ namespace ArtistWayUWP.Views
             {
                 HistoryPanel.Children.Add(new TextBlock
                 {
-                    Text = "Nenhum Artist Date registrado ainda.",
+                    Text = ContentStore.S("artistDateHistory.emptyState"),
                     Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
                     Opacity = 0.85,
                     TextWrapping = TextWrapping.Wrap,
@@ -40,7 +41,7 @@ namespace ArtistWayUWP.Views
                 StackPanel row = new StackPanel { Margin = new Thickness(0, 0, 0, 12) };
                 row.Children.Add(new TextBlock
                 {
-                    Text = item.WeekStart + (item.Done ? " — feito" : " — planejado"),
+                    Text = item.WeekStart + (item.Done ? ContentStore.S("artistDateHistory.suffixDone") : ContentStore.S("artistDateHistory.suffixPlanned")),
                     FontWeight = Windows.UI.Text.FontWeights.SemiBold,
                     Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
                 });

@@ -2,6 +2,7 @@ package com.rodcarvalho.artistway.update
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.rodcarvalho.artistway.data.ContentStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -54,14 +55,14 @@ object UpdateCheckService {
             val code = conn.responseCode
             if (code !in 200..299) {
                 conn.disconnect()
-                return@withContext UpdateCheckResult(success = false, error = "HTTP $code")
+                return@withContext UpdateCheckResult(success = false, error = ContentStore.s("updates.checkHttpError", "code" to code.toString()))
             }
             val text = conn.inputStream.bufferedReader().use { it.readText() }
             conn.disconnect()
 
             val obj = Json.parseToJsonElement(text).jsonObject
             val latest = obj["versionName"]?.jsonPrimitive?.content
-                ?: return@withContext UpdateCheckResult(success = false, error = "resposta sem versionName")
+                ?: return@withContext UpdateCheckResult(success = false, error = ContentStore.s("updates.checkNoVersionName"))
             val installed = getInstalledVersionName(context)
             UpdateCheckResult(success = true, latestVersionName = latest, updateAvailable = compareVersions(latest, installed) > 0)
         } catch (e: Exception) {

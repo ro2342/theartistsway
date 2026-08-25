@@ -40,13 +40,14 @@ fun ArtistDateHistoryScreen() {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(ContentStore.s("tools.artistDateHistory"), style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("artistDateHistory.subtitle"), style = MaterialTheme.typography.bodyMedium)
         if (loaded && items.isEmpty()) {
-            Text("Nenhum Artist Date registrado ainda.", style = MaterialTheme.typography.bodyMedium)
+            Text(ContentStore.s("artistDateHistory.emptyState"), style = MaterialTheme.typography.bodyMedium)
         }
         items.forEach { item ->
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    item.weekStart + if (item.done) " — feito" else " — planejado",
+                    item.weekStart + if (item.done) ContentStore.s("artistDateHistory.suffixDone") else ContentStore.s("artistDateHistory.suffixPlanned"),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                 )

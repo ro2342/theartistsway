@@ -56,13 +56,13 @@ fun CirculoSegurancaScreen() {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(ContentStore.s("tools.circuloSeguranca"), style = MaterialTheme.typography.headlineSmall)
-        Text("quem apoia, quem exige cautela", style = MaterialTheme.typography.bodyMedium)
+        Text(ContentStore.s("circulo.headerSub"), style = MaterialTheme.typography.bodyMedium)
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(
                 value = nameInput,
                 onValueChange = { nameInput = it },
-                label = { Text("Nome") },
+                label = { Text(ContentStore.s("onboarding.nameDate.nameLabel")) },
                 modifier = Modifier.weight(1f),
             )
             Button(onClick = {
@@ -73,13 +73,13 @@ fun CirculoSegurancaScreen() {
                     nameInput = ""
                     reload()
                 }
-            }) { Text("Adicionar") }
+            }) { Text(ContentStore.s("circulo.addButton")) }
         }
 
-        Text("Apoia", style = MaterialTheme.typography.titleMedium)
+        Text(ContentStore.s("circulo.safeSectionTitle"), style = MaterialTheme.typography.titleMedium)
         safeItems.forEach { item -> SafetyCircleRow(item, movingToCaution = true) { scope.launch { toggleSide(item); reload() } } }
 
-        Text("Cautela", style = MaterialTheme.typography.titleMedium)
+        Text(ContentStore.s("circulo.cautionSectionTitle"), style = MaterialTheme.typography.titleMedium)
         cautionItems.forEach { item -> SafetyCircleRow(item, movingToCaution = false) { scope.launch { toggleSide(item); reload() } } }
     }
 }
@@ -92,7 +92,7 @@ private fun SafetyCircleRow(item: NamedListItem, movingToCaution: Boolean, onTog
     ) {
         Text(item.fields["name"].orEmpty(), modifier = Modifier.weight(1f))
         OutlinedButton(onClick = onToggle) {
-            Text(if (movingToCaution) "Mover pra Cautela" else "Mover pra Apoia")
+            Text(if (movingToCaution) ContentStore.s("circulo.moveToCaution") else ContentStore.s("circulo.moveToSafe"))
         }
     }
 }

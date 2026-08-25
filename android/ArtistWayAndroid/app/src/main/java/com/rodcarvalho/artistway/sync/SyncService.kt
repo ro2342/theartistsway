@@ -2,6 +2,7 @@ package com.rodcarvalho.artistway.sync
 
 import com.rodcarvalho.artistway.auth.AuthService
 import com.rodcarvalho.artistway.auth.FirebaseConfig
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,16 +32,16 @@ object SyncService {
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun syncAll(): String = withContext(Dispatchers.IO) {
-        val uid = AuthService.currentUser?.uid ?: return@withContext "Não logado — nada pra sincronizar."
-        val idToken = AuthService.currentIdToken() ?: return@withContext "Sessão expirada — entre de novo."
+        val uid = AuthService.currentUser?.uid ?: return@withContext ContentStore.s("sync.notLoggedIn")
+        val idToken = AuthService.currentIdToken() ?: return@withContext ContentStore.s("sync.sessionExpired")
 
         try {
             for (storeName in LocalDataStore.SYNC_STORE_NAMES) {
                 syncStore(idToken, uid, storeName)
             }
-            "Sincronizado às ${LocalTime.now().withNano(0)}"
+            ContentStore.s("sync.syncedAt", "time" to LocalTime.now().withNano(0).toString())
         } catch (e: Exception) {
-            "Falha ao sincronizar (tentará de novo mais tarde): ${e.message}"
+            ContentStore.s("sync.failed", "error" to (e.message ?: ""))
         }
     }
 

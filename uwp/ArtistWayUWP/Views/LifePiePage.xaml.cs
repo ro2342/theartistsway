@@ -30,12 +30,12 @@ namespace ArtistWayUWP.Views
 
         private static readonly List<LifePieCategory> Categories = new List<LifePieCategory>
         {
-            new LifePieCategory { Key = "espiritualidade", Label = "Espiritualidade" },
-            new LifePieCategory { Key = "trabalho", Label = "Trabalho" },
-            new LifePieCategory { Key = "lazer", Label = "Lazer" },
-            new LifePieCategory { Key = "amigos", Label = "Amigos" },
-            new LifePieCategory { Key = "romance", Label = "Romance" },
-            new LifePieCategory { Key = "exercicio", Label = "Exercício" },
+            new LifePieCategory { Key = "espiritualidade", Label = ContentStore.S("lifePie.categorySpiritualidade") },
+            new LifePieCategory { Key = "trabalho", Label = ContentStore.S("lifePie.categoryTrabalho") },
+            new LifePieCategory { Key = "lazer", Label = ContentStore.S("lifePie.categoryLazer") },
+            new LifePieCategory { Key = "amigos", Label = ContentStore.S("lifePie.categoryAmigos") },
+            new LifePieCategory { Key = "romance", Label = ContentStore.S("lifePie.categoryRomance") },
+            new LifePieCategory { Key = "exercicio", Label = ContentStore.S("lifePie.categoryExercicio") },
         };
 
         private readonly Dictionary<string, double> _ratings = new Dictionary<string, double>();
@@ -52,6 +52,9 @@ namespace ArtistWayUWP.Views
         {
             this.InitializeComponent();
             TitleText.Text = ContentStore.S("tools.lifePie");
+            SubtitleText.Text = ContentStore.S("lifePie.subtitle");
+            SaveSnapshotButton.Content = ContentStore.S("lifePie.saveButton");
+            HistoryTitleText.Text = ContentStore.S("lifePie.historyTitle");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -75,8 +78,8 @@ namespace ArtistWayUWP.Views
                     : 5;
             }
 
-            HintText.Text = "Arraste dentro do gráfico pra ajustar o eixo mais próximo (0 a 10)." +
-                (previous != null ? " A silhueta clara mostra o snapshot anterior, pra comparar." : "");
+            HintText.Text = ContentStore.S("lifePie.hint") +
+                (previous != null ? ContentStore.S("lifePie.hintPreviousNote") : "");
 
             BuildChrome();
             Redraw();

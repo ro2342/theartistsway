@@ -24,7 +24,7 @@ namespace ArtistWayUWP.Services
             FirebaseSession session = SessionService.GetSession();
             if (session == null)
             {
-                return "Não logado — nada pra sincronizar.";
+                return ContentStore.S("sync.notLoggedIn");
             }
 
             string idToken = session.IdToken;
@@ -33,7 +33,7 @@ namespace ArtistWayUWP.Services
                 idToken = await RefreshIdTokenAsync(session);
                 if (idToken == null)
                 {
-                    return "Sessão expirada — entre de novo.";
+                    return ContentStore.S("sync.sessionExpired");
                 }
             }
 
@@ -47,11 +47,11 @@ namespace ArtistWayUWP.Services
                         await SyncStoreAsync(client, session.Uid, storeName);
                     }
                 }
-                return "Sincronizado às " + DateTimeOffset.Now.ToString("HH:mm");
+                return ContentStore.S("sync.syncedAt", "time", DateTimeOffset.Now.ToString("HH:mm"));
             }
             catch (Exception ex)
             {
-                return "Falha ao sincronizar (tentará de novo mais tarde): " + ex.Message;
+                return ContentStore.S("sync.failed", "error", ex.Message);
             }
         }
 

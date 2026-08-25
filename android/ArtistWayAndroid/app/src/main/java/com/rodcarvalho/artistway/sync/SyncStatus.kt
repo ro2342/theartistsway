@@ -1,6 +1,7 @@
 package com.rodcarvalho.artistway.sync
 
 import androidx.compose.runtime.mutableStateOf
+import com.rodcarvalho.artistway.data.ContentStore
 
 enum class SyncPhase { IDLE, SYNCING, SUCCESS, ERROR }
 
@@ -16,8 +17,8 @@ object SyncStatus {
         phase.value = SyncPhase.SYNCING
         val result = SyncService.syncAll()
         phase.value = when {
-            result.startsWith("Sincronizado") -> SyncPhase.SUCCESS
-            result.startsWith("Não logado") -> SyncPhase.IDLE
+            result.startsWith(ContentStore.s("sync.syncedAt").substringBefore("{")) -> SyncPhase.SUCCESS
+            result == ContentStore.s("sync.notLoggedIn") -> SyncPhase.IDLE
             else -> SyncPhase.ERROR
         }
         return result

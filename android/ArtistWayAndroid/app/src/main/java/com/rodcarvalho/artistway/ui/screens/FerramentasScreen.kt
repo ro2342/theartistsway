@@ -43,7 +43,7 @@ private fun bespokeScreens(): List<BespokeToolScreen> = listOf(
     BespokeToolScreen(ContentStore.s("tools.artistDateHistory"), AppDestinations.ARTIST_DATE_HISTORY, week = null),
     BespokeToolScreen(ContentStore.s("tools.checkinHistory"), AppDestinations.CHECKIN_HISTORY, week = 9),
     BespokeToolScreen(
-        ContentStore.content.quizConfigs.firstOrNull { it.key == "workaholismQuiz" }?.title ?: "Quiz",
+        ContentStore.content.quizConfigs.firstOrNull { it.key == "workaholismQuiz" }?.title ?: ContentStore.s("ferramentas.quizFallbackTitle"),
         AppDestinations.quiz("workaholismQuiz"),
         week = 10,
     ),
@@ -70,9 +70,9 @@ fun FerramentasScreen(onNavigate: (String) -> Unit) {
         val bespoke = bespokeScreens()
         val weekTabs = (1..12).mapNotNull { week ->
             val rows = rowsForWeek(week, bespoke)
-            if (rows.isEmpty()) null else "Semana $week" to rows
+            if (rows.isEmpty()) null else ContentStore.s("week.shortLabel", "week" to week.toString()) to rows
         }
-        weekTabs + ("Geral" to rowsForWeek(null, bespoke))
+        weekTabs + (ContentStore.s("ferramentas.generalTab") to rowsForWeek(null, bespoke))
     }
     // rememberPagerState guarda a página com rememberSaveable por baixo
     // (PagerState.Saver) — abrir uma ferramenta empilha uma nova tela por

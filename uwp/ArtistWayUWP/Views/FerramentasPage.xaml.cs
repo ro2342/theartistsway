@@ -51,7 +51,7 @@ namespace ArtistWayUWP.Views
                 new BespokeToolScreen { Title = ContentStore.S("tools.checkinHistory"), Week = 9, Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(CheckinHistoryPage)) },
                 new BespokeToolScreen
                 {
-                    Title = ContentStore.Content.QuizConfigs.FirstOrDefault(q => q.Key == "workaholismQuiz")?.Title ?? "Quiz",
+                    Title = ContentStore.Content.QuizConfigs.FirstOrDefault(q => q.Key == "workaholismQuiz")?.Title ?? ContentStore.S("ferramentas.quizFallbackTitle"),
                     Week = 10,
                     Navigate = () => MainPage.Current.ContentFrame.Navigate(typeof(QuizPage), "workaholismQuiz"),
                 },
@@ -60,13 +60,13 @@ namespace ArtistWayUWP.Views
             RecursosPivot.Items.Clear();
             for (int week = 1; week <= 12; week++)
             {
-                PivotItem item = BuildWeekPivotItem($"Semana {week}", week, bespoke);
+                PivotItem item = BuildWeekPivotItem(ContentStore.S("week.shortLabel", "week", week.ToString()), week, bespoke);
                 if (item != null)
                 {
                     RecursosPivot.Items.Add(item);
                 }
             }
-            PivotItem geral = BuildWeekPivotItem("Geral", null, bespoke);
+            PivotItem geral = BuildWeekPivotItem(ContentStore.S("ferramentas.generalTab"), null, bespoke);
             if (geral != null)
             {
                 RecursosPivot.Items.Add(geral);

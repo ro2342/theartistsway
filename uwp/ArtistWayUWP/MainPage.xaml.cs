@@ -222,7 +222,8 @@ namespace ArtistWayUWP
             SyncProgressRing.IsActive = false;
             SyncProgressRing.Visibility = Visibility.Collapsed;
             SyncIcon.Visibility = Visibility.Visible;
-            if (result.StartsWith("Sincronizado"))
+            string syncedPrefix = ContentStore.S("sync.syncedAt").Split('{')[0];
+            if (result.StartsWith(syncedPrefix))
             {
                 SyncIcon.Foreground = new SolidColorBrush(Color.FromArgb(0xFF, 0x2E, 0x7D, 0x32));
             }

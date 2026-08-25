@@ -8,9 +8,9 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.31`** (`versionCode`
-  Android = 39).
-- PWA: `CACHE_NAME = "artist-way-companion-v18"` no service worker.
+- **Versão compartilhada (UWP + Android): `42.2.0.32`** (`versionCode`
+  Android = 40).
+- PWA: `CACHE_NAME = "artist-way-companion-v19"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
   momento.
@@ -21,14 +21,16 @@
   interface tem que vir de `UI_STRINGS`** — objetivo é permitir
   tradução futura editando só esse arquivo. Ver seção "Fonte única de
   conteúdo e texto de UI" no `CLAUDE.md`.
-- **Retrofit de `UI_STRINGS` — baldes 1-5 + Artist Date/Check-in/
-  Perfil + Checklist/Jornada (WeekDetail) + Quiz + Essay/NamedList +
-  conteúdo de notificação push, todos migrados.** Falta só "mensagens
-  de erro" (último item da lista do usuário) e auditar se a tela
+- **Retrofit de `UI_STRINGS` — lista completa do usuário fechada.**
+  Baldes 1-5 + Artist Date/Check-in/Perfil + Checklist/Jornada
+  (WeekDetail) + Quiz + Essay/NamedList + conteúdo de notificação push
+  + mensagens de erro/status (sync, atualização, backup/login) + Life
+  Pie + Círculo de Segurança + resto da tela de Ajustes do Android,
+  todos migrados. Único item ainda em aberto: auditar se a tela
   "Jornada" da nav (`ProgressPage`/`ProgressScreen` — diferente da tela
   de detalhe de semana) também tem texto solto — ver "Possíveis
   próximos passos".
-- CI rodando pra `42.2.0.31` — checar `gh run list --branch main --limit
+- CI rodando pra `42.2.0.32` — checar `gh run list --branch main --limit
   2` antes de considerar publicado (os workflows fazem um commit
   automático próprio depois do build).
 
@@ -111,6 +113,17 @@
   pela tela do app) — corrigido inicializando o `ContentStore` no
   início de `NotificationScheduler.applySettings`. Versão `42.2.0.31` /
   `v18`.
+- **2026-08-25 (7)**: retrofit de `UI_STRINGS` fechado por completo —
+  "mensagens de erro" (último item da lista original do usuário) mais
+  tudo que uma auditoria dedicada achou no caminho: status de
+  sync/atualização/backup/login (duplicado nas 3 plataformas), Life
+  Pie, Círculo de Segurança, e a maior parte da tela de Ajustes do
+  Android (que nunca tinha recebido o retrofit que PWA/UWP já tiveram).
+  Corrigido também um bug de tradução latente: UWP e Android decidiam
+  o ícone de sync (verde/normal) comparando a *string traduzida*
+  devolvida por `SyncService` (`result.StartsWith("Sincronizado")`) —
+  quebraria silenciosamente numa tradução futura. Versão `42.2.0.32` /
+  `v19`.
 
 ## Identidade visual (referência rápida)
 
@@ -133,10 +146,6 @@
 
 ## Possíveis próximos passos (não decididos ainda)
 
-- **Retrofit de `UI_STRINGS` — falta só "mensagens de erro"** (pedido
-  do usuário: "absolutamente tudo"). Tamanho real desconhecido ainda —
-  precisa de uma auditoria própria (nos moldes da de 2026-08-23) antes
-  de estimar.
 - **Auditar a tela "Jornada" da nav** (`ProgressPage.xaml.cs` no UWP,
   `ProgressScreen.kt` no Android — a tela acessada pela aba inferior,
   diferente de `WeekDetailPage`/`WeekDetailScreen` que já foi migrada).

@@ -39,6 +39,7 @@ fun CheckinHistoryScreen(onOpenWeek: (Int) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(ContentStore.s("tools.checkinHistory"), style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("checkinHistory.subtitle"), style = MaterialTheme.typography.bodyMedium)
         for (weekId in 1..12) {
             val hasCheckin = weeksWithCheckin.contains(weekId)
             Button(
@@ -46,7 +47,7 @@ fun CheckinHistoryScreen(onOpenWeek: (Int) -> Unit) {
                 enabled = hasCheckin,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(if (hasCheckin) "Semana $weekId — ver check-in" else "Semana $weekId — sem check-in ainda")
+                Text(if (hasCheckin) ContentStore.s("checkinHistory.entryWithCheckin", "week" to weekId.toString()) else ContentStore.s("checkinHistory.entryWithoutCheckin", "week" to weekId.toString()))
             }
         }
     }

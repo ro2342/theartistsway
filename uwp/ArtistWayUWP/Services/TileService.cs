@@ -74,14 +74,14 @@ namespace ArtistWayUWP.Services
         private static void UpdateTile(int streak, int? dayCount, int pending)
         {
             string streakLine = streak > 0
-                ? $"{streak} dia{(streak == 1 ? "" : "s")} seguidos"
-                : "Comece hoje";
+                ? (streak == 1 ? ContentStore.S("tile.streakSingular") : ContentStore.S("tile.streakPlural", "count", streak.ToString()))
+                : ContentStore.S("tile.streakNone");
             string dayLine = dayCount.HasValue
-                ? $"Dia {Math.Max(1, dayCount.Value)} de {WeekCalculator.ProgramLengthDays}"
+                ? ContentStore.S("tile.dayCount", "day", Math.Max(1, dayCount.Value).ToString(), "total", WeekCalculator.ProgramLengthDays.ToString())
                 : "";
             string pendingLine = pending > 0
-                ? $"{pending} pendente{(pending == 1 ? "" : "s")} essa semana"
-                : "Semana em dia";
+                ? (pending == 1 ? ContentStore.S("tile.pendingSingular") : ContentStore.S("tile.pendingPlural", "count", pending.ToString()))
+                : ContentStore.S("tile.allDone");
 
             // Todo texto aqui vem de frases fixas + números calculados
             // localmente (nunca nome/ideia digitados pelo usuário), então
@@ -90,12 +90,12 @@ namespace ArtistWayUWP.Services
                 "<tile>" +
                 "<visual>" +
                 "<binding template='TileMedium' branding='none'>" +
-                "<text hint-style='captionSubtle'>Morning Pages</text>" +
+                $"<text hint-style='captionSubtle'>{ContentStore.S("home.morningPages.title")}</text>" +
                 $"<text hint-style='titleNumeral'>{streak}</text>" +
                 $"<text hint-style='captionSubtle'>{streakLine}</text>" +
                 "</binding>" +
                 "<binding template='TileWide' branding='none'>" +
-                "<text hint-style='captionSubtle'>The Artist's Way</text>" +
+                $"<text hint-style='captionSubtle'>{ContentStore.S("tile.appTitle")}</text>" +
                 $"<text hint-style='title'>{streakLine}</text>" +
                 $"<text hint-style='captionSubtle'>{dayLine}</text>" +
                 $"<text hint-style='captionSubtle'>{pendingLine}</text>" +

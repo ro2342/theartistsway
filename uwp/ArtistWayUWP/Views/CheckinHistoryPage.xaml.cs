@@ -15,6 +15,7 @@ namespace ArtistWayUWP.Views
         {
             this.InitializeComponent();
             TitleText.Text = ContentStore.S("tools.checkinHistory");
+            SubtitleText.Text = ContentStore.S("checkinHistory.subtitle");
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -28,7 +29,7 @@ namespace ArtistWayUWP.Views
                 bool hasCheckin = weeksWithCheckin.Contains(weekId);
                 Button button = new Button
                 {
-                    Content = hasCheckin ? $"Semana {weekId} — ver check-in" : $"Semana {weekId} — sem check-in ainda",
+                    Content = hasCheckin ? ContentStore.S("checkinHistory.entryWithCheckin", "week", weekId.ToString()) : ContentStore.S("checkinHistory.entryWithoutCheckin", "week", weekId.ToString()),
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     Margin = new Thickness(0, weekId == 1 ? 0 : 8, 0, 0),
                     IsEnabled = hasCheckin,

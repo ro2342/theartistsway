@@ -120,12 +120,12 @@ fun SettingsScreen() {
 
 @Composable
 private fun AppearanceTab(themeMode: String, onThemeModeChange: (String) -> Unit) {
-    Text("Aparência", style = MaterialTheme.typography.headlineSmall)
-    Text("Escolha entre tema claro, escuro ou seguir o sistema.", style = MaterialTheme.typography.bodyMedium)
+    Text(ContentStore.s("settings.appearance.title"), style = MaterialTheme.typography.headlineSmall)
+    Text(ContentStore.s("settings.appearance.description"), style = MaterialTheme.typography.bodyMedium)
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        ThemeModeButton("light", "Claro", themeMode, onThemeModeChange)
-        ThemeModeButton("dark", "Escuro", themeMode, onThemeModeChange)
-        ThemeModeButton("auto", "Automático (seguir o sistema)", themeMode, onThemeModeChange)
+        ThemeModeButton("light", ContentStore.s("settings.appearance.themeLight"), themeMode, onThemeModeChange)
+        ThemeModeButton("dark", ContentStore.s("settings.appearance.themeDark"), themeMode, onThemeModeChange)
+        ThemeModeButton("auto", ContentStore.s("settings.appearance.themeAuto"), themeMode, onThemeModeChange)
     }
 }
 
@@ -150,7 +150,7 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
         scope.launch {
             val json = LocalDataStore.exportAllData()
             context.contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
-            status = "Backup exportado."
+            status = ContentStore.s("settings.backup.exportedStatus")
         }
     }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -159,14 +159,15 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
             val text = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
             if (text != null) {
                 LocalDataStore.importAllData(text)
-                status = "Backup importado."
+                status = ContentStore.s("settings.backup.importedStatus")
             }
         }
     }
 
-    Text("Dados e Sincronização", style = MaterialTheme.typography.headlineSmall)
+    Text(ContentStore.s("settings.tabs.dataSync"), style = MaterialTheme.typography.headlineSmall)
 
-    Text("Backup", style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.data.title"), style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.data.description"), style = MaterialTheme.typography.bodyMedium)
     Button(
         onClick = { exportLauncher.launch("artist-way-backup-${LocalDate.now()}.json") },
         modifier = Modifier.fillMaxWidth(),
@@ -177,7 +178,8 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
     ) { Text(ContentStore.s("settings.import")) }
     status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
 
-    Text("Sincronização com a nuvem", style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.sync.title"), style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.sync.description", "otherPlatform" to ContentStore.s("settings.sync.otherPlatformName")), style = MaterialTheme.typography.bodyMedium)
     val user = AuthService.currentUser
     if (!loggedIn || user == null) {
         Button(
@@ -188,7 +190,7 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
                     loggingIn = false
                     if (outcome.success) {
                         onLoggedInChange(true)
-                        status = "Login OK — sincronizando..."
+                        status = ContentStore.s("settings.sync.loginSyncing")
                         status = SyncStatus.run()
                     } else {
                         status = outcome.errorMessage
@@ -197,16 +199,16 @@ private fun DataSyncTab(context: Context, loggedIn: Boolean, onLoggedInChange: (
             },
             enabled = !loggingIn,
             modifier = Modifier.fillMaxWidth(),
-        ) { Text(if (loggingIn) "Entrando..." else "Entrar com Google") }
+        ) { Text(if (loggingIn) ContentStore.s("settings.sync.loggingIn") else ContentStore.s("settings.sync.loginButton")) }
     } else {
         Text(
-            "Logado como ${user.email ?: user.uid}.",
+            ContentStore.s("settings.sync.statusLoggedIn", "who" to (user.email ?: user.uid)),
             style = MaterialTheme.typography.bodyMedium,
         )
         Button(
             onClick = { scope.launch { status = SyncStatus.run() } },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Sincronizar agora") }
+        ) { Text(ContentStore.s("settings.sync.syncNowButton")) }
         OutlinedButton(
             onClick = {
                 scope.launch {
@@ -228,7 +230,7 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
     var showFullResetConfirm by remember { mutableStateOf(false) }
     var resetDone by remember { mutableStateOf(false) }
 
-    var updateStatus by remember { mutableStateOf("Verificando se há atualização...") }
+    var updateStatus by remember { mutableStateOf(ContentStore.s("common.checking")) }
     var updateAvailable by remember { mutableStateOf(false) }
     var downloadProgress by remember { mutableStateOf<Float?>(null) }
     var downloadedFile by remember { mutableStateOf<java.io.File?>(null) }
@@ -237,16 +239,16 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
         val installed = UpdateCheckService.getInstalledVersionName(context)
         val result = UpdateCheckService.check(context)
         updateStatus = when {
-            !result.success -> "Versão instalada: $installed. Não foi possível checar agora (${result.error})."
-            result.updateAvailable -> "Versão instalada: $installed. Nova versão disponível: ${result.latestVersionName}."
-            else -> "Versão instalada: $installed. Atualizado ✓"
+            !result.success -> ContentStore.s("updates.installedCheckFailedWithError", "version" to installed, "error" to result.error.orEmpty())
+            result.updateAvailable -> ContentStore.s("updates.installedNewVersionAvailable", "version" to installed, "latest" to result.latestVersionName.orEmpty())
+            else -> ContentStore.s("updates.installedUpToDate", "version" to installed)
         }
         updateAvailable = result.updateAvailable
     }
 
-    Text("Avançado", style = MaterialTheme.typography.headlineSmall)
+    Text(ContentStore.s("settings.tabs.advanced"), style = MaterialTheme.typography.headlineSmall)
 
-    Text("Atualizações", style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.updates.title"), style = MaterialTheme.typography.titleMedium)
     Text(updateStatus, style = MaterialTheme.typography.bodyMedium)
     if (updateAvailable && downloadedFile == null) {
         Button(
@@ -259,19 +261,19 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Baixar atualização") }
-        downloadProgress?.let { Text("Baixando... ${(it * 100).toInt()}%", style = MaterialTheme.typography.bodySmall) }
+        ) { Text(ContentStore.s("updates.downloadButton")) }
+        downloadProgress?.let { Text(ContentStore.s("updates.downloadingWithProgress", "percent" to (it * 100).toInt().toString()), style = MaterialTheme.typography.bodySmall) }
     }
     downloadedFile?.let { file ->
         Button(
             onClick = { UpdateDownloader.install(context, file) },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Instalar atualização") }
+        ) { Text(ContentStore.s("updates.installButton")) }
     }
 
-    Text("Modo manutenção", style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.maintenance.title"), style = MaterialTheme.typography.titleMedium)
     Text(
-        "Desliga o checklist e o check-in semanal, deixando só Morning Pages e Artist Date.",
+        ContentStore.s("settings.maintenance.description"),
         style = MaterialTheme.typography.bodyMedium,
     )
     OutlinedButton(
@@ -283,7 +285,8 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
         modifier = Modifier.fillMaxWidth(),
     ) { Text(if (profile.maintenanceMode) ContentStore.s("settings.maintenance.toggleOff") else ContentStore.s("settings.maintenance.toggleOn")) }
 
-    Text("Zona de perigo", style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.dangerZone.title"), style = MaterialTheme.typography.titleMedium)
+    Text(ContentStore.s("settings.dangerZone.description"), style = MaterialTheme.typography.bodyMedium)
     OutlinedButton(onClick = { showResetConfirm = true }, modifier = Modifier.fillMaxWidth()) {
         Text(ContentStore.s("settings.clearData.button"))
     }
@@ -293,7 +296,7 @@ private fun AdvancedTab(profile: ProfileSettings, onProfileChange: (ProfileSetti
         Text(ContentStore.s("settings.fullReset.button"))
     }
     if (resetDone) {
-        Text("Dados apagados — reinicie o app pra configurar de novo.", style = MaterialTheme.typography.bodyMedium)
+        Text(ContentStore.s("settings.resetDone"), style = MaterialTheme.typography.bodyMedium)
     }
 
     if (showResetConfirm) {

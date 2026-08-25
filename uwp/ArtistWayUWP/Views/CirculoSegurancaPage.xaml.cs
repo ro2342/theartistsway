@@ -16,6 +16,11 @@ namespace ArtistWayUWP.Views
         {
             this.InitializeComponent();
             TitleText.Text = ContentStore.S("tools.circuloSeguranca");
+            DescriptionText.Text = ContentStore.S("circulo.description");
+            NameLabelText.Text = ContentStore.S("onboarding.nameDate.nameLabel");
+            AddSafeButton.Content = ContentStore.S("circulo.addButton");
+            SafeSectionTitleText.Text = ContentStore.S("circulo.safeSectionTitle");
+            CautionSectionTitleText.Text = ContentStore.S("circulo.cautionSectionTitle");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -80,7 +85,7 @@ namespace ArtistWayUWP.Views
                             new SymbolIcon { Symbol = isSafe ? Symbol.Important : Symbol.Accept },
                             new TextBlock
                             {
-                                Text = isSafe ? "Mover pra Cautela" : "Mover pra Apoia",
+                                Text = isSafe ? ContentStore.S("circulo.moveToCaution") : ContentStore.S("circulo.moveToSafe"),
                                 Margin = new Thickness(6, 0, 0, 0),
                                 VerticalAlignment = VerticalAlignment.Center,
                             },

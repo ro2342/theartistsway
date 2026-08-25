@@ -78,7 +78,7 @@ namespace ArtistWayUWP.Services
                     string deviceResponseText = await deviceResponse.Content.ReadAsStringAsync();
                     if (!deviceResponse.IsSuccessStatusCode)
                     {
-                        return new AuthResult { Success = false, ErrorMessage = $"Google device/code {(int)deviceResponse.StatusCode}: {deviceResponseText}" };
+                        return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.deviceCodeHttpError", "status", ((int)deviceResponse.StatusCode).ToString(), "body", deviceResponseText) };
                     }
 
                     JsonObject deviceJson = JsonObject.Parse(deviceResponseText);
@@ -133,7 +133,7 @@ namespace ArtistWayUWP.Services
                             {
                                 return await ExchangeWithFirebaseAsync(accessToken, "google.com", "access_token");
                             }
-                            return new AuthResult { Success = false, ErrorMessage = "Google não devolveu id_token nem access_token." };
+                            return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.noTokenReturned") };
                         }
 
                         string error = tokenJson.ContainsKey("error") ? tokenJson["error"].GetString() : null;
@@ -148,10 +148,10 @@ namespace ArtistWayUWP.Services
                         }
 
                         // access_denied, expired_token, ou qualquer outro erro é definitivo.
-                        return new AuthResult { Success = false, ErrorMessage = $"Google: {error}" };
+                        return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.googleError", "error", error) };
                     }
 
-                    return new AuthResult { Success = false, ErrorMessage = "Tempo esgotado esperando a confirmação do login." };
+                    return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.deviceLoginTimeout") };
                 }
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace ArtistWayUWP.Services
 
                 if (result.ResponseStatus != WebAuthenticationStatus.Success)
                 {
-                    return new AuthResult { Success = false, ErrorMessage = $"Navegador: {result.ResponseStatus} ({result.ResponseErrorDetail})" };
+                    return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.browserError", "status", result.ResponseStatus.ToString(), "detail", result.ResponseErrorDetail) };
                 }
 
                 Uri responseUri = new Uri(result.ResponseData);
@@ -187,11 +187,11 @@ namespace ArtistWayUWP.Services
 
                 if (parsed.ContainsKey("error"))
                 {
-                    return new AuthResult { Success = false, ErrorMessage = "Google: " + parsed["error"] };
+                    return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.googleError", "error", parsed["error"]) };
                 }
                 if (!parsed.ContainsKey("code"))
                 {
-                    return new AuthResult { Success = false, ErrorMessage = "Resposta do Google sem código de autorização." };
+                    return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.noAuthCode") };
                 }
 
                 using (HttpClient client = new HttpClient())
@@ -209,7 +209,7 @@ namespace ArtistWayUWP.Services
                     string tokenResponseText = await tokenResponse.Content.ReadAsStringAsync();
                     if (!tokenResponse.IsSuccessStatusCode)
                     {
-                        return new AuthResult { Success = false, ErrorMessage = $"Google token {(int)tokenResponse.StatusCode}: {tokenResponseText}" };
+                        return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.tokenHttpError", "status", ((int)tokenResponse.StatusCode).ToString(), "body", tokenResponseText) };
                     }
 
                     JsonObject tokenJson = JsonObject.Parse(tokenResponseText);
@@ -224,7 +224,7 @@ namespace ArtistWayUWP.Services
                     {
                         return await ExchangeWithFirebaseAsync(accessToken, "google.com", "access_token");
                     }
-                    return new AuthResult { Success = false, ErrorMessage = "Google não devolveu id_token nem access_token." };
+                    return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.noTokenReturned") };
                 }
             }
             catch (Exception ex)
@@ -271,7 +271,7 @@ namespace ArtistWayUWP.Services
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        return new AuthResult { Success = false, ErrorMessage = $"Firebase {(int)response.StatusCode}: {responseText}" };
+                        return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.firebaseHttpError", "status", ((int)response.StatusCode).ToString(), "body", responseText) };
                     }
 
                     JsonObject json = JsonObject.Parse(responseText);
@@ -290,7 +290,7 @@ namespace ArtistWayUWP.Services
             }
             catch (Exception ex)
             {
-                return new AuthResult { Success = false, ErrorMessage = "Troca com Firebase falhou: " + ex.Message };
+                return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.firebaseExchangeFailed", "error", ex.Message) };
             }
         }
     }

@@ -967,3 +967,96 @@ próxima rodada).
    diferente do `WeekDetail` já migrado) também precisa de auditoria —
    uma varredura rápida no início da sessão achou `ProgressPage: cs=3`
    ocorrências não confirmadas.
+
+## 2026-08-25 (7)
+
+Última rodada do retrofit de `UI_STRINGS`: "mensagens de erro", o
+último item da lista explícita do usuário. Antes de implementar,
+delegado uma auditoria dedicada (agente `Explore`, só leitura) pra
+mapear TODO texto de erro/status/toast ainda hardcoded nas 3
+plataformas — achou muito mais do que só mensagens de erro: duas telas
+inteiras (Life Pie, Círculo de Segurança) e quase toda a tela de
+Ajustes do Android nunca tinham passado pelo retrofit. Perguntado ao
+usuário se queria só a Seção A (erros) ou tudo (A+B) — escolheu A+B,
+fechar de vez.
+
+1. **~90 chaves novas em `UI_STRINGS`**, grupos: `sync.*` (4 chaves —
+   texto devolvido por `SyncService`/`syncAll`, compartilhado pelas 3
+   plataformas), `settings.sync.*` (status "logado como"/"não
+   logado", botão de login, diálogos), `settings.backup.*` (toasts de
+   export/import, erro de importação), `settings.appearance.*` (botões
+   de tema Claro/Escuro/Automático — 2 variantes pro Auto: UWP mantém
+   `themeAutoShort` = "Auto" por causa do botão de 3 colunas estreito
+   demais pro texto completo), `updates.*` (todo o fluxo de checagem/
+   download/instalação de atualização), `auth.*` (erros de OAuth do
+   UWP — device grant/consent flow — e do Android — Credential
+   Manager —, cada fluxo com seus próprios erros de verdade, sem
+   forçar união onde as APIs são mesmo diferentes), `circulo.*`,
+   `lifePie.*`, `artistDateHistory.*`, `checkinHistory.*`,
+   `ferramentas.*` (abas "Semana N"/"Geral" do hub de ferramentas,
+   reaproveitando `week.shortLabel` já existente), mais um punhado de
+   chaves soltas (`home.toast.mpDayMarked`, `weekDetail.
+   toastSetCurrentWeek`, `tile.*` pra Live Tile do UWP).
+2. **Achado no caminho — subtítulos diferentes por engano**: em 3
+   telas (Círculo, Artist Date History, Checkin History) o PWA tinha
+   DOIS textos de subtítulo distintos (um tagline curto no cabeçalho +
+   uma descrição mais longa embaixo) enquanto UWP só usava um dos
+   dois — não dava pra colapsar num único texto sem perder conteúdo.
+   Resolvido criando 2 chaves separadas por tela em vez de forçar uma
+   só (ex.: `circulo.headerSub` vs `circulo.description`). Em Artist
+   Date History e Checkin History o texto do UWP era mais completo que
+   o do PWA (ex.: "toque numa semana com check-in salvo" vs "...pra
+   reler suas respostas") — usado o texto mais completo como canônico
+   nos dois.
+3. **Bug de performance evitado, não introduzido**: pra migrar os
+   rótulos de categoria do Life Pie no Android
+   (`LifePieScreen.kt`), a lista `CATEGORIES` (antes um `val`
+   top-level fixo) virou uma função `categories()` que lê do
+   `ContentStore` — mas chamá-la direto de dentro do `Canvas`/
+   `drawScope` recomputaria 6 lookups de string a cada frame de
+   redesenho (60fps durante o arraste do gráfico). Corrigido
+   calculando a lista **uma vez** com `remember { categories() }` no
+   nível do `LifePieScreen` e passando como parâmetro pra
+   `LifePieCanvas`/`updateFromPoint`, em vez de recalcular dentro do
+   loop de desenho — evita repetir o mesmo bug de inicialização já
+   visto 2x antes nesta sessão, mas do lado de performance em vez de
+   corretude.
+4. **Bug de tradução real encontrado e corrigido**: `MainPage.xaml.cs`
+   (UWP) e `SyncStatus.kt` (Android) decidiam o estado do ícone de
+   sincronização (verde = sucesso) comparando a *string de retorno*
+   de `SyncService` contra um literal fixo (`result.StartsWith
+   ("Sincronizado")` / `result.startsWith("Não logado")`) — se algum
+   dia esses textos forem traduzidos, essa comparação quebra
+   silenciosamente e o ícone nunca mais fica verde. Corrigido nos
+   dois: a comparação agora deriva do próprio `ContentStore.S("sync.
+   syncedAt")`/`ContentStore.s("sync.notLoggedIn")` (prefixo antes do
+   placeholder `{time}`, ou igualdade exata), então uma tradução futura
+   atualiza os dois lados da comparação junto, sem quebrar o estado
+   visual. Não existia no PWA (só olha o texto pra mostrar, nunca pra
+   decidir estado).
+5. **Validação**: `node --check` em todos os `.js` tocados
+   (`app.js`, `sync.js`, `auth.js`, `data.js`); XML de
+   `Package.appxmanifest` e de todas as páginas UWP tocadas
+   (`SettingsPage`, `CirculoSegurancaPage`, `LifePiePage`,
+   `ArtistDateHistoryPage`, `CheckinHistoryPage`) validado; grep de
+   `--` literal nos arquivos `.cs`/`.kt` tocados (zero ocorrência);
+   `node scripts/generate-content-json.js --check` confirmado. Dois
+   testes E2E via Chrome headless/CDP: reexecutado `test-uistrings.js`
+   (round anterior, zero erro de console) e criado
+   `test-errormsgs.js` (scratchpad) confirmando o texto novo renderiza
+   certo em Círculo/Life Pie/Artist Date History/Checkin History/
+   Ajustes (sync status, botão de login, botões de tema) — zero erro
+   de console nos dois. Reexecutado também `test-home.js`,
+   `test-onboarding.js` e `test-artistdate.js` (rounds anteriores) pra
+   confirmar que mexer de novo em `app.js` não regrediu nada — todos
+   passando.
+6. Versão bumpada nas 3 plataformas: UWP `42.2.0.31 → 42.2.0.32`;
+   Android `versionCode 39→40`, `versionName "42.2.0.31"→"42.2.0.32"`;
+   PWA `CACHE_NAME` `"...v18"→"...v19"`.
+7. **Retrofit de `UI_STRINGS` fechado por completo** — a lista
+   original de 5 itens do usuário (Checklist/Jornada, Quiz, Essay/
+   NamedList, notificação push, mensagens de erro) e tudo que a
+   auditoria dedicada achou no caminho estão migrados nas 3
+   plataformas. Único item ainda em aberto (fora da lista original,
+   anotado por precaução): auditar se a tela "Jornada" da nav
+   (`ProgressPage`/`ProgressScreen`) também tem texto solto.

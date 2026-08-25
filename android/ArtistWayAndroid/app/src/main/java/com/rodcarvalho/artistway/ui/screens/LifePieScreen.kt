@@ -52,17 +52,17 @@ private const val LIST_NAME = "lifePie"
 
 private data class LifePieCategory(val key: String, val label: String)
 
-private val CATEGORIES = listOf(
-    LifePieCategory("espiritualidade", "Espiritualidade"),
-    LifePieCategory("trabalho", "Trabalho"),
-    LifePieCategory("lazer", "Lazer"),
-    LifePieCategory("amigos", "Amigos"),
-    LifePieCategory("romance", "Romance"),
-    LifePieCategory("exercicio", "Exercício"),
+private fun categories(): List<LifePieCategory> = listOf(
+    LifePieCategory("espiritualidade", ContentStore.s("lifePie.categorySpiritualidade")),
+    LifePieCategory("trabalho", ContentStore.s("lifePie.categoryTrabalho")),
+    LifePieCategory("lazer", ContentStore.s("lifePie.categoryLazer")),
+    LifePieCategory("amigos", ContentStore.s("lifePie.categoryAmigos")),
+    LifePieCategory("romance", ContentStore.s("lifePie.categoryRomance")),
+    LifePieCategory("exercicio", ContentStore.s("lifePie.categoryExercicio")),
 )
 
-private fun ratingsFromItem(item: NamedListItem): Map<String, Float> =
-    CATEGORIES.mapNotNull { cat ->
+private fun ratingsFromItem(item: NamedListItem, categories: List<LifePieCategory>): Map<String, Float> =
+    categories.mapNotNull { cat ->
         item.fields["ratings.${cat.key}"]?.toFloatOrNull()?.let { cat.key to it }
     }.toMap()
 
@@ -70,6 +70,7 @@ private fun ratingsFromItem(item: NamedListItem): Map<String, Float> =
 // (Polygon/Line/Ellipse no UWP, mesma trigonometria do /life-pie do PWA).
 @Composable
 fun LifePieScreen() {
+    val categories = remember { categories() }
     val scope = rememberCoroutineScope()
     val ratings = remember { mutableStateMapOf<String, Float>() }
     var previousRatings by remember { mutableStateOf<Map<String, Float>?>(null) }
@@ -78,8 +79,8 @@ fun LifePieScreen() {
     LaunchedEffect(Unit) {
         val items = LocalDataStore.getListItems(LIST_NAME).sortedBy { it.updatedAt }
         val previous = items.lastOrNull()
-        previousRatings = previous?.let { ratingsFromItem(it) }
-        CATEGORIES.forEach { cat -> ratings[cat.key] = previousRatings?.get(cat.key) ?: 5f }
+        previousRatings = previous?.let { ratingsFromItem(it, categories) }
+        categories.forEach { cat -> ratings[cat.key] = previousRatings?.get(cat.key) ?: 5f }
         history = items
     }
 
@@ -92,39 +93,40 @@ fun LifePieScreen() {
     ) {
         Text(ContentStore.s("tools.lifePie"), style = MaterialTheme.typography.headlineSmall)
         Text(
-            "Arraste dentro do gráfico pra ajustar o eixo mais próximo (0 a 10)." +
-                if (previousRatings != null) " A silhueta clara mostra o snapshot anterior, pra comparar." else "",
+            ContentStore.s("lifePie.hint") +
+                if (previousRatings != null) ContentStore.s("lifePie.hintPreviousNote") else "",
             style = MaterialTheme.typography.bodyMedium,
         )
 
         LifePieCanvas(
+            categories = categories,
             ratings = ratings,
             previousRatings = previousRatings,
-            onDrag = { index, value -> ratings[CATEGORIES[index].key] = value },
+            onDrag = { index, value -> ratings[categories[index].key] = value },
         )
 
         Button(
             onClick = {
                 val fields = mutableMapOf("date" to LocalDate.now().toString())
-                CATEGORIES.forEach { cat -> fields["ratings.${cat.key}"] = (ratings[cat.key] ?: 5f).roundToInt().toString() }
+                categories.forEach { cat -> fields["ratings.${cat.key}"] = (ratings[cat.key] ?: 5f).roundToInt().toString() }
                 scope.launch {
                     LocalDataStore.addListItem(LIST_NAME, fields)
                     val items = LocalDataStore.getListItems(LIST_NAME).sortedBy { it.updatedAt }
-                    previousRatings = ratingsFromItem(items.last())
+                    previousRatings = ratingsFromItem(items.last(), categories)
                     history = items
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Salvar snapshot") }
+        ) { Text(ContentStore.s("lifePie.saveButton")) }
 
         if (history.isNotEmpty()) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Histórico", style = MaterialTheme.typography.titleMedium)
+                    Text(ContentStore.s("lifePie.historyTitle"), style = MaterialTheme.typography.titleMedium)
                     history.asReversed().forEach { item ->
-                        val ratingsForItem = ratingsFromItem(item)
+                        val ratingsForItem = ratingsFromItem(item, categories)
                         val date = (item.fields["date"] ?: item.updatedAt).take(10)
-                        val summary = CATEGORIES.joinToString(", ") { cat ->
+                        val summary = categories.joinToString(", ") { cat ->
                             "${cat.label.take(3)} ${(ratingsForItem[cat.key] ?: 0f).roundToInt()}"
                         }
                         Text("$date — $summary", style = MaterialTheme.typography.bodySmall)
@@ -137,6 +139,7 @@ fun LifePieScreen() {
 
 @Composable
 private fun LifePieCanvas(
+    categories: List<LifePieCategory>,
     ratings: Map<String, Float>,
     previousRatings: Map<String, Float>?,
     onDrag: (index: Int, value: Float) -> Unit,
@@ -159,7 +162,7 @@ private fun LifePieCanvas(
                         dragPosition = offset
                         val center = Offset(size.width / 2f, size.height / 2f)
                         val maxRadius = min(size.width, size.height) / 2f * 0.62f
-                        updateFromPoint(offset, center, maxRadius, onDrag)
+                        updateFromPoint(offset, center, maxRadius, categories.size, onDrag)
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
@@ -167,7 +170,7 @@ private fun LifePieCanvas(
                         dragPosition = next
                         val center = Offset(size.width / 2f, size.height / 2f)
                         val maxRadius = min(size.width, size.height) / 2f * 0.62f
-                        updateFromPoint(next, center, maxRadius, onDrag)
+                        updateFromPoint(next, center, maxRadius, categories.size, onDrag)
                     },
                     onDragEnd = { dragPosition = null },
                 )
@@ -175,7 +178,7 @@ private fun LifePieCanvas(
     ) {
         val center = Offset(this.size.width / 2f, this.size.height / 2f)
         val maxRadius = min(this.size.width, this.size.height) / 2f * 0.62f
-        val n = CATEGORIES.size
+        val n = categories.size
 
         fun axisPoint(index: Int, value: Float): Offset {
             val angle = (2.0 * PI * index / n) - PI / 2.0
@@ -198,7 +201,7 @@ private fun LifePieCanvas(
             drawLine(gridColor, center, edge, strokeWidth = 1f, cap = StrokeCap.Round)
 
             val labelPoint = axisPoint(i, 12.6f)
-            val layout = textMeasurer.measure(CATEGORIES[i].label, labelStyle)
+            val layout = textMeasurer.measure(categories[i].label, labelStyle)
             drawText(
                 layout,
                 topLeft = Offset(labelPoint.x - layout.size.width / 2f, labelPoint.y - layout.size.height / 2f),
@@ -208,7 +211,7 @@ private fun LifePieCanvas(
         if (previousRatings != null) {
             val path = Path()
             for (i in 0 until n) {
-                val value = previousRatings[CATEGORIES[i].key] ?: 0f
+                val value = previousRatings[categories[i].key] ?: 0f
                 val p = axisPoint(i, value)
                 if (i == 0) path.moveTo(p.x, p.y) else path.lineTo(p.x, p.y)
             }
@@ -219,7 +222,7 @@ private fun LifePieCanvas(
 
         val currentPath = Path()
         for (i in 0 until n) {
-            val value = ratings[CATEGORIES[i].key] ?: 5f
+            val value = ratings[categories[i].key] ?: 5f
             val p = axisPoint(i, value)
             if (i == 0) currentPath.moveTo(p.x, p.y) else currentPath.lineTo(p.x, p.y)
             drawCircle(color = accentColor, radius = 7f, center = p)
@@ -230,12 +233,12 @@ private fun LifePieCanvas(
     }
 }
 
-private fun updateFromPoint(point: Offset, center: Offset, maxRadius: Float, onDrag: (Int, Float) -> Unit) {
+private fun updateFromPoint(point: Offset, center: Offset, maxRadius: Float, categoryCount: Int, onDrag: (Int, Float) -> Unit) {
     val x = point.x - center.x
     val y = point.y - center.y
     var angle = atan2(y.toDouble(), x.toDouble()) + PI / 2
     if (angle < 0) angle += 2 * PI
-    val index = ((angle / (2 * PI / CATEGORIES.size)).roundToInt()) % CATEGORIES.size
+    val index = ((angle / (2 * PI / categoryCount)).roundToInt()) % categoryCount
     val dist = sqrt((x * x + y * y).toDouble())
     val value = max(0f, min(10f, (dist / maxRadius * 10).roundToInt().toFloat()))
     onDrag(index, value)

@@ -43,14 +43,14 @@
                 <ScrollViewer Padding="16,12,16,24">
                     <StackPanel>
                         <TextBlock x:Name="DataTitleText" Text="Seus dados" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <TextBlock Text="Tudo fica só no seu aparelho. Faça backup de vez em quando." Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                        <TextBlock x:Name="DataDescriptionText" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <Button x:Name="ExportButton" Content="Exportar backup (.json)" Click="Export_Click" HorizontalAlignment="Stretch" />
                         <Button x:Name="ImportButton" Content="Importar backup (.json)" Click="Import_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
 
                         <Border Style="{StaticResource SectionDividerStyle}" />
 
                         <TextBlock x:Name="SyncTitleText" Text="Sincronização" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <TextBlock Text="Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o PWA, no mesmo login."
+                        <TextBlock x:Name="SyncDescriptionText"
                                    Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <TextBlock x:Name="SyncStatusText" Text="Não logado." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,0,0,8" />
                         <Button x:Name="GoogleLoginButton" Content="Entrar com Google" Click="GoogleLogin_Click" HorizontalAlignment="Stretch" />
@@ -71,14 +71,14 @@
                         <Border Style="{StaticResource SectionDividerStyle}" />
 
                         <TextBlock x:Name="MaintenanceTitleText" Text="Modo manutenção" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <TextBlock Text="Depois das 12 semanas, desliga o checklist e o check-in semanal — fica só Morning Pages e Artist Date rodando indefinidamente."
+                        <TextBlock x:Name="MaintenanceDescriptionText"
                                    Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <Button x:Name="ToggleMaintenanceButton" Content="Ativar modo manutenção" Click="ToggleMaintenance_Click" HorizontalAlignment="Stretch" />
 
                         <Border Style="{StaticResource SectionDividerStyle}" />
 
                         <TextBlock x:Name="DangerZoneTitleText" Text="Zona de risco" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <TextBlock Text="Apaga o progresso salvo (perfil, Morning Pages, Artist Dates, checklist, check-ins). Não tem como desfazer — faça um backup antes se quiser guardar alguma coisa."
+                        <TextBlock x:Name="DangerZoneDescriptionText"
                                    Style="{StaticResource BodyTextBlockStyle}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <Button Click="ClearData_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                             <TextBlock x:Name="ClearDataText" Text="Apagar todos os dados (mantém login)" TextWrapping="Wrap" TextAlignment="Center" />

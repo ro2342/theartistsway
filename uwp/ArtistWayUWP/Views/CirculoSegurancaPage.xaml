@@ -11,26 +11,26 @@
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
             <TextBlock x:Name="TitleText" Text="Círculo de Segurança" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock Text="Quem apoia — e de quem se proteger por enquanto." Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" Margin="0,4,0,16" />
+            <TextBlock x:Name="DescriptionText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" Margin="0,4,0,16" />
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Nome" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <TextBlock x:Name="NameLabelText" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" Margin="0,0,0,4" />
                     <TextBox x:Name="NameBox" />
-                    <Button Content="Adicionar em &quot;Apoia&quot;" Click="AddSafe_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
+                    <Button x:Name="AddSafeButton" Click="AddSafe_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Apoia" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="SafeSectionTitleText" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <StackPanel x:Name="SafePanel" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Cautela" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="CautionSectionTitleText" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <StackPanel x:Name="CautionPanel" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>

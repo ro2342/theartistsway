@@ -40,7 +40,7 @@ namespace ArtistWayUWP
             e.Handled = true;
             try
             {
-                var dialog = new Windows.UI.Popups.MessageDialog(e.Message ?? "Erro desconhecido", "Erro inesperado no app");
+                var dialog = new Windows.UI.Popups.MessageDialog(e.Message ?? ContentStore.S("app.unhandledExceptionUnknown"), ContentStore.S("app.unhandledExceptionTitle"));
                 await dialog.ShowAsync();
             }
             catch

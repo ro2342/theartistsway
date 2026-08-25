@@ -617,7 +617,7 @@ function bindStreakDotClicks() {
     el.addEventListener("click", async () => {
       const date = el.dataset.date;
       const done = await DB.toggleMorningPage(date);
-      toast(done ? "Marcado ✓" : "Desmarcado");
+      toast(done ? UI_STRINGS["home.toast.mpDayMarked"] : UI_STRINGS["home.toast.mpUnmarked"]);
       render();
     });
   });
@@ -927,7 +927,7 @@ route("/week", async (rest) => {
   if (setCurrentBtn) {
     setCurrentBtn.addEventListener("click", async () => {
       await setCurrentWeek(settings, weekId);
-      toast("Semana " + weekId + " definida como sua semana atual");
+      toast(UIS("weekDetail.toastSetCurrentWeek", { week: weekId }));
       render();
     });
   }
@@ -1149,7 +1149,7 @@ route("/circulo-seguranca", async () => {
 
     function renderNames(list, toCaution) {
       const icon = toCaution ? window.ArtistWayIcons.warning : window.ArtistWayIcons.checkmarkCircle;
-      const label = toCaution ? "Mover pra Cautela" : "Mover pra Apoia";
+      const label = toCaution ? UI_STRINGS["circulo.moveToCaution"] : UI_STRINGS["circulo.moveToSafe"];
       return list
         .map(
           (i) => `
@@ -1163,20 +1163,20 @@ route("/circulo-seguranca", async () => {
 
     appEl.innerHTML = `
       <div class="top-bar">
-        <div class="logo" style="text-align:right">${UI_STRINGS["tools.circuloSeguranca"]}<span class="sub">quem apoia, quem exige cautela</span></div>
+        <div class="logo" style="text-align:right">${UI_STRINGS["tools.circuloSeguranca"]}<span class="sub">${UI_STRINGS["circulo.headerSub"]}</span></div>
       </div>
-      <p class="muted">Quem apoia — e de quem se proteger por enquanto.</p>
+      <p class="muted">${UI_STRINGS["circulo.description"]}</p>
       <div class="card">
-        <label>Nome</label>
+        <label>${UI_STRINGS["onboarding.nameDate.nameLabel"]}</label>
         <input type="text" id="nameBox" />
-        <button class="btn brass block" id="addSafe" style="margin-top:12px;">Adicionar em "Apoia"</button>
+        <button class="btn brass block" id="addSafe" style="margin-top:12px;">${UI_STRINGS["circulo.addButton"]}</button>
       </div>
       <div class="card">
-        <div class="card-title" style="font-size:1.05rem;">Apoia</div>
+        <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["circulo.safeSectionTitle"]}</div>
         ${renderNames(safe, true)}
       </div>
       <div class="card">
-        <div class="card-title" style="font-size:1.05rem;">Cautela</div>
+        <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["circulo.cautionSectionTitle"]}</div>
         ${renderNames(caution, false)}
       </div>
       <div class="spacer"></div>
@@ -1204,12 +1204,12 @@ route("/circulo-seguranca", async () => {
 
 // ================= LIFE PIE =================
 const LIFE_PIE_CATEGORIES = [
-  { key: "espiritualidade", label: "Espiritualidade" },
-  { key: "trabalho", label: "Trabalho" },
-  { key: "lazer", label: "Lazer" },
-  { key: "amigos", label: "Amigos" },
-  { key: "romance", label: "Romance" },
-  { key: "exercicio", label: "Exercício" },
+  { key: "espiritualidade", label: UI_STRINGS["lifePie.categorySpiritualidade"] },
+  { key: "trabalho", label: UI_STRINGS["lifePie.categoryTrabalho"] },
+  { key: "lazer", label: UI_STRINGS["lifePie.categoryLazer"] },
+  { key: "amigos", label: UI_STRINGS["lifePie.categoryAmigos"] },
+  { key: "romance", label: UI_STRINGS["lifePie.categoryRomance"] },
+  { key: "exercicio", label: UI_STRINGS["lifePie.categoryExercicio"] },
 ];
 
 route("/life-pie", async () => {
@@ -1226,18 +1226,18 @@ route("/life-pie", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">${UI_STRINGS["tools.lifePie"]}<span class="sub">seu círculo de vida</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["tools.lifePie"]}<span class="sub">${UI_STRINGS["lifePie.subtitle"]}</span></div>
     </div>
-    <p class="muted">Arraste cada eixo pra marcar o quanto essa área está satisfeita hoje (0 a 10). ${previous ? "A silhueta clara mostra o snapshot anterior, pra comparar." : ""}</p>
+    <p class="muted">${UI_STRINGS["lifePie.hint"]}${previous ? UI_STRINGS["lifePie.hintPreviousNote"] : ""}</p>
     <div class="card text-center">
       <canvas id="lifePieCanvas" width="300" height="300" style="max-width:100%;touch-action:none;"></canvas>
       <div class="spacer-sm"></div>
-      <button class="btn brass block" id="saveSnapshot">Salvar snapshot de hoje</button>
+      <button class="btn brass block" id="saveSnapshot">${UI_STRINGS["lifePie.saveButton"]}</button>
     </div>
     ${
       snapshots.length
         ? `<div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Snapshots salvos</div>
+      <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["lifePie.historyTitle"]}</div>
       ${snapshots
         .slice()
         .reverse()
@@ -1361,7 +1361,7 @@ route("/life-pie", async () => {
       fields[`ratings.${c.key}`] = String(ratings[c.key]);
     });
     await DB.addListItem(LIST_NAME, fields);
-    toast("Snapshot salvo");
+    toast(UI_STRINGS["lifePie.savedToast"]);
     render();
   });
 });
@@ -1515,7 +1515,7 @@ route("/artist-date-history", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">${UI_STRINGS["tools.artistDateHistory"]}<span class="sub">todos os encontros já registrados</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["tools.artistDateHistory"]}<span class="sub">${UI_STRINGS["artistDateHistory.subtitle"]}</span></div>
     </div>
     <div class="card">
       ${
@@ -1524,12 +1524,12 @@ route("/artist-date-history", async () => {
               .map(
                 (item) => `
         <div style="margin-bottom:12px;">
-          <p style="font-weight:var(--fontWeightSemibold,600);margin:0;">${item.weekStart}${item.done ? " — feito" : " — planejado"}</p>
+          <p style="font-weight:var(--fontWeightSemibold,600);margin:0;">${item.weekStart}${item.done ? UI_STRINGS["artistDateHistory.suffixDone"] : UI_STRINGS["artistDateHistory.suffixPlanned"]}</p>
           ${item.idea ? `<p class="muted" style="margin:0;">${item.idea}</p>` : ""}
         </div>`
               )
               .join("")
-          : `<p class="muted">Nenhum Artist Date registrado ainda.</p>`
+          : `<p class="muted">${UI_STRINGS["artistDateHistory.emptyState"]}</p>`
       }
     </div>
     <div class="spacer"></div>
@@ -1542,15 +1542,15 @@ route("/checkin-history", async () => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">${UI_STRINGS["tools.checkinHistory"]}<span class="sub">toque numa semana com check-in salvo</span></div>
+      <div class="logo" style="text-align:right">${UI_STRINGS["tools.checkinHistory"]}<span class="sub">${UI_STRINGS["checkinHistory.subtitle"]}</span></div>
     </div>
     <div class="card">
       ${Array.from({ length: 12 }, (_, i) => i + 1)
         .map((weekId) => {
           const has = weeksWithCheckin.has(weekId);
           return has
-            ? `<a class="btn secondary block" href="#/checkin/${weekId}" style="margin-bottom:8px;">Semana ${weekId} — ver check-in</a>`
-            : `<button class="btn secondary block" style="margin-bottom:8px;" disabled>Semana ${weekId} — sem check-in ainda</button>`;
+            ? `<a class="btn secondary block" href="#/checkin/${weekId}" style="margin-bottom:8px;">${UIS("checkinHistory.entryWithCheckin", { week: weekId })}</a>`
+            : `<button class="btn secondary block" style="margin-bottom:8px;" disabled>${UIS("checkinHistory.entryWithoutCheckin", { week: weekId })}</button>`;
         })
         .join("")}
     </div>
@@ -1622,7 +1622,7 @@ function toolsForWeek(week) {
 
 function renderToolLinks(items) {
   if (items.length === 0) {
-    return `<p class="muted">Nenhuma ferramenta ainda.</p>`;
+    return `<p class="muted">${UI_STRINGS["ferramentas.noneYet"]}</p>`;
   }
   return items
     .map(
@@ -1642,9 +1642,9 @@ route("/ferramentas", async () => {
   for (let w = 1; w <= 12; w++) {
     const items = toolsForWeek(w);
     if (items.length === 0) continue; // semanas ainda sem ferramenta própria nesta leva
-    weekTabs.push({ id: `week${w}`, label: `Semana ${w}`, html: renderToolLinks(items) });
+    weekTabs.push({ id: `week${w}`, label: UIS("week.shortLabel", { week: w }), html: renderToolLinks(items) });
   }
-  weekTabs.push({ id: "geral", label: "Geral", html: renderToolLinks(toolsForWeek(null)) });
+  weekTabs.push({ id: "geral", label: UI_STRINGS["ferramentas.generalTab"], html: renderToolLinks(toolsForWeek(null)) });
 
   renderTabs(document.getElementById("ferramentasTabs"), weekTabs, ferramentasTabState);
 });
@@ -1761,9 +1761,9 @@ route("/settings", async () => {
             </div>
             <label>Tema</label>
             <div class="theme-mode-row" id="themeModeRow">
-              <button class="btn ${(settings.themeMode || "auto") === "light" ? "" : "secondary"}" data-theme-mode="light"><span class="icon">${window.ArtistWayIcons.sun}</span> Claro</button>
-              <button class="btn ${(settings.themeMode || "auto") === "dark" ? "" : "secondary"}" data-theme-mode="dark"><span class="icon">${window.ArtistWayIcons.moon}</span> Escuro</button>
-              <button class="btn ${(settings.themeMode || "auto") === "auto" ? "" : "secondary"}" data-theme-mode="auto">Automático</button>
+              <button class="btn ${(settings.themeMode || "auto") === "light" ? "" : "secondary"}" data-theme-mode="light"><span class="icon">${window.ArtistWayIcons.sun}</span> ${UI_STRINGS["settings.appearance.themeLight"]}</button>
+              <button class="btn ${(settings.themeMode || "auto") === "dark" ? "" : "secondary"}" data-theme-mode="dark"><span class="icon">${window.ArtistWayIcons.moon}</span> ${UI_STRINGS["settings.appearance.themeDark"]}</button>
+              <button class="btn ${(settings.themeMode || "auto") === "auto" ? "" : "secondary"}" data-theme-mode="auto">${UI_STRINGS["settings.appearance.themeAuto"]}</button>
             </div>
           </div>
         `,
@@ -1774,7 +1774,7 @@ route("/settings", async () => {
         html: `
           <div class="card">
             <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.data.title"]}</div>
-            <p class="muted">Tudo fica só no seu aparelho. Faça backup de vez em quando.</p>
+            <p class="muted">${UI_STRINGS["settings.data.description"]}</p>
             <button class="btn secondary block" id="exportData">${UI_STRINGS["settings.export"]}</button>
             ${
               isUwpHost()
@@ -1785,9 +1785,9 @@ route("/settings", async () => {
 
           <div class="card">
             <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.sync.title"]}</div>
-            <p class="muted">Login com Google sincroniza seu progresso entre aparelhos automaticamente em segundo plano — funciona junto com o app do Windows, no mesmo login.</p>
-            <p class="muted" id="syncStatus">Verificando...</p>
-            <button class="btn brass block" id="googleLogin">Entrar com Google</button>
+            <p class="muted">${UIS("settings.sync.description", { otherPlatform: "o app do Windows" })}</p>
+            <p class="muted" id="syncStatus">${UI_STRINGS["common.checking"]}</p>
+            <button class="btn brass block" id="googleLogin">${UI_STRINGS["settings.sync.loginButton"]}</button>
             <button class="btn secondary block" id="signOut" style="display:none;">${UI_STRINGS["settings.signOut"]}</button>
           </div>
         `,
@@ -1798,7 +1798,7 @@ route("/settings", async () => {
         html: `
           <div class="card" id="updatesCard">
             <div class="card-title" style="font-size:1.05rem;">${UI_STRINGS["settings.updates.title"]}</div>
-            <p class="muted" id="updatesBody">Verificando...</p>
+            <p class="muted" id="updatesBody">${UI_STRINGS["common.checking"]}</p>
           </div>
 
           <div class="card">
@@ -1862,11 +1862,11 @@ route("/settings", async () => {
       window.__onNativeExportResult = (result) => {
         delete window.__onNativeExportResult;
         if (result && result.success) {
-          toast("Backup salvo ✓");
+          toast(UI_STRINGS["settings.backup.exportedToast"]);
         } else if (result && result.canceled) {
           // usuário cancelou o seletor — não é erro, sem toast.
         } else {
-          toast("Erro ao salvar backup: " + ((result && result.error) || "desconhecido"));
+          toast(UIS("settings.backup.exportError", { error: (result && result.error) || UI_STRINGS["settings.backup.unknownError"] }));
         }
       };
       window.external.notify(JSON.stringify({ type: "exportData", filename, content: json }));
@@ -1890,10 +1890,10 @@ route("/settings", async () => {
       try {
         const payload = JSON.parse(text);
         await DB.importAllData(payload);
-        toast("Backup importado ✓");
+        toast(UI_STRINGS["settings.backup.importedToast"]);
         render();
       } catch (err) {
-        toast("Arquivo inválido");
+        toast(UI_STRINGS["settings.backup.invalidFile"]);
       }
     });
   }
@@ -1905,17 +1905,17 @@ route("/settings", async () => {
         delete window.__onNativeImportResult;
         if (!result || !result.success) {
           if (result && !result.canceled) {
-            toast("Erro ao importar backup: " + (result.error || "desconhecido"));
+            toast(UIS("settings.backup.importError", { error: result.error || UI_STRINGS["settings.backup.unknownError"] }));
           }
           return;
         }
         try {
           const payload = JSON.parse(result.content);
           await DB.importAllData(payload);
-          toast("Backup importado ✓");
+          toast(UI_STRINGS["settings.backup.importedToast"]);
           render();
         } catch (err) {
-          toast("Arquivo inválido");
+          toast(UI_STRINGS["settings.backup.invalidFile"]);
         }
       };
       window.external.notify(JSON.stringify({ type: "importRequest" }));
@@ -1930,12 +1930,12 @@ route("/settings", async () => {
     if (!syncStatusEl || !syncStatusEl.isConnected) return;
     const session = await window.ArtistWayAuth.getSession();
     if (!session) {
-      syncStatusEl.textContent = "Não logado.";
+      syncStatusEl.textContent = UI_STRINGS["settings.sync.statusNotLoggedIn"];
       if (googleLoginBtn) googleLoginBtn.style.display = "";
       if (signOutBtn) signOutBtn.style.display = "none";
       return;
     }
-    syncStatusEl.textContent = `Logado como ${session.email || session.uid} (${session.provider}).`;
+    syncStatusEl.textContent = UIS("settings.sync.statusLoggedInWithProvider", { who: session.email || session.uid, provider: session.provider });
     if (googleLoginBtn) googleLoginBtn.style.display = "none";
     if (signOutBtn) signOutBtn.style.display = "";
   }
@@ -1992,34 +1992,34 @@ route("/settings", async () => {
       getDisplayVersion().then((version) => {
         if (!updatesBodyEl.isConnected) return;
         updatesBodyEl.textContent = version
-          ? `Versão ${version} — a versão web se atualiza sozinha, sem precisar checar nada aqui.`
-          : "Você está usando a versão web — ela se atualiza sozinha, sem precisar checar nada aqui.";
+          ? UIS("updates.webVersionAutoUpdatesWithVersion", { version })
+          : UI_STRINGS["updates.webVersionAutoUpdates"];
       });
     } else {
       const installed = window.ArtistWayUpdates.getInstalledVersion();
-      updatesBodyEl.textContent = `Versão instalada: ${installed}. Verificando se há atualização...`;
+      updatesBodyEl.textContent = UIS("updates.installedChecking", { version: installed });
       window.ArtistWayUpdates.checkForUpdate().then((result) => {
         if (!updatesBodyEl.isConnected) return;
         if (!result) {
-          updatesBodyEl.textContent = `Versão instalada: ${installed}. Não foi possível checar agora.`;
+          updatesBodyEl.textContent = UIS("updates.installedCheckFailed", { version: installed });
           return;
         }
         if (result.error) {
-          updatesBodyEl.textContent = `Versão instalada: ${installed}. Não foi possível checar agora (${result.error}).`;
+          updatesBodyEl.textContent = UIS("updates.installedCheckFailedWithError", { version: installed, error: result.error });
           return;
         }
         if (result.updateAvailable) {
-          updatesBodyEl.innerHTML = `Versão instalada: ${result.current}. Nova versão disponível: <strong>${result.latest}</strong>.`;
+          updatesBodyEl.textContent = UIS("updates.installedNewVersionAvailable", { version: result.current, latest: result.latest });
           const btn = document.createElement("button");
           btn.className = "btn brass block";
-          btn.textContent = "Baixar atualização";
+          btn.textContent = UI_STRINGS["updates.downloadButton"];
           btn.style.marginTop = "10px";
           btn.addEventListener("click", () => {
             GCAL.openUrl("https://ro2342.github.io/theartistsway/app/");
           });
           updatesBodyEl.parentElement.appendChild(btn);
         } else {
-          updatesBodyEl.textContent = `Versão instalada: ${result.current}. Atualizado ✓`;
+          updatesBodyEl.textContent = UIS("updates.installedUpToDate", { version: result.current });
         }
       });
     }

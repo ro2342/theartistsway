@@ -33,13 +33,23 @@ namespace ArtistWayUWP.Views
             // "Ajustes" no cabeçalho fixo junto do hambúrguer.
             AppearanceTab.Header = ContentStore.S("settings.tabs.appearance");
             AppearanceDescriptionText.Text = ContentStore.S("settings.appearance.description");
+            ThemeLightButton.Content = ContentStore.S("settings.appearance.themeLight");
+            ThemeDarkButton.Content = ContentStore.S("settings.appearance.themeDark");
+            ThemeAutoButton.Content = ContentStore.S("settings.appearance.themeAutoShort");
             DataSyncTab.Header = ContentStore.S("settings.tabs.dataSync");
             AdvancedTab.Header = ContentStore.S("settings.tabs.advanced");
             DataTitleText.Text = ContentStore.S("settings.data.title");
+            DataDescriptionText.Text = ContentStore.S("settings.data.description");
             UpdatesTitleText.Text = ContentStore.S("settings.updates.title");
             SyncTitleText.Text = ContentStore.S("settings.sync.title");
+            SyncDescriptionText.Text = ContentStore.S("settings.sync.description", "otherPlatform", ContentStore.S("settings.sync.otherPlatformName"));
+            GoogleLoginButton.Content = ContentStore.S("settings.sync.loginButton");
+            DownloadUpdateButton.Content = ContentStore.S("updates.downloadButton");
+            InstallUpdateButton.Content = ContentStore.S("updates.installButton");
             MaintenanceTitleText.Text = ContentStore.S("settings.maintenance.title");
+            MaintenanceDescriptionText.Text = ContentStore.S("settings.maintenance.description");
             DangerZoneTitleText.Text = ContentStore.S("settings.dangerZone.title");
+            DangerZoneDescriptionText.Text = ContentStore.S("settings.dangerZone.description");
             ExportButton.Content = ContentStore.S("settings.export");
             ImportButton.Content = ContentStore.S("settings.import");
             SignOutButton.Content = ContentStore.S("settings.signOut");
@@ -114,14 +124,14 @@ namespace ArtistWayUWP.Views
             FirebaseSession session = SessionService.GetSession();
             if (session == null)
             {
-                SyncStatusText.Text = "Não logado.";
+                SyncStatusText.Text = ContentStore.S("settings.sync.statusNotLoggedIn");
                 GoogleLoginButton.Visibility = Visibility.Visible;
                 SignOutButton.Visibility = Visibility.Collapsed;
                 return;
             }
 
             string who = !string.IsNullOrEmpty(session.Email) ? session.Email : session.Uid;
-            SyncStatusText.Text = $"Logado como {who} ({session.Provider}).";
+            SyncStatusText.Text = ContentStore.S("settings.sync.statusLoggedInWithProvider", "who", who, "provider", session.Provider);
             GoogleLoginButton.Visibility = Visibility.Collapsed;
             SignOutButton.Visibility = Visibility.Visible;
         }
@@ -138,22 +148,22 @@ namespace ArtistWayUWP.Views
         private async System.Threading.Tasks.Task LoadUpdateStatusAsync()
         {
             string installed = UpdateCheckService.GetInstalledVersion();
-            UpdateStatusText.Text = $"Versão instalada: {installed}. Verificando se há atualização...";
+            UpdateStatusText.Text = ContentStore.S("updates.installedChecking", "version", installed);
             UpdateCheckResult result = await UpdateCheckService.CheckAsync();
             if (!result.Success)
             {
-                UpdateStatusText.Text = $"Versão instalada: {installed}. Não foi possível checar agora ({result.Error}).";
+                UpdateStatusText.Text = ContentStore.S("updates.installedCheckFailedWithError", "version", installed, "error", result.Error);
                 DownloadUpdateButton.Visibility = Visibility.Collapsed;
                 return;
             }
             if (result.UpdateAvailable)
             {
-                UpdateStatusText.Text = $"Versão instalada: {installed}. Nova versão disponível: {result.Latest}.";
+                UpdateStatusText.Text = ContentStore.S("updates.installedNewVersionAvailable", "version", installed, "latest", result.Latest);
                 DownloadUpdateButton.Visibility = Visibility.Visible;
             }
             else
             {
-                UpdateStatusText.Text = $"Versão instalada: {installed}. Atualizado ✓";
+                UpdateStatusText.Text = ContentStore.S("updates.installedUpToDate", "version", installed);
                 DownloadUpdateButton.Visibility = Visibility.Collapsed;
             }
         }
@@ -163,7 +173,7 @@ namespace ArtistWayUWP.Views
             DownloadUpdateButton.IsEnabled = false;
             UpdateProgressBar.Value = 0;
             UpdateProgressBar.Visibility = Visibility.Visible;
-            UpdateStatusText.Text = "Baixando atualização...";
+            UpdateStatusText.Text = ContentStore.S("updates.downloading");
 
             Progress<double> progress = new Progress<double>(p => UpdateProgressBar.Value = p);
             StorageFile file;
@@ -175,7 +185,7 @@ namespace ArtistWayUWP.Views
             {
                 UpdateProgressBar.Visibility = Visibility.Collapsed;
                 DownloadUpdateButton.IsEnabled = true;
-                UpdateStatusText.Text = $"Falha ao baixar a atualização: {ex.Message}";
+                UpdateStatusText.Text = ContentStore.S("updates.downloadFailed", "error", ex.Message);
                 return;
             }
 
@@ -184,14 +194,14 @@ namespace ArtistWayUWP.Views
 
             if (file == null)
             {
-                UpdateStatusText.Text = "Escolha uma pasta de download pra continuar.";
+                UpdateStatusText.Text = ContentStore.S("updates.chooseDownloadFolder");
                 return;
             }
 
             _downloadedUpdateFile = file;
             DownloadUpdateButton.Visibility = Visibility.Collapsed;
             InstallUpdateButton.Visibility = Visibility.Visible;
-            UpdateStatusText.Text = "Atualização baixada — toque pra instalar.";
+            UpdateStatusText.Text = ContentStore.S("updates.downloadedReadyToInstall");
         }
 
         private async void InstallUpdate_Click(object sender, RoutedEventArgs e)
@@ -210,7 +220,7 @@ namespace ArtistWayUWP.Views
             {
                 SuggestedFileName = $"artist-way-backup-{DateTime.Now:yyyy-MM-dd}",
             };
-            savePicker.FileTypeChoices.Add("Arquivo JSON", new System.Collections.Generic.List<string> { ".json" });
+            savePicker.FileTypeChoices.Add(ContentStore.S("settings.backup.fileTypeJson"), new System.Collections.Generic.List<string> { ".json" });
 
             StorageFile file = await savePicker.PickSaveFileAsync();
             if (file != null)
@@ -240,9 +250,9 @@ namespace ArtistWayUWP.Views
             {
                 ContentDialog dialog = new ContentDialog
                 {
-                    Title = "Erro",
-                    Content = "Não foi possível importar esse arquivo.",
-                    CloseButtonText = "OK",
+                    Title = ContentStore.S("settings.backup.importErrorDialogTitle"),
+                    Content = ContentStore.S("settings.backup.importErrorDialogMessage"),
+                    CloseButtonText = ContentStore.S("common.ok"),
                 };
                 _ = dialog.ShowAsync();
             }
@@ -258,7 +268,7 @@ namespace ArtistWayUWP.Views
             Button button = (Button)sender;
             string originalText = button.Content?.ToString();
             button.IsEnabled = false;
-            button.Content = "Entrando...";
+            button.Content = ContentStore.S("settings.sync.loggingIn");
 
             AuthResult result = await AuthService.SignInWithGoogleConsentAsync();
 
@@ -274,11 +284,11 @@ namespace ArtistWayUWP.Views
 
             ContentDialog resultDialog = new ContentDialog
             {
-                Title = result.Success ? "Login OK" : "Login falhou",
+                Title = result.Success ? ContentStore.S("settings.sync.dialogLoginOkTitle") : ContentStore.S("settings.sync.dialogLoginFailedTitle"),
                 Content = result.Success
-                    ? $"Logado como {(!string.IsNullOrEmpty(result.FirebaseEmail) ? result.FirebaseEmail : result.FirebaseUid)}."
+                    ? ContentStore.S("settings.sync.statusLoggedIn", "who", !string.IsNullOrEmpty(result.FirebaseEmail) ? result.FirebaseEmail : result.FirebaseUid)
                     : result.ErrorMessage,
-                CloseButtonText = "OK",
+                CloseButtonText = ContentStore.S("common.ok"),
             };
             await resultDialog.ShowAsync();
         }

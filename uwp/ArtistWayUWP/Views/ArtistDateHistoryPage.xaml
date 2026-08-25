@@ -11,7 +11,7 @@
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
             <TextBlock x:Name="TitleText" Text="Histórico de Artist Dates" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="Wrap" />
-            <TextBlock Text="todos os encontros já registrados, do mais recente pro mais antigo" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" Margin="0,4,0,16" />
+            <TextBlock x:Name="SubtitleText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" Margin="0,4,0,16" />
 
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel x:Name="HistoryPanel" />

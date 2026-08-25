@@ -25,14 +25,14 @@ function scheduleSync() {
 async function syncAll() {
   const session = await window.ArtistWayAuth.getSession();
   if (!session) {
-    return "Não logado — nada pra sincronizar.";
+    return UI_STRINGS["sync.notLoggedIn"];
   }
 
   let activeSession = session;
   if (window.ArtistWayAuth.needsRefresh(activeSession)) {
     activeSession = await window.ArtistWayAuth.refreshIdToken(activeSession);
     if (!activeSession) {
-      return "Sessão expirada — entre de novo.";
+      return UI_STRINGS["sync.sessionExpired"];
     }
   }
 
@@ -40,9 +40,9 @@ async function syncAll() {
     for (const storeName of SYNC_STORE_NAMES) {
       await syncStore(activeSession, storeName);
     }
-    return "Sincronizado às " + new Date().toTimeString().slice(0, 5);
+    return UI_STRINGS["sync.syncedAt"].replace("{time}", new Date().toTimeString().slice(0, 5));
   } catch (err) {
-    return "Falha ao sincronizar (tentará de novo mais tarde): " + err.message;
+    return UI_STRINGS["sync.failed"].replace("{error}", err.message);
   }
 }
 

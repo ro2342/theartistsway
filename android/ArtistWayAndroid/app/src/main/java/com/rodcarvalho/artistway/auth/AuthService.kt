@@ -2,6 +2,7 @@ package com.rodcarvalho.artistway.auth
 
 import android.content.Context
 import android.util.Base64
+import com.rodcarvalho.artistway.data.ContentStore
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -51,12 +52,10 @@ object AuthService {
         } catch (e: NoCredentialException) {
             AuthOutcome(
                 success = false,
-                errorMessage = "Nenhuma conta Google encontrada nesse aparelho. Confira em " +
-                    "Configurações > Contas se há uma conta Google adicionada (não é a mesma " +
-                    "coisa que estar logado num app específico) e se a Play Store está instalada.",
+                errorMessage = ContentStore.s("auth.noGoogleAccountAndroid"),
             )
         } catch (e: Exception) {
-            AuthOutcome(success = false, errorMessage = e.message ?: "Login cancelado ou falhou.")
+            AuthOutcome(success = false, errorMessage = e.message ?: ContentStore.s("auth.loginCancelledOrFailed"))
         }
     }
 
@@ -79,12 +78,12 @@ object AuthService {
                 if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     return credential
                 }
-                lastError = Exception("Credencial devolvida não é um Google ID token.")
+                lastError = Exception(ContentStore.s("auth.credentialNotGoogleIdToken"))
             } catch (e: GetCredentialException) {
                 lastError = e
             }
         }
-        throw lastError ?: Exception("Nenhuma credencial Google encontrada.")
+        throw lastError ?: Exception(ContentStore.s("auth.noGoogleCredentialFound"))
     }
 
     // Valor de uso único anti-replay — recomendado pelo guia oficial do
