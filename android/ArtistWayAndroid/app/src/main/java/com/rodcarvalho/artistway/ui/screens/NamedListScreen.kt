@@ -96,7 +96,7 @@ fun NamedListScreen(listKey: String) {
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(if (config.singleton) "Salvar" else "Adicionar")
+            Text(if (config.singleton) ContentStore.s("common.save") else ContentStore.s("common.add"))
         }
 
         if (!config.singleton) {
@@ -106,7 +106,7 @@ fun NamedListScreen(listKey: String) {
                         config.fields.forEach { field ->
                             val value = item.fields[field.key].orEmpty()
                             if (value.isNotEmpty()) {
-                                val text = if (config.fields.size > 1) "${field.label}: $value" else value
+                                val text = if (config.fields.size > 1) ContentStore.s("namedList.fieldValueFormat", "label" to field.label, "value" to value) else value
                                 Text(text, style = MaterialTheme.typography.bodyMedium)
                             }
                         }

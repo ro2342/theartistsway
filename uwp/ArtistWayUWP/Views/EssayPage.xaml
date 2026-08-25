@@ -11,7 +11,7 @@
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
             <TextBlock x:Name="HeaderText" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="Wrap" />
-            <TextBlock Text="o tema em detalhe" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
+            <TextBlock x:Name="SubText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,4,0,16" />
             <StackPanel x:Name="ParagraphsPanel" />
         </StackPanel>
     </ScrollViewer>

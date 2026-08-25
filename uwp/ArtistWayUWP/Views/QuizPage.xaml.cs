@@ -22,6 +22,8 @@ namespace ArtistWayUWP.Views
         public QuizPage()
         {
             this.InitializeComponent();
+            SeeResultButton.Content = ContentStore.S("quiz.seeResultButton");
+            HistoryTitleText.Text = ContentStore.S("quiz.historyTitle");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -85,7 +87,7 @@ namespace ArtistWayUWP.Views
                 RadioButton selected = buttons.Find(b => b.IsChecked == true);
                 if (selected == null)
                 {
-                    ResultText.Text = "Responda todas as perguntas pra ver o resultado.";
+                    ResultText.Text = ContentStore.S("quiz.resultPrompt");
                     return;
                 }
                 total += (double)selected.Tag;
@@ -93,8 +95,8 @@ namespace ArtistWayUWP.Views
 
             QuizBand band = _quiz.Bands.Find(b => total >= b.Min && total <= b.Max) ?? _quiz.Bands.LastOrDefault();
             ResultText.Text = band != null
-                ? $"{total} pontos — {band.Label}. {band.Description}"
-                : $"{total} pontos.";
+                ? ContentStore.S("quiz.resultWithBand", "score", total.ToString(), "bandLabel", band.Label, "description", band.Description)
+                : ContentStore.S("quiz.resultNoBand", "score", total.ToString());
 
             Dictionary<string, string> fields = new Dictionary<string, string>
             {
@@ -120,7 +122,7 @@ namespace ArtistWayUWP.Views
                 string band = item.Fields.ContainsKey("bandLabel") ? item.Fields["bandLabel"] : "";
                 HistoryPanel.Children.Add(new TextBlock
                 {
-                    Text = $"{date} — {score} pontos ({band})",
+                    Text = ContentStore.S("quiz.historyEntry", "date", date, "score", score, "band", band),
                     Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
                     Opacity = 0.85,
                     TextWrapping = TextWrapping.Wrap,

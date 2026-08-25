@@ -12,6 +12,7 @@ namespace ArtistWayUWP.Views
         public EssayPage()
         {
             this.InitializeComponent();
+            SubText.Text = ContentStore.S("weekDetail.essayHeaderSub");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -20,7 +21,7 @@ namespace ArtistWayUWP.Views
             int weekId = e.Parameter is int id ? id : 1;
             WeekContent week = ContentStore.Content.Weeks.FirstOrDefault(w => w.Id == weekId);
 
-            HeaderText.Text = $"Semana {weekId} — {week?.Title}";
+            HeaderText.Text = ContentStore.S("week.shortLabel", "week", weekId.ToString()) + " — " + week?.Title;
             ParagraphsPanel.Children.Clear();
             foreach (string paragraph in week?.Essay ?? new System.Collections.Generic.List<string>())
             {

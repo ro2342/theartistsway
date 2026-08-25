@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.rodcarvalho.artistway.MainActivity
 import com.rodcarvalho.artistway.R
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,20 +40,20 @@ class NotificationAlarmReceiver : BroadcastReceiver() {
         val content = when (type) {
             NotificationScheduler.TYPE_MORNING_PAGES -> NotificationContent(
                 NotificationChannels.MORNING_PAGES,
-                "Hora das Morning Pages ✍️",
-                "Três páginas, sem reler. Só você e o papel.",
+                ContentStore.s("notification.morningPagesTitle"),
+                ContentStore.s("notification.morningPagesBody"),
                 1001,
             )
             NotificationScheduler.TYPE_ARTIST_DATE -> NotificationContent(
                 NotificationChannels.ARTIST_DATE,
-                "Que tal um Artist Date? 🎨",
-                "Reserve um tempinho sozinho(a) essa semana, só por prazer.",
+                ContentStore.s("notification.artistDateTitle"),
+                ContentStore.s("notification.artistDateBody"),
                 1002,
             )
             NotificationScheduler.TYPE_CHECKIN -> NotificationContent(
                 NotificationChannels.CHECKIN,
-                "Check-in semanal 📓",
-                "Hora de revisar como foi sua semana criativa.",
+                ContentStore.s("notification.checkinTitle"),
+                ContentStore.s("notification.checkinBody"),
                 1003,
             )
             else -> return

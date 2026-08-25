@@ -26,8 +26,8 @@ namespace ArtistWayUWP.Services
                 ScheduleDaily(
                     notifier,
                     "morningPages",
-                    "Hora das Morning Pages ✍️",
-                    "Três páginas, sem reler. Só você e o papel.",
+                    ContentStore.S("notification.morningPagesTitle"),
+                    ContentStore.S("notification.morningPagesBody"),
                     mpHour,
                     mpMinute,
                     daysAhead: 30);
@@ -40,8 +40,8 @@ namespace ArtistWayUWP.Services
                 ScheduleWeekly(
                     notifier,
                     "artistDate",
-                    "Que tal um Artist Date? 🎨",
-                    "Reserve um tempinho sozinho(a) essa semana, só por prazer.",
+                    ContentStore.S("notification.artistDateTitle"),
+                    ContentStore.S("notification.artistDateBody"),
                     artistDateDay,
                     adHour,
                     adMinute,
@@ -55,8 +55,8 @@ namespace ArtistWayUWP.Services
                 ScheduleWeekly(
                     notifier,
                     "checkin",
-                    "Check-in semanal 📓",
-                    "Hora de revisar como foi sua semana criativa.",
+                    ContentStore.S("notification.checkinTitle"),
+                    ContentStore.S("notification.checkinBody"),
                     checkinDay,
                     ciHour,
                     ciMinute,

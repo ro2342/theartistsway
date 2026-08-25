@@ -36,7 +36,7 @@ namespace ArtistWayUWP.Views
             _config = ContentStore.Content.ToolConfigs.Find(c => c.ListName == key);
             TitleText.Text = _config.Title;
             SubText.Text = _config.Subtitle;
-            SaveButton.Content = _config.Singleton ? "Salvar" : "Adicionar";
+            SaveButton.Content = _config.Singleton ? ContentStore.S("common.save") : ContentStore.S("common.add");
             ItemsPanel.Visibility = _config.Singleton ? Visibility.Collapsed : Visibility.Visible;
             BuildFieldInputs();
             if (_config.Singleton)
@@ -148,7 +148,7 @@ namespace ArtistWayUWP.Views
                     }
                     stack.Children.Add(new TextBlock
                     {
-                        Text = _config.Fields.Count > 1 ? $"{field.Label}: {value}" : value,
+                        Text = _config.Fields.Count > 1 ? ContentStore.S("namedList.fieldValueFormat", "label", field.Label, "value", value) : value,
                         TextWrapping = TextWrapping.Wrap,
                         Style = (Style)Application.Current.Resources["BodyTextBlockStyle"],
                         Margin = new Thickness(0, 0, 0, 4),

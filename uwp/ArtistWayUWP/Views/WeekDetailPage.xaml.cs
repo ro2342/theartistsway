@@ -20,6 +20,9 @@ namespace ArtistWayUWP.Views
         public WeekDetailPage()
         {
             this.InitializeComponent();
+            EssayButtonText.Text = ContentStore.S("weekDetail.essayButton");
+            CheckinButtonText.Text = ContentStore.S("weekDetail.checkinButton");
+            SetCurrentWeekButton.Content = ContentStore.S("weekDetail.setCurrentWeekButton");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -32,7 +35,7 @@ namespace ArtistWayUWP.Views
         private async Task LoadAsync()
         {
             _week = ContentStore.Content.Weeks.FirstOrDefault(w => w.Id == _weekId);
-            HeaderText.Text = $"Semana {_weekId} — {_week?.Title}";
+            HeaderText.Text = ContentStore.S("week.shortLabel", "week", _weekId.ToString()) + " — " + _week?.Title;
             IntroText.Text = _week?.Intro ?? "";
 
             HashSet<int> done = await LocalDataStore.GetDoneChecklistIndexesAsync(_weekId);
@@ -81,7 +84,7 @@ namespace ArtistWayUWP.Views
                 {
                     HyperlinkButton linkButton = new HyperlinkButton
                     {
-                        Content = $"Toque aqui para abrir: {linkTitle} →",
+                        Content = ContentStore.S("weekDetail.checklistLink", "title", linkTitle),
                         Margin = new Thickness(0, 4, 0, 0),
                         Padding = new Thickness(0),
                         Tag = item.Link,
@@ -123,8 +126,8 @@ namespace ArtistWayUWP.Views
                 bool isCurrent = cursor.WeekId == _weekId;
                 CurrentWeekCard.Visibility = Visibility.Visible;
                 CurrentWeekStatusText.Text = isCurrent
-                    ? "Esta é a sua semana atual."
-                    : $"Sua semana atual é a {cursor.WeekId}.";
+                    ? ContentStore.S("weekDetail.isCurrentWeek")
+                    : ContentStore.S("weekDetail.currentWeekIs", "week", cursor.WeekId.ToString());
                 SetCurrentWeekButton.Visibility = isCurrent ? Visibility.Collapsed : Visibility.Visible;
             }
         }
@@ -178,7 +181,7 @@ namespace ArtistWayUWP.Views
                     case "lifePie": return ContentStore.S("tools.lifePie");
                     case "circuloSeguranca": return ContentStore.S("tools.circuloSeguranca");
                     case "principiosBasicos": return ContentStore.S("tools.principiosBasicos");
-                    case "artistDate": return "Artist Date";
+                    case "artistDate": return ContentStore.S("artistDate.calendarEventTitle");
                     default: return null;
                 }
             }

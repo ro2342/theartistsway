@@ -854,6 +854,36 @@ const UI_STRINGS = {
   "checkin.toastSaved": "Check-in salvo",
   "checkin.calendarEventDescription": "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
 
+  "week.shortLabel": "Semana {week}",
+  "weekDetail.essayButton": "Entenda o tema da semana",
+  "weekDetail.checkinButton": "Fazer o check-in dessa semana",
+  "weekDetail.checklistLink": "Toque aqui para abrir: {title} →",
+  "weekDetail.isCurrentWeek": "Esta é a sua semana atual.",
+  "weekDetail.currentWeekIs": "Sua semana atual é a {week}.",
+  "weekDetail.setCurrentWeekButton": "Tornar esta a minha semana atual",
+  "weekDetail.essayHeaderSub": "o tema em detalhe",
+  "weekDetail.weekOfTotalSub": "{total} no total",
+
+  "namedList.formLabel": "formulário",
+  "namedList.listLabel": "lista permanente",
+  "namedList.fieldLabelColon": "{label}:",
+  "namedList.fieldValueFormat": "{label}: {value}",
+  "common.underConstruction": "{title} — em construção",
+
+  "quiz.seeResultButton": "Ver resultado",
+  "quiz.resultPrompt": "Responda todas as perguntas pra ver o resultado.",
+  "quiz.resultWithBand": "{score} pontos — {bandLabel}. {description}",
+  "quiz.resultNoBand": "{score} pontos.",
+  "quiz.historyTitle": "Tentativas anteriores",
+  "quiz.historyEntry": "{date} — {score} pontos ({band})",
+
+  "notification.morningPagesTitle": "Hora das Morning Pages ✍️",
+  "notification.morningPagesBody": "Três páginas, sem reler. Só você e o papel.",
+  "notification.artistDateTitle": "Que tal um Artist Date? 🎨",
+  "notification.artistDateBody": "Reserve um tempinho sozinho(a) essa semana, só por prazer.",
+  "notification.checkinTitle": "Check-in semanal 📓",
+  "notification.checkinBody": "Hora de revisar como foi sua semana criativa.",
+
   "morningPages.calendarEventDescription": "3 páginas à mão, sem reler. Companheiro The Artist's Way.",
 
   "profile.pageTitle": "Meu Perfil",

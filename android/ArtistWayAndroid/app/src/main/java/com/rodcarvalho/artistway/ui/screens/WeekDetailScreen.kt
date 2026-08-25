@@ -61,12 +61,12 @@ fun WeekDetailScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Semana $weekId — ${week?.title.orEmpty()}", style = MaterialTheme.typography.headlineSmall)
+        Text("${ContentStore.s("week.shortLabel", "week" to weekId.toString())} — ${week?.title.orEmpty()}", style = MaterialTheme.typography.headlineSmall)
         Text(week?.intro.orEmpty(), style = MaterialTheme.typography.bodyLarge)
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onOpenEssay) { Text("Ler o ensaio") }
-            OutlinedButton(onClick = onOpenCheckin) { Text("Check-in") }
+            OutlinedButton(onClick = onOpenEssay) { Text(ContentStore.s("weekDetail.essayButton")) }
+            OutlinedButton(onClick = onOpenCheckin) { Text(ContentStore.s("weekDetail.checkinButton")) }
         }
 
         week?.checklist?.forEachIndexed { index, item ->
@@ -93,7 +93,7 @@ fun WeekDetailScreen(
                             onClick = { item.link?.let(onOpenLink) },
                             contentPadding = PaddingValues(0.dp),
                         ) {
-                            Text("Toque aqui para abrir: $title →", style = MaterialTheme.typography.labelLarge)
+                            Text(ContentStore.s("weekDetail.checklistLink", "title" to title), style = MaterialTheme.typography.labelLarge)
                         }
                     }
                 }
@@ -104,7 +104,7 @@ fun WeekDetailScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        if (current == weekId) "Esta é a sua semana atual." else "Sua semana atual é a $current.",
+                        if (current == weekId) ContentStore.s("weekDetail.isCurrentWeek") else ContentStore.s("weekDetail.currentWeekIs", "week" to current.toString()),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     if (current != weekId) {
@@ -116,7 +116,7 @@ fun WeekDetailScreen(
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                        ) { Text("Tornar esta a minha semana atual") }
+                        ) { Text(ContentStore.s("weekDetail.setCurrentWeekButton")) }
                     }
                 }
             }
@@ -136,7 +136,7 @@ private fun resolveLinkTitle(link: ChecklistLink?): String? {
             "lifePie" -> ContentStore.s("tools.lifePie")
             "circuloSeguranca" -> ContentStore.s("tools.circuloSeguranca")
             "principiosBasicos" -> ContentStore.s("tools.principiosBasicos")
-            "artistDate" -> "Artist Date"
+            "artistDate" -> ContentStore.s("artistDate.calendarEventTitle")
             else -> null
         }
         else -> null

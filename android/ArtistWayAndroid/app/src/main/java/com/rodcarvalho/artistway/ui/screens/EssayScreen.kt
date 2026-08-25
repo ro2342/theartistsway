@@ -25,7 +25,7 @@ fun EssayScreen(weekId: Int) {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Semana $weekId — ${week?.title.orEmpty()}", style = MaterialTheme.typography.headlineSmall)
+        Text("${ContentStore.s("week.shortLabel", "week" to weekId.toString())} — ${week?.title.orEmpty()}", style = MaterialTheme.typography.headlineSmall)
         week?.essay?.forEach { paragraph ->
             Text(paragraph, style = MaterialTheme.typography.bodyLarge)
         }

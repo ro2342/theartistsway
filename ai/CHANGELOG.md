@@ -877,3 +877,93 @@ texto de calendário idêntico ao de Artist Date/Check-in).
    de conteúdo das notificações push em si (canais, título/corpo da
    notificação — distinto do botão que as configura, já coberto), e
    mensagens de erro/validação.
+
+## 2026-08-25 (6)
+
+Continuação direta da lista explícita que o usuário deu: "Checklist/
+Jornada (WeekDetail — o maior arquivo que falta), Quiz, Essay/
+NamedList, conteúdo de notificação push, mensagens de erro." Fechei os
+4 primeiros itens nesta entrega (o 5º, "mensagens de erro", fica pra
+próxima rodada).
+
+1. **Checklist/Jornada (WeekDetail)**: `WeekDetailPage.xaml`/`.xaml.cs`
+   (UWP), `WeekDetailScreen.kt` (Android) e a rota `/week` do PWA
+   (`www/js/app.js`) migrados por completo — cabeçalho (`week.shortLabel`
+   + título), botão do ensaio, botão de check-in, texto do link de cada
+   item do checklist, status "é a semana atual"/"Tornar esta a minha
+   semana atual", e o caso "artistDate" de `ResolveLinkTitle`/
+   `resolveLinkTitle` (reaproveitando `artistDate.calendarEventTitle`
+   em vez de duplicar). Chaves novas: `weekDetail.*`
+   (essayButton/checkinButton/checklistLink/isCurrentWeek/
+   currentWeekIs/setCurrentWeekButton/essayHeaderSub/
+   weekOfTotalSub), `week.shortLabel`. `EssayPage`/`EssayScreen`
+   (sub-header) reaproveitou `week.shortLabel` também.
+2. **Quiz**: `QuizPage.xaml`/`.xaml.cs` (UWP), `QuizScreen.kt`
+   (Android) e a rota `/quiz` do PWA migrados — botão "Ver resultado",
+   os 2 templates de resultado (com/sem faixa), título e formato de
+   cada linha do histórico. Uma simplificação deliberada no PWA: o
+   resultado usava `innerHTML` com `<strong>` embutido no meio do
+   texto — trocado por `textContent` puro com o mesmo template usado
+   nas outras 2 plataformas, porque HTML embutido dentro de uma string
+   de `UI_STRINGS` complicaria uma tradução futura (quem for traduzir
+   não devia precisar saber HTML). Chaves novas: `quiz.*`
+   (seeResultButton/resultPrompt/resultWithBand/resultNoBand/
+   historyTitle/historyEntry).
+3. **Essay/NamedList**: `NamedListPage.xaml.cs` (UWP),
+   `NamedListScreen.kt` (Android) e a rota `/list` do PWA migrados —
+   sub-label da tela ("formulário" vs "lista permanente"), botão
+   salvar/adicionar, formato de exibição de campo com valor (usa
+   `<strong>` só no PWA porque ali é decoração visual da própria UI,
+   não texto que vaza pra fora do app como o caso do Quiz). Chaves
+   novas: `namedList.*` (formLabel/listLabel/fieldLabelColon/
+   fieldValueFormat).
+4. **Conteúdo de notificação push**: as 3 notificações
+   (morningPages/artistDate/checkin) tinham texto hardcoded e
+   levemente divergente nas 3 plataformas — PWA não tinha emoji e
+   dizia "Check-in da semana" em vez de "Check-in semanal". Unificado
+   pro texto canônico do UWP/Android (com emoji). Migrado
+   `www/js/notifications.js` (PWA, `UI_STRINGS[...]` direto — já
+   corrige o drift do PWA de quebra), `NotificationService.cs` (UWP,
+   já usava `ContentStore.S`), e os 2 arquivos do Android que ainda
+   faltavam: `NotificationAlarmReceiver.kt` (título/corpo das 3
+   notificações) e `NotificationChannels.kt` (nome dos 3 canais —
+   reaproveitando `home.morningPages.title`/
+   `artistDate.calendarEventTitle`/`onboarding.rituals.checkinSection`,
+   que já tinham exatamente o mesmo texto). Chaves novas:
+   `notification.*` (morningPagesTitle/morningPagesBody/
+   artistDateTitle/artistDateBody/checkinTitle/checkinBody).
+5. **Achado e corrigido no caminho (Android)**: mesmo bug de
+   inicialização já visto 2x antes nesta sessão (`TAB_TITLES`/
+   `WEEKDAY_LETTERS`/`WEEKDAY_NAMES`) — só que dessa vez no caminho de
+   *boot* do aparelho, não de composição de tela. `BootReceiver`
+   (disparado direto pelo `ACTION_BOOT_COMPLETED` do Android, sem
+   passar pela `MainActivity`/`AppRoot`) chama
+   `NotificationScheduler.applySettings` pra reagendar os 3 lembretes
+   depois de reiniciar o aparelho — mas só `AppRoot.kt` chamava
+   `ContentStore.initialize()`, nunca o `BootReceiver`. Se o app
+   process fosse morto e só o `BroadcastReceiver` acordasse (cenário
+   normal de boot), o `ContentStore` ficaria com `loaded = null` e
+   `ContentStore.s(key)` cairia no fallback (devolve a própria chave
+   em vez de crashar — não quebra, mas mostraria literalmente
+   `"notification.morningPagesTitle"` na notificação/canal em vez do
+   texto certo). Corrigido chamando `ContentStore.initialize(context)`
+   no início de `NotificationScheduler.applySettings` (agora `suspend
+   fun` — os 3 call sites já rodavam dentro de `scope.launch`/
+   `CoroutineScope(...).launch`, então virar suspend não pediu
+   mudança neles).
+6. **Validação**: `node --check` em `notifications.js`/`app.js`/
+   `calendar.js`/`data.js`; XML de `Package.appxmanifest` validado;
+   grep de `--` literal nos arquivos Kotlin tocados (zero ocorrência);
+   `node scripts/generate-content-json.js --check` confirmado
+   (`content.json` idêntico nos dois destinos). UWP e Android não
+   compilam nesta máquina (Linux sandbox / sem SDK) — validação real
+   fica por conta do CI.
+7. Versão bumpada nas 3 plataformas: UWP `42.2.0.30 → 42.2.0.31`;
+   Android `versionCode 38→39`, `versionName "42.2.0.30"→"42.2.0.31"`;
+   PWA `CACHE_NAME` `"...v17"→"...v18"`.
+8. **Falta pra fechar a lista do usuário**: "mensagens de erro" (não
+   investigado ainda). Em aberto, fora da lista original mas anotado:
+   se a tela "Jornada" da nav (`ProgressPage`/`ProgressScreen`,
+   diferente do `WeekDetail` já migrado) também precisa de auditoria —
+   uma varredura rápida no início da sessão achou `ProgressPage: cs=3`
+   ocorrências não confirmadas.

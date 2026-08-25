@@ -832,7 +832,7 @@ function resolveChecklistLink(link) {
       lifePie: { title: UI_STRINGS["tools.lifePie"], hash: "#/life-pie" },
       circuloSeguranca: { title: UI_STRINGS["tools.circuloSeguranca"], hash: "#/circulo-seguranca" },
       principiosBasicos: { title: UI_STRINGS["tools.principiosBasicos"], hash: "#/principios-basicos" },
-      artistDate: { title: "Artist Date", hash: "#/artist-date" },
+      artistDate: { title: UI_STRINGS["artistDate.calendarEventTitle"], hash: "#/artist-date" },
     };
     return screens[link.key] || null;
   }
@@ -846,7 +846,7 @@ route("/week", async (rest) => {
   if (rest[1] === "essay") {
     appEl.innerHTML = `
       <div class="top-bar">
-        <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">o tema em detalhe</span></div>
+        <div class="logo" style="text-align:right">${UIS("week.shortLabel", { week: week.id })}<span class="sub">${UIS("weekDetail.essayHeaderSub")}</span></div>
       </div>
       <h2>${week.title}</h2>
       <div class="card essay-text">
@@ -869,20 +869,20 @@ route("/week", async (rest) => {
     <div class="card dotted text-center">
       ${
         isCurrent
-          ? `<p class="muted">Esta é a sua semana atual.</p>`
-          : `<p class="muted">Sua semana atual é a ${cursor.weekId}.</p>
-             <button class="btn secondary block" id="setCurrentWeek">Tornar esta a minha semana atual</button>`
+          ? `<p class="muted">${UIS("weekDetail.isCurrentWeek")}</p>`
+          : `<p class="muted">${UIS("weekDetail.currentWeekIs", { week: cursor.weekId })}</p>
+             <button class="btn secondary block" id="setCurrentWeek">${UIS("weekDetail.setCurrentWeekButton")}</button>`
       }
     </div>`
     : "";
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Semana ${week.id}<span class="sub">${WEEKS.length} no total</span></div>
+      <div class="logo" style="text-align:right">${UIS("week.shortLabel", { week: week.id })}<span class="sub">${UIS("weekDetail.weekOfTotalSub", { total: WEEKS.length })}</span></div>
     </div>
     <h2>${week.title}</h2>
     <p class="muted">${week.intro}</p>
-    <a class="btn secondary block" href="#/week/${week.id}/essay"><span class="icon">${window.ArtistWayIcons.bookRegular}</span> Entenda o tema da semana</a>
+    <a class="btn secondary block" href="#/week/${week.id}/essay"><span class="icon">${window.ArtistWayIcons.bookRegular}</span> ${UIS("weekDetail.essayButton")}</a>
     <div class="spacer-sm"></div>
     <div class="card">
       ${week.checklist
@@ -894,13 +894,13 @@ route("/week", async (rest) => {
           <div class="text">
             ${item.task}
             <div class="item-note">${item.detail}</div>
-            ${resolved ? `<div class="item-link" data-hash="${resolved.hash}">Toque aqui para abrir: ${resolved.title} →</div>` : ""}
+            ${resolved ? `<div class="item-link" data-hash="${resolved.hash}">${UIS("weekDetail.checklistLink", { title: resolved.title })}</div>` : ""}
           </div>
         </div>`;
         })
         .join("")}
     </div>
-    <a class="btn brass block" href="#/checkin/${week.id}">Fazer o check-in dessa semana</a>
+    <a class="btn brass block" href="#/checkin/${week.id}">${UIS("weekDetail.checkinButton")}</a>
     ${currentWeekCard}
     <div class="spacer"></div>
   `;
@@ -999,7 +999,7 @@ route("/list", async (rest) => {
 
     appEl.innerHTML = `
       <div class="top-bar">
-        <div class="logo" style="text-align:right">${config.title}<span class="sub">${config.singleton ? "formulário" : config.fields.length > 1 ? "formulário" : "lista permanente"}</span></div>
+        <div class="logo" style="text-align:right">${config.title}<span class="sub">${config.singleton || config.fields.length > 1 ? UIS("namedList.formLabel") : UIS("namedList.listLabel")}</span></div>
       </div>
       <p class="muted">${config.subtitle}</p>
       <div class="card">
@@ -1010,7 +1010,7 @@ route("/list", async (rest) => {
           ${f.multiline ? `<textarea data-field="${f.key}">${existingSingleton && existingSingleton[f.key] ? existingSingleton[f.key] : ""}</textarea>` : `<input type="text" data-field="${f.key}" value="${existingSingleton && existingSingleton[f.key] ? existingSingleton[f.key] : ""}" />`}`
           )
           .join("")}
-        <button class="btn brass block" id="addItem" style="margin-top:12px;">${config.singleton ? "Salvar" : "Adicionar"}</button>
+        <button class="btn brass block" id="addItem" style="margin-top:12px;">${config.singleton ? UIS("common.save") : UIS("common.add")}</button>
       </div>
       ${
         config.singleton
@@ -1020,7 +1020,7 @@ route("/list", async (rest) => {
                 (item) => `
         <div class="card">
           ${config.fields
-            .map((f) => (item[f.key] ? `<p class="${config.fields.length > 1 ? "muted" : ""}">${config.fields.length > 1 ? `<strong>${f.label}:</strong> ` : ""}${item[f.key]}</p>` : ""))
+            .map((f) => (item[f.key] ? `<p class="${config.fields.length > 1 ? "muted" : ""}">${config.fields.length > 1 ? `<strong>${UIS("namedList.fieldLabelColon", { label: f.label })}</strong> ` : ""}${item[f.key]}</p>` : ""))
             .join("")}
         </div>`
               )
@@ -1088,17 +1088,17 @@ route("/quiz", async (rest) => {
           </div>`
           )
           .join("")}
-        <button class="btn brass block" id="seeResult" style="margin-top:12px;">Ver resultado</button>
+        <button class="btn brass block" id="seeResult" style="margin-top:12px;">${UIS("quiz.seeResultButton")}</button>
         <p class="muted" id="quizResult" style="margin-top:12px;"></p>
       </div>
       ${
         attempts.length
           ? `<div class="card">
-              <div class="card-title" style="font-size:1.05rem;">Tentativas anteriores</div>
+              <div class="card-title" style="font-size:1.05rem;">${UIS("quiz.historyTitle")}</div>
               ${attempts
                 .slice()
                 .reverse()
-                .map((a) => `<p class="muted">${(a.date || "").slice(0, 10)} — ${a.score} pontos (${a.bandLabel || ""})</p>`)
+                .map((a) => `<p class="muted">${UIS("quiz.historyEntry", { date: (a.date || "").slice(0, 10), score: a.score, band: a.bandLabel || "" })}</p>`)
                 .join("")}
             </div>`
           : ""
@@ -1120,12 +1120,12 @@ route("/quiz", async (rest) => {
 
       const resultEl = document.getElementById("quizResult");
       if (!answeredAll) {
-        resultEl.textContent = "Responda todas as perguntas pra ver o resultado.";
+        resultEl.textContent = UIS("quiz.resultPrompt");
         return;
       }
 
       const band = quiz.bands.find((b) => total >= b.min && total <= b.max) || quiz.bands[quiz.bands.length - 1];
-      resultEl.innerHTML = `<strong>${total} pontos — ${band.label}.</strong> ${band.description}`;
+      resultEl.textContent = UIS("quiz.resultWithBand", { score: total, bandLabel: band.label, description: band.description });
 
       await DB.addListItem(quiz.key, {
         score: String(total),

@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,7 +26,8 @@ object NotificationScheduler {
     const val TYPE_ARTIST_DATE = "artistDate"
     const val TYPE_CHECKIN = "checkin"
 
-    fun applySettings(context: Context, profile: ProfileSettings) {
+    suspend fun applySettings(context: Context, profile: ProfileSettings) {
+        ContentStore.initialize(context)
         NotificationChannels.ensureCreated(context)
         cancelAll(context)
 

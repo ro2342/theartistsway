@@ -8,9 +8,9 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.30`** (`versionCode`
-  Android = 38).
-- PWA: `CACHE_NAME = "artist-way-companion-v17"` no service worker.
+- **Versão compartilhada (UWP + Android): `42.2.0.31`** (`versionCode`
+  Android = 39).
+- PWA: `CACHE_NAME = "artist-way-companion-v18"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
   momento.
@@ -21,11 +21,14 @@
   interface tem que vir de `UI_STRINGS`** — objetivo é permitir
   tradução futura editando só esse arquivo. Ver seção "Fonte única de
   conteúdo e texto de UI" no `CLAUDE.md`.
-- **Retrofit de `UI_STRINGS` — baldes 1-5 completos + Artist
-  Date/Check-in/Perfil migrados.** Resto do app (Checklist/Jornada,
-  Quiz, notificações, calendário-lembrete, mensagens de erro) ainda não
-  auditado — ver "Possíveis próximos passos".
-- CI rodando pra `42.2.0.30` — checar `gh run list --branch main --limit
+- **Retrofit de `UI_STRINGS` — baldes 1-5 + Artist Date/Check-in/
+  Perfil + Checklist/Jornada (WeekDetail) + Quiz + Essay/NamedList +
+  conteúdo de notificação push, todos migrados.** Falta só "mensagens
+  de erro" (último item da lista do usuário) e auditar se a tela
+  "Jornada" da nav (`ProgressPage`/`ProgressScreen` — diferente da tela
+  de detalhe de semana) também tem texto solto — ver "Possíveis
+  próximos passos".
+- CI rodando pra `42.2.0.31` — checar `gh run list --branch main --limit
   2` antes de considerar publicado (os workflows fazem um commit
   automático próprio depois do build).
 
@@ -99,6 +102,15 @@
   dentro do próprio UWP e Android (tela de Artist Date + tela de
   Perfil) — cada plataforma tinha sua própria cópia local em vez de
   compartilhar. Versão `42.2.0.30` / `v17`.
+- **2026-08-25 (6)**: retrofit de `UI_STRINGS` fechado pra
+  Checklist/Jornada (WeekDetail), Quiz, Essay/NamedList e conteúdo de
+  notificação push (título/corpo das 3 notificações + nome dos 3
+  canais Android) nas 3 plataformas. Achado no caminho: canais de
+  notificação do Android podiam ser criados antes do `ContentStore`
+  carregar (reboot do aparelho aciona `BootReceiver` direto, sem passar
+  pela tela do app) — corrigido inicializando o `ContentStore` no
+  início de `NotificationScheduler.applySettings`. Versão `42.2.0.31` /
+  `v18`.
 
 ## Identidade visual (referência rápida)
 
@@ -121,15 +133,16 @@
 
 ## Possíveis próximos passos (não decididos ainda)
 
-- **Retrofit de `UI_STRINGS` — auditoria do resto do app** (pedido do
-  usuário: "absolutamente tudo"): baldes 1-5 + Artist Date/Check-in/
-  Perfil completos. Ainda não auditado: Checklist/Jornada semanal
-  (`WeekDetailPage`/`WeekDetailScreen`), Quiz, Essay/NamedList (telas
-  genéricas de leitura/lista), notificações (texto de canal/conteúdo
-  das notificações push em si, não só o botão que as configura), e
-  mensagens de erro/validação espalhadas pelo app. Tamanho real
-  desconhecido ainda — precisa de uma auditoria própria (nos moldes da
-  de 2026-08-23) antes de estimar.
+- **Retrofit de `UI_STRINGS` — falta só "mensagens de erro"** (pedido
+  do usuário: "absolutamente tudo"). Tamanho real desconhecido ainda —
+  precisa de uma auditoria própria (nos moldes da de 2026-08-23) antes
+  de estimar.
+- **Auditar a tela "Jornada" da nav** (`ProgressPage.xaml.cs` no UWP,
+  `ProgressScreen.kt` no Android — a tela acessada pela aba inferior,
+  diferente de `WeekDetailPage`/`WeekDetailScreen` que já foi migrada).
+  Uma varredura rápida no início desta sessão achou `ProgressPage: cs=3`
+  ocorrências não migradas no UWP; Android não confirmado. Não foi
+  auditado a fundo ainda.
 - Testar manualmente nos dois aparelhos (Lumia 830 e o Android físico
   usado pra teste): ícone com o tamanho novo, notificação, tile UWP
   herdando a cor de acento certa, todos os links tocáveis das 12

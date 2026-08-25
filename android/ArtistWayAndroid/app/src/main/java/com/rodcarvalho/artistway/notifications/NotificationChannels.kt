@@ -3,6 +3,7 @@ package com.rodcarvalho.artistway.notifications
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import com.rodcarvalho.artistway.data.ContentStore
 
 // Um canal por lembrete (em vez de um só) pra deixar o usuário desligar
 // só um tipo (ex.: check-in) e manter os outros — o UWP não tem esse
@@ -16,9 +17,9 @@ object NotificationChannels {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannels(
             listOf(
-                NotificationChannel(MORNING_PAGES, "Morning Pages", NotificationManager.IMPORTANCE_DEFAULT),
-                NotificationChannel(ARTIST_DATE, "Artist Date", NotificationManager.IMPORTANCE_DEFAULT),
-                NotificationChannel(CHECKIN, "Check-in semanal", NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(MORNING_PAGES, ContentStore.s("home.morningPages.title"), NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(ARTIST_DATE, ContentStore.s("artistDate.calendarEventTitle"), NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(CHECKIN, ContentStore.s("onboarding.rituals.checkinSection"), NotificationManager.IMPORTANCE_DEFAULT),
             ),
         )
     }

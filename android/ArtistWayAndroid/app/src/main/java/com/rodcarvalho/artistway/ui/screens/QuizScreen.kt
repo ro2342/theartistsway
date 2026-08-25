@@ -86,12 +86,16 @@ fun QuizScreen(quizKey: String) {
         Button(
             onClick = {
                 if (answers.size < quiz.questions.size) {
-                    resultText = "Responda todas as perguntas pra ver o resultado."
+                    resultText = ContentStore.s("quiz.resultPrompt")
                     return@Button
                 }
                 val total = quiz.questions.indices.sumOf { answers[it] ?: 0.0 }
                 val band = quiz.bands.firstOrNull { total >= it.min && total <= it.max } ?: quiz.bands.lastOrNull()
-                resultText = if (band != null) "$total pontos — ${band.label}. ${band.description}" else "$total pontos."
+                resultText = if (band != null) {
+                    ContentStore.s("quiz.resultWithBand", "score" to total.toString(), "bandLabel" to band.label, "description" to band.description)
+                } else {
+                    ContentStore.s("quiz.resultNoBand", "score" to total.toString())
+                }
 
                 scope.launch {
                     LocalDataStore.addListItem(
@@ -106,19 +110,19 @@ fun QuizScreen(quizKey: String) {
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Ver resultado") }
+        ) { Text(ContentStore.s("quiz.seeResultButton")) }
 
         resultText?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
 
         if (history.isNotEmpty()) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Histórico", style = MaterialTheme.typography.titleMedium)
+                    Text(ContentStore.s("quiz.historyTitle"), style = MaterialTheme.typography.titleMedium)
                     history.forEach { item ->
                         val date = item.fields["date"].orEmpty()
                         val score = item.fields["score"].orEmpty()
                         val band = item.fields["bandLabel"].orEmpty()
-                        Text("$date — $score pontos ($band)", style = MaterialTheme.typography.bodySmall)
+                        Text(ContentStore.s("quiz.historyEntry", "date" to date, "score" to score, "band" to band), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
