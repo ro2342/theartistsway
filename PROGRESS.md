@@ -8,8 +8,8 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.27`** (`versionCode`
-  Android = 35).
+- **Versão compartilhada (UWP + Android): `42.2.0.28`** (`versionCode`
+  Android = 36).
 - PWA: `CACHE_NAME = "artist-way-companion-v15"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
@@ -66,15 +66,21 @@
   de interface tem que vir de `UI_STRINGS`, sem exceção, pra permitir
   tradução futura. Implementado: helper de placeholder `{nome}` nas 3
   plataformas (`UIS()` no PWA — não `S()`, colidia com identificador
-  global do bundle do FluentUI; `ContentStore.S(key, tuplas)` no UWP;
-  `ContentStore.s(key, pares)` no Android); balde 5 (Home dinâmica)
-  inteiro migrado — 38 chaves novas em `UI_STRINGS` cobrindo saudação,
-  cartão de decisão de semana, progresso, Morning Pages, Artist Date,
-  lembretes de check-in e Regras da Estrada, toasts. No processo,
-  descobertos e corrigidos: bug real no PWA (saudação "Olá, {nome}"
+  global do bundle do FluentUI; `ContentStore.S(key, params string[])`
+  no UWP; `ContentStore.s(key, pares)` no Android); balde 5 (Home
+  dinâmica) inteiro migrado — 38 chaves novas em `UI_STRINGS` cobrindo
+  saudação, cartão de decisão de semana, progresso, Morning Pages,
+  Artist Date, lembretes de check-in e Regras da Estrada, toasts. No
+  processo, descobertos e corrigidos: bug real no PWA (saudação "Olá, {nome}"
   calculada mas nunca usada) e várias divergências de texto/estrutura
   no Android que tinham desviado do padrão PWA/UWP (unificados pro
   padrão dos outros dois). Versão `42.2.0.27` / `v15`.
+- **2026-08-25 (3)**: CI do UWP falhou de verdade (não infra) —
+  `ContentStore.S(key, params (string,string)[])` usava tupla C#, que
+  quebra o build nesse target UWP antigo por falta de referência a
+  `System.ValueTuple` (`CS8137`/`CS8179`). Trocado pra
+  `params string[]` alternando chave/valor — sem tupla, mesmo
+  resultado. Versão `42.2.0.28`.
 
 ## Identidade visual (referência rápida)
 

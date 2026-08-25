@@ -22,15 +22,19 @@ namespace ArtistWayUWP.Services
         }
 
         // Mesma coisa, mas substitui placeholders "{nome}" pelos valores em
-        // replacements — usado pra textos com variável (ex.: "Dia {day} de
-        // {total}"), mesmo padrão em www/js/app.js (função S) e
-        // ContentStore.kt (Android).
-        public static string S(string key, params (string Name, string Value)[] replacements)
+        // pairs (alternando chave, valor, chave, valor...) — usado pra
+        // textos com variável (ex.: "Dia {day} de {total}"), mesmo padrão
+        // em www/js/app.js (função UIS) e ContentStore.kt (Android).
+        // Não usa (string,string)[] (tuplas) de propósito: esse projeto
+        // mira um TargetPlatformMinVersion antigo (10.0.14393) sem
+        // referência a System.ValueTuple disponível — tuplas C# quebram o
+        // build com CS8137/CS8179 nesse target.
+        public static string S(string key, params string[] pairs)
         {
             string text = S(key);
-            foreach ((string name, string value) in replacements)
+            for (int i = 0; i + 1 < pairs.Length; i += 2)
             {
-                text = text.Replace("{" + name + "}", value);
+                text = text.Replace("{" + pairs[i] + "}", pairs[i + 1]);
             }
             return text;
         }

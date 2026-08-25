@@ -630,3 +630,49 @@ caçar string por string em 3 codebases diferentes.
    foi auditado — registrado como pendência em "Possíveis próximos
    passos" do `PROGRESS.md`, tamanho real desconhecido até rodar uma
    auditoria própria.
+
+## 2026-08-25 (3)
+
+O push do overload `ContentStore.S(key, tuplas)` (entrada anterior)
+quebrou o CI do UWP de verdade — desta vez foi um erro de compilação
+real, não o hiccup de infra do GitHub Actions visto na entrada de
+onboarding deste mesmo dia.
+
+1. **Causa raiz**: `ContentStore.S(string key, params (string Name,
+   string Value)[] replacements)` usa tupla nomeada C# (recurso do C#
+   7). O log do CI mostrou:
+   ```
+   error CS8137: Cannot define a class or member that utilizes tuples
+   because the compiler required type
+   'System.Runtime.CompilerServices.TupleElementNamesAttribute' cannot
+   be found. Are you missing a reference?
+   error CS8179: Predefined type 'System.ValueTuple`2' is not defined
+   or imported
+   ```
+   Esse projeto UWP mira `TargetPlatformMinVersion=10.0.14393`
+   (Anniversary Update, base real do hardware-alvo Lumia 830) com um
+   `.csproj` old-style que não referencia o pacote NuGet
+   `System.ValueTuple` — sem essa referência, o compilador não consegue
+   emitir metadata pra tuplas nomeadas, mesmo que a sintaxe compile
+   isoladamente em qualquer outro projeto C# moderno. Como não
+   compilo UWP localmente (Linux), esse tipo de incompatibilidade de
+   target só aparece no CI — reforça a prática já documentada no
+   `CLAUDE.md` de validar por leitura cuidadosa + esperar o build real
+   do CI antes de considerar uma mudança de UWP pronta.
+2. **Correção**: trocado o overload de `params (string, string)[]` pra
+   `params string[]`, alternando chave/valor
+   (`ContentStore.S("key", "day", "4", "total", "84")` em vez de
+   `ContentStore.S("key", ("day", "4"), ("total", "84"))`). Zero
+   dependência de `ValueTuple`, mesmo resultado, só a sintaxe de
+   chamada muda. Comentário adicionado no código explicando por que
+   não usar tupla aqui especificamente (pra não reintroduzir o mesmo
+   erro numa sessão futura sem lembrar do motivo). Todos os 7 call
+   sites em `HomePage.xaml.cs` atualizados pra sintaxe nova; conferido
+   com grep que não sobrou nenhum literal de tupla `("chave", valor)`
+   no arquivo.
+3. Versão bumpada de novo: UWP `42.2.0.27 → 42.2.0.28`; Android
+   `versionCode 35→36`, `versionName "42.2.0.27"→"42.2.0.28"` (sem
+   mudança de código Kotlin nesta rodada — Kotlin não tem esse
+   problema de target, só bump pra manter o número em lockstep). PWA
+   não mudou nesta rodada (o bug era só C#), `CACHE_NAME` continua
+   `v15`.
