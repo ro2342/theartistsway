@@ -13,6 +13,7 @@ namespace ArtistWayUWP.Views
         public ProgressPage()
         {
             this.InitializeComponent();
+            HeaderText.Text = ContentStore.S("progress.header");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -69,7 +70,7 @@ namespace ArtistWayUWP.Views
                 });
                 textStack.Children.Add(new TextBlock
                 {
-                    Text = complete ? "feito" : current ? "atual" : "",
+                    Text = complete ? ContentStore.S("progress.statusComplete") : current ? ContentStore.S("progress.statusCurrent") : "",
                     HorizontalAlignment = HorizontalAlignment.Center,
                     FontSize = 11,
                     Opacity = 0.8,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -58,14 +59,20 @@ fun ProgressScreen(onOpenWeek: (Int) -> Unit) {
         reloadKey++
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        items(ContentStore.content.weeks) { week ->
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            ContentStore.s("progress.header"),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        )
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            items(ContentStore.content.weeks) { week ->
             val complete = completedWeeks.contains(week.id)
             val current = week.id == currentWeekId
             val colors: CardColors = if (complete) {
@@ -87,12 +94,13 @@ fun ProgressScreen(onOpenWeek: (Int) -> Unit) {
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(week.id.toString(), style = MaterialTheme.typography.titleLarge)
-                    val caption = if (complete) "feito" else if (current) "atual" else ""
+                    val caption = if (complete) ContentStore.s("progress.statusComplete") else if (current) ContentStore.s("progress.statusCurrent") else ""
                     if (caption.isNotEmpty()) {
                         Text(caption, style = MaterialTheme.typography.labelSmall)
                     }
                 }
             }
+        }
         }
     }
 }

@@ -779,6 +779,9 @@ const UI_STRINGS = {
   "ferramentas.noneYet": "Nenhuma ferramenta ainda.",
 
   "weekDetail.toastSetCurrentWeek": "Semana {week} definida como sua semana atual",
+  "progress.header": "12 semanas — toque em qualquer uma pra abrir.",
+  "progress.statusComplete": "feito",
+  "progress.statusCurrent": "atual",
   "home.toast.mpDayMarked": "Marcado ✓",
 
   "tile.appTitle": "The Artist's Way",

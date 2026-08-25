@@ -1060,3 +1060,58 @@ fechar de vez.
    plataformas. Único item ainda em aberto (fora da lista original,
    anotado por precaução): auditar se a tela "Jornada" da nav
    (`ProgressPage`/`ProgressScreen`) também tem texto solto.
+
+## 2026-08-25 (7b) — CI quebrado, corrigido no ato
+
+O primeiro push da entrega (7) quebrou o build do UWP de verdade
+(não infra): `AuthService.cs(182)` — `CS1503: Argument 5: cannot
+convert from 'uint' to 'string'`. Causa: `WebAuthenticationResult.
+ResponseErrorDetail` é `uint` no SDK do UWP, não `string`, e
+`ContentStore.S(key, params string[])` exige string em todo
+argumento — faltou `.ToString()`. Confirmado que era o único caso
+(grep em todos os `ContentStore.S(...)` com mais de 1 argumento nos
+arquivos tocados nesta sessão — todos os outros já tinham `.ToString()`
+onde precisava). Corrigido, novo push, os dois builds (UWP + Android)
+passaram verdes na `42.2.0.32`/`v19`.
+
+## 2026-08-25 (8)
+
+Usuário pediu explicitamente pra fechar o único item que tinha ficado
+em aberto do retrofit de `UI_STRINGS`: auditar a tela "Jornada" da nav
+(`ProgressPage.xaml.cs` no UWP, `ProgressScreen.kt` no Android, rota
+`#/progress` no PWA — a grade de 12 semanas acessada pela aba inferior,
+diferente de `WeekDetailPage`/`WeekDetailScreen`, que é a tela de uma
+semana específica e já tinha sido migrada).
+
+1. **Levantamento**: as 3 plataformas tinham o mesmo par de rótulos
+   hardcoded nos "chips" de semana — "feito" (semana com checklist
+   100% completo) e "atual" (semana em curso) — idênticos nas 3, sem
+   nenhuma divergência. O cabeçalho explicativo acima da grade já
+   existia em 2 das 3 plataformas, mas com texto diferente: PWA dizia
+   "Toque em qualquer semana — você pode ir e voltar à vontade.", UWP
+   dizia "12 semanas — toque em qualquer uma pra abrir." (mais
+   informativo, cita o total). Android não tinha cabeçalho nenhum.
+2. **Decisão**: adotado o texto do UWP como canônico nas 3 (cita o
+   total de semanas, mais curto) — chave `progress.header`. Android
+   ganhou o cabeçalho que não tinha (Column novo envolvendo o
+   `LazyVerticalGrid` existente, com o `Text` do cabeçalho acima).
+   Chaves novas: `progress.header`, `progress.statusComplete`
+   ("feito"), `progress.statusCurrent` ("atual").
+3. **Validação**: `node --check` em `app.js`; XML de `ProgressPage.xaml`
+   validado; grep de `--` literal no Kotlin tocado (zero ocorrência);
+   `node scripts/generate-content-json.js --check` confirmado. Teste
+   E2E novo (`test-progress.js`, scratchpad): configura perfil via
+   `DB.setProfile` (sem isso a rota `/progress` quebra com
+   `TypeError: Cannot read properties of null` — `getWeekCursor`
+   espera um perfil já onboarded, não é bug introduzido aqui, é
+   pré-condição da rota), navega `#/progress`, confirma cabeçalho
+   exato, 12 chips renderizados, e o rótulo "atual" aparecendo — zero
+   erro de console.
+4. Versão bumpada nas 3 plataformas: UWP `42.2.0.32 → 42.2.0.33`;
+   Android `versionCode 40→41`, `versionName "42.2.0.32"→"42.2.0.33"`;
+   PWA `CACHE_NAME` `"...v19"→"...v20"`.
+5. **Retrofit de `UI_STRINGS` 100% fechado** — não há item pendente
+   conhecido no momento. Próxima vez que uma string nova ou existente
+   for encontrada fora de `UI_STRINGS` em qualquer lugar do app, migrar
+   ao ser tocada (regra permanente do `CLAUDE.md`), mas não há mais
+   nenhuma área grande conhecida ainda não auditada.

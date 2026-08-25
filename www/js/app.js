@@ -1573,12 +1573,12 @@ route("/progress", async () => {
   );
 
   appEl.innerHTML = `
-    <p class="muted">Toque em qualquer semana — você pode ir e voltar à vontade.</p>
+    <p class="muted">${UI_STRINGS["progress.header"]}</p>
     <div class="week-grid">
       ${chips
         .map(
           (c) => `<div class="week-chip ${c.current ? "current" : ""} ${c.complete ? "complete" : ""}" data-week="${c.id}">
-            ${c.id}<small>${c.complete ? "feito" : c.current ? "atual" : ""}</small>
+            ${c.id}<small>${c.complete ? UI_STRINGS["progress.statusComplete"] : c.current ? UI_STRINGS["progress.statusCurrent"] : ""}</small>
           </div>`
         )
         .join("")}

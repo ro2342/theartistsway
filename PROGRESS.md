@@ -8,9 +8,9 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.32`** (`versionCode`
-  Android = 40).
-- PWA: `CACHE_NAME = "artist-way-companion-v19"` no service worker.
+- **Versão compartilhada (UWP + Android): `42.2.0.33`** (`versionCode`
+  Android = 41).
+- PWA: `CACHE_NAME = "artist-way-companion-v20"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
   momento.
@@ -21,16 +21,13 @@
   interface tem que vir de `UI_STRINGS`** — objetivo é permitir
   tradução futura editando só esse arquivo. Ver seção "Fonte única de
   conteúdo e texto de UI" no `CLAUDE.md`.
-- **Retrofit de `UI_STRINGS` — lista completa do usuário fechada.**
-  Baldes 1-5 + Artist Date/Check-in/Perfil + Checklist/Jornada
-  (WeekDetail) + Quiz + Essay/NamedList + conteúdo de notificação push
-  + mensagens de erro/status (sync, atualização, backup/login) + Life
-  Pie + Círculo de Segurança + resto da tela de Ajustes do Android,
-  todos migrados. Único item ainda em aberto: auditar se a tela
-  "Jornada" da nav (`ProgressPage`/`ProgressScreen` — diferente da tela
-  de detalhe de semana) também tem texto solto — ver "Possíveis
-  próximos passos".
-- CI rodando pra `42.2.0.32` — checar `gh run list --branch main --limit
+- **Retrofit de `UI_STRINGS` — 100% fechado, incluindo a tela
+  "Jornada"/Progress.** Toda a lista original do usuário + o que a
+  auditoria dedicada achou no caminho (Life Pie, Círculo de Segurança,
+  Ajustes do Android, e por último a grade de 12 semanas da aba
+  "Jornada") migrados nas 3 plataformas. Nenhum item pendente
+  conhecido no momento.
+- CI rodando pra `42.2.0.33` — checar `gh run list --branch main --limit
   2` antes de considerar publicado (os workflows fazem um commit
   automático próprio depois do build).
 
@@ -124,6 +121,12 @@
   devolvida por `SyncService` (`result.StartsWith("Sincronizado")`) —
   quebraria silenciosamente numa tradução futura. Versão `42.2.0.32` /
   `v19`.
+- **2026-08-25 (8)**: retrofit de `UI_STRINGS` 100% fechado — última
+  peça era a tela "Jornada" (`ProgressPage.xaml.cs`/`ProgressScreen.kt`,
+  a grade de 12 semanas da aba inferior), que tinha texto hardcoded
+  ("feito"/"atual"/cabeçalho) nunca auditado antes. Android também
+  ganhou o cabeçalho explicativo que faltava (só PWA/UWP tinham).
+  Versão `42.2.0.33` / `v20`.
 
 ## Identidade visual (referência rápida)
 
@@ -146,12 +149,6 @@
 
 ## Possíveis próximos passos (não decididos ainda)
 
-- **Auditar a tela "Jornada" da nav** (`ProgressPage.xaml.cs` no UWP,
-  `ProgressScreen.kt` no Android — a tela acessada pela aba inferior,
-  diferente de `WeekDetailPage`/`WeekDetailScreen` que já foi migrada).
-  Uma varredura rápida no início desta sessão achou `ProgressPage: cs=3`
-  ocorrências não migradas no UWP; Android não confirmado. Não foi
-  auditado a fundo ainda.
 - Testar manualmente nos dois aparelhos (Lumia 830 e o Android físico
   usado pra teste): ícone com o tamanho novo, notificação, tile UWP
   herdando a cor de acento certa, todos os links tocáveis das 12
