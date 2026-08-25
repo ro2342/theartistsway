@@ -17,7 +17,7 @@ namespace ArtistWayUWP.Views
         public OnboardingPage()
         {
             this.InitializeComponent();
-            _panels = new[] { ReturningUserPanel, WelcomePanel, NameDatePanel, RitualsPanel, FinishPanel, ContractPanel };
+            _panels = new[] { ReturningUserPanel, WelcomePanel, NameDatePanel, RitualsPanel, ContractPanel };
 
             for (int i = 1; i <= 7; i++)
             {

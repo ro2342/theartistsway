@@ -613,6 +613,14 @@ textarea {
 }
 .onboard-title { font-size: var(--fontSizeHero800, 32px); text-align: center; }
 .onboard-sub { text-align: center; color: var(--colorNeutralForeground3, #616161); margin-bottom: 24px; }
+.onboard-section-label {
+  display: block;
+  font-size: var(--fontSizeBase400, 16px);
+  font-weight: var(--fontWeightSemibold, 600);
+  color: var(--colorNeutralForeground1, #242424);
+  margin-top: 20px;
+  margin-bottom: 4px;
+}
 
 .dots-progress { display: flex; justify-content: center; gap: 6px; margin: 18px 0; }
 .dots-progress span { width: 8px; height: 8px; border-radius: 50%; background: var(--colorNeutralStroke1, #d1d1d1); }

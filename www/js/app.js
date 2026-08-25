@@ -445,8 +445,8 @@ route("/onboarding", async () => {
         <p class="muted" style="text-align:center;">Entre com a mesma conta Google pra trazer seus dados agora, sem preencher tudo de novo.</p>
         <button class="btn brass block" id="loginBtn">Já sou usuário(a) — entrar com Google</button>
         <p class="muted" id="loginStatus" style="display:none;text-align:center;"></p>
-        <button class="btn secondary block" id="next" style="margin-top:12px;">Sou novo(a) — começar do zero</button>
-        <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span><span></span><span></span></div>
+        <button class="btn secondary block" id="next" style="margin-top:12px;">Começar sem login</button>
+        <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span><span></span></div>
       </div>`,
     // 1 — boas vindas
     () => `
@@ -455,7 +455,7 @@ route("/onboarding", async () => {
         <h1 class="onboard-title">The Artist's Way<br/>— Companheiro —</h1>
         <p class="onboard-sub">Um espaço para transformar as tarefas do livro em passos claros, um dia de cada vez. Vamos organizar sua jornada de 12 semanas.</p>
         <button class="btn brass block" id="next">Começar</button>
-        <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span><span></span><span></span></div>
+        <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span><span></span></div>
       </div>`,
     // 2 — nome + data de início
     () => `
@@ -469,47 +469,40 @@ route("/onboarding", async () => {
         <input type="date" id="fstart" value="${draft.startDate}" />
         <div class="spacer"></div>
         <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span><span></span><span></span></div>
+        <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span><span></span></div>
       </div>`,
-    // 3 — morning pages + artist date
+    // 3 — rituais: morning pages + artist date + check-in, tudo numa tela só
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
         <h2 class="onboard-title">Seus rituais</h2>
-        <p class="onboard-sub">Escolha os horários. Dá pra mudar depois em Ajustes.</p>
-        <label>Horário das Morning Pages (todo dia)</label>
+        <p class="onboard-sub">Quando você prefere ser lembrado(a) de cada hábito?</p>
+        <label class="onboard-section-label">Morning Pages (todo dia)</label>
+        <label>Horário</label>
         <input type="time" id="fmp" value="${draft.morningPagesTime}" />
-        <label>Dia do Artist Date</label>
+        <label class="onboard-section-label">Artist Date (semanal)</label>
+        <label>Dia da semana</label>
         <select id="fadday">
           ${[1, 2, 3, 4, 5, 6, 7]
             .map((d) => `<option value="${d}" ${String(d) === draft.artistDateDay ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
             .join("")}
         </select>
-        <label>Horário do Artist Date</label>
+        <label>Horário</label>
         <input type="time" id="fadtime" value="${draft.artistDateTime}" />
-        <div class="spacer"></div>
-        <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span><span></span><span></span></div>
-      </div>`,
-    // 4 — checkin + permissões
-    () => `
-      <div class="onboard-screen">
-        <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
-        <h2 class="onboard-title">Check-in semanal</h2>
-        <p class="onboard-sub">Um momento pra revisar a semana — geralmente no fim de semana.</p>
-        <label>Dia do check-in</label>
+        <label class="onboard-section-label">Check-in semanal</label>
+        <label>Dia da semana</label>
         <select id="fciday">
           ${[1, 2, 3, 4, 5, 6, 7]
             .map((d) => `<option value="${d}" ${String(d) === draft.checkinDay ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
             .join("")}
         </select>
-        <label>Horário do check-in</label>
+        <label>Horário</label>
         <input type="time" id="fcitime" value="${draft.checkinTime}" />
         <div class="spacer"></div>
         <button class="btn brass block" id="next">Continuar</button>
-        <div class="dots-progress"><span></span><span></span><span></span><span></span><span class="active"></span><span></span></div>
+        <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span><span></span></div>
       </div>`,
-    // 5 — contrato inicial assinável
+    // 4 — contrato inicial assinável
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
@@ -522,7 +515,7 @@ route("/onboarding", async () => {
         <input type="text" id="fsignature" value="${draft.contractSignedName || draft.name || ""}" placeholder="Seu nome" />
         <div class="spacer"></div>
         <button class="btn moss block" id="finish">Assinar e começar</button>
-        <div class="dots-progress"><span></span><span></span><span></span><span></span><span></span><span class="active"></span></div>
+        <div class="dots-progress"><span></span><span></span><span></span><span></span><span class="active"></span></div>
       </div>`,
   ];
 
@@ -547,8 +540,6 @@ route("/onboarding", async () => {
         draft.morningPagesTime = document.getElementById("fmp").value || draft.morningPagesTime;
         draft.artistDateDay = document.getElementById("fadday").value;
         draft.artistDateTime = document.getElementById("fadtime").value || draft.artistDateTime;
-      }
-      if (step === 4) {
         draft.checkinDay = document.getElementById("fciday").value;
         draft.checkinTime = document.getElementById("fcitime").value || draft.checkinTime;
       }

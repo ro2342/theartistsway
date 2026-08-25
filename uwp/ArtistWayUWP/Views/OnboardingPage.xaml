@@ -24,7 +24,7 @@
                 <TextBlock x:Name="ReturningUserStatusText" Style="{StaticResource CaptionTextBlockStyle}"
                            Opacity="0.8" TextWrapping="Wrap" TextAlignment="Center" Margin="0,8,0,0"
                            Visibility="Collapsed" />
-                <Button Content="Sou novo(a) — começar do zero" Click="Next_Click"
+                <Button Content="Começar sem login" Click="Next_Click"
                         HorizontalAlignment="Stretch" Margin="0,12,0,0" />
             </StackPanel>
 
@@ -60,31 +60,20 @@
 
             <StackPanel x:Name="RitualsPanel" Visibility="Collapsed">
                 <TextBlock Text="Seus rituais" Style="{StaticResource TitleTextBlockStyle}" />
-                <TextBlock Text="Escolha os horários. Dá pra mudar depois em Ajustes." Style="{StaticResource BodyTextBlockStyle}"
+                <TextBlock Text="Quando você prefere ser lembrado(a) de cada hábito?" Style="{StaticResource BodyTextBlockStyle}"
                            Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,16" />
-                <TextBlock Text="Horário das Morning Pages" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TextBlock Text="Morning Pages (todo dia)" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,4" />
+                <TextBlock Text="Horário" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
                 <TimePicker x:Name="MorningPagesTimePicker" HorizontalAlignment="Stretch" Margin="0,4,0,16" />
-                <TextBlock Text="Dia do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TextBlock Text="Artist Date (semanal)" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,4" />
+                <TextBlock Text="Dia da semana" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
                 <ComboBox x:Name="ArtistDateDayCombo" HorizontalAlignment="Stretch" Margin="0,4,0,16" />
-                <TextBlock Text="Horário do Artist Date" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
-                <TimePicker x:Name="ArtistDateTimePicker" HorizontalAlignment="Stretch" Margin="0,4,0,0" />
-                <Grid Margin="0,24,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="← Voltar" Click="Back_Click" />
-                    <Button Grid.Column="1" Content="Continuar" Click="Next_Click" Margin="12,0,0,0" HorizontalAlignment="Stretch" />
-                </Grid>
-            </StackPanel>
-
-            <StackPanel x:Name="FinishPanel" Visibility="Collapsed">
-                <TextBlock Text="Check-in semanal" Style="{StaticResource TitleTextBlockStyle}" />
-                <TextBlock Text="Um momento pra revisar a semana — geralmente no fim de semana." Style="{StaticResource BodyTextBlockStyle}"
-                           Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,16" />
-                <TextBlock Text="Dia do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TextBlock Text="Horário" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TimePicker x:Name="ArtistDateTimePicker" HorizontalAlignment="Stretch" Margin="0,4,0,16" />
+                <TextBlock Text="Check-in semanal" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,4" />
+                <TextBlock Text="Dia da semana" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
                 <ComboBox x:Name="CheckinDayCombo" HorizontalAlignment="Stretch" Margin="0,4,0,16" />
-                <TextBlock Text="Horário do check-in" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+                <TextBlock Text="Horário" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
                 <TimePicker x:Name="CheckinTimePicker" HorizontalAlignment="Stretch" Margin="0,4,0,0" />
                 <Grid Margin="0,24,0,0">
                     <Grid.ColumnDefinitions>

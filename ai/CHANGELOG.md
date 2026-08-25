@@ -351,3 +351,114 @@
    nome) — este último exige redesenho de paridade de componente entre
    UWP e Android antes de sequer cogitar unificar o texto, não é só
    mover string.
+
+## 2026-08-25
+
+Usuário pediu o relatório do que falta pros baldes 4 (onboarding) e 5
+(Home dinâmica) antes de mexer. Investigação de código real (não só a
+auditoria de 2026-08-23) mostrou que a estimativa de risco da auditoria
+original estava errada em pontos importantes.
+
+1. **Balde 5 (Home dinâmica) — reavaliado, risco muito menor do que a
+   auditoria dizia**. Comparei `HomePage.xaml.cs` (UWP) linha a linha
+   com `HomeScreen.kt` (Android):
+   - `"Dia {X} de {Y}"`, `"A Semana {N} completou os 7 dias"`,
+     `"Continuar na Semana {N}"`, `"{doneCount}/{totalItems} tarefas
+     concluídas · Morning Pages em {X}/7 dias · Artist Date
+     feito/não feito · check-in feito/não feito."`, `"{doneCount}/
+     {totalItems} tarefas dessa semana concluídas"`, `"Concluir o
+     programa"`/`"Ir para a Semana {N+1}"`, `"Marcar páginas de hoje
+     como feitas"`/`"✓ Páginas de hoje feitas"`, `"Planejar meu Artist
+     Date"`/`"Ver / trocar"` — **todos batem palavra por palavra** nas
+     duas plataformas, só muda a sintaxe de interpolação (`$"..."` vs
+     `"...${}"`).
+   - A auditoria original dizia que "UWP tem um botão-toggle pra
+     Morning Pages, Android mostra 'Ver checklist da semana' como link
+     — não são o mesmo componente". Isso está **errado**: os dois têm
+     exatamente os mesmos dois componentes (botão de abrir o checklist
+     da semana + card de Morning Pages com streak/toggle) —
+     `HomePage.xaml:57` (`OpenWeekButton`, Content="Ver tarefas da
+     semana") e `HomeScreen.kt:227-228` ("Ver checklist da semana") são
+     o mesmo botão com wording quase idêntico, não estruturas
+     diferentes.
+   - Únicas divergências reais encontradas: (a) "Ver tarefas da semana"
+     (UWP) vs "Ver checklist da semana" (Android) — só wording; (b) UWP
+     tem um 3º fallback de saudação
+     (`HomePage.xaml.cs:48-49`: dayCountLabel → "Olá, {Name}" → "seu
+     companheiro de jornada" como default final) enquanto Android só
+     tem 2 fallbacks (`HomeScreen.kt:80-81`: dayCount → "Olá, $it", sem
+     terceiro fallback quando nem dayCount nem nome existem).
+   - **Não implementado ainda** — fica pra próxima rodada, mas
+     reclassificado de "alto risco/exige redesenho" pra "baixo risco,
+     só falta um helper de template com `{placeholder}`".
+
+2. **Balde 4 (Onboarding) — 2 decisões reais de comportamento,
+   perguntadas ao usuário via AskUserQuestion e implementadas**:
+   - **Decisão A — botão da 2ª opção na tela "já é usuário"**: UWP e
+     PWA tinham "Sou novo(a) — começar do zero"; Android tem "Começar
+     sem login". Investigação mostrou que o **comportamento já era
+     idêntico nas 3 plataformas** (o botão só avança pro próximo passo
+     do formulário — `Next_Click` no UWP, `onSkip = { step = 1 }` no
+     Android, `next` handler no PWA — nenhum reseta nem apaga nada).
+     Só o texto divergia. Usuário escolheu o texto do Android
+     ("Começar sem login") como canônico.
+   - **Decisão B — número de passos**: UWP e PWA tinham 6 passos
+     (Retorno / Boas-vindas / Nome+Data / Rituais [Morning Pages +
+     Artist Date] / Check-in / Contrato — check-in numa tela própria).
+     Android já tinha 5 passos (rituais + check-in juntos numa tela só,
+     `RitualsStep` em `OnboardingScreen.kt:212-242`, com 3 sub-títulos
+     "Morning Pages (todo dia)" / "Artist Date (semanal)" / "Check-in
+     semanal"). Usuário escolheu o formato compacto do Android como
+     canônico — UWP e PWA precisavam mudar, não o Android.
+   - **PWA** (`www/js/app.js`): array `steps` reduzido de 6 pra 5
+     entradas. Passo 3 (antes só Morning Pages + Artist Date) passou a
+     incluir também os campos de check-in (`fciday`/`fcitime`,
+     copiados do antigo passo 4, que foi removido). Adicionados os
+     mesmos 3 sub-títulos do Android via nova classe CSS
+     `.onboard-section-label` (`www/css/style.css`, 16px semibold,
+     abaixo do estilo padrão de `label` que é 12px/cinza — não dava pra
+     reusar `label` puro sem ficar parecendo campo de formulário em vez
+     de cabeçalho de seção). Handler do botão "Continuar" consolidado:
+     o bloco `if (step === 4)` que lia os campos de check-in foi
+     removido, e sua leitura movida pra dentro do `if (step === 3)`
+     existente. Todos os `dots-progress` de todas as 5 telas
+     recontados de 6 pra 5 bolinhas, com o índice `active` ajustado.
+     Texto do botão da tela 0 trocado pra "Começar sem login".
+   - **UWP**: `OnboardingPage.xaml` — `RitualsPanel` ganhou os 3
+     sub-títulos (`Style="{StaticResource SubtitleTextBlockStyle}"`) e
+     os campos de `CheckinDayCombo`/`CheckinTimePicker` movidos pra
+     dentro dele (antes viviam em `FinishPanel`, agora removido do
+     arquivo inteiro — confirmado com
+     `grep -rn "FinishPanel" uwp/ArtistWayUWP/` que não sobrou nenhuma
+     referência). Labels dos campos simplificados de "Horário das
+     Morning Pages"/"Dia do Artist Date"/etc. pra só "Horário"/"Dia da
+     semana" (o sub-título de cada seção já dá o contexto, igual ao
+     Android). `OnboardingPage.xaml.cs`: array `_panels` reduzido de 6
+     pra 5 elementos (`ReturningUserPanel, WelcomePanel, NameDatePanel,
+     RitualsPanel, ContractPanel`) — a navegação (`ShowStep`,
+     `Next_Click`, `Back_Click`) já era 100% genérica por índice de
+     array, então não precisou de nenhuma outra mudança de lógica. Texto
+     do botão trocado pra "Começar sem login".
+   - **Android**: nenhuma mudança — já era a estrutura/texto canônicos.
+   - **Não movido pra `UI_STRINGS` nesta rodada** — decisão deliberada
+     de escopo: o pedido era resolver as 2 divergências de
+     comportamento, não terminar o balde 4 inteiro. O texto do
+     onboarding continua replicado manualmente em cada plataforma (mas
+     agora com a mesma estrutura/conteúdo correspondente 1:1),
+     candidato a entrar em `UI_STRINGS` numa rodada futura dedicada.
+3. **Validação**: varredura de `--` literal (`\s--\s`) nos 4 arquivos
+   tocados, zero ocorrência. XML de `OnboardingPage.xaml` validado com
+   `python -c "import xml.dom.minidom as m; m.parse(...)"`. Teste E2E
+   via Chrome headless/CDP no PWA (`test-onboarding.js`, scratchpad):
+   navegou os 5 passos do zero até o contrato, confirmou 5 bolinhas em
+   cada tela com o índice `active` certo, confirmou que os 3 campos de
+   rituais (`fmp`/`fadday`+`fadtime`/`fciday`+`fcitime`) e os 3
+   sub-títulos de seção aparecem todos na mesma tela (passo 3), e que o
+   passo 4 é mesmo o contrato (título "Seu contrato inicial", botão
+   `finish` presente) — zero erro de console.
+4. Versão bumpada nas 3 plataformas mesmo sem mudança de código no
+   Android nesta rodada (convenção do projeto: UWP e Android
+   compartilham o mesmo número de versão, bump em lockstep sempre que
+   qualquer um dos dois nativos muda): UWP `42.2.0.25 → 42.2.0.26`;
+   Android `versionCode 33→34`, `versionName "42.2.0.25"→"42.2.0.26"`;
+   PWA `CACHE_NAME` `"...v13"→"...v14"`.
