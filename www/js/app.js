@@ -186,6 +186,21 @@ function weekKeyForOffset(settings, weekId) {
   return dateToStr(weekStart);
 }
 
+// — UI_STRINGS com placeholder ("{nome}") — mesmo padrão do
+// ContentStore.S (UWP) / ContentStore.s (Android): busca a chave e
+// substitui {chave} pelo valor correspondente em params. Nome UIS (não
+// "S" curto) porque o bundle do FluentUI já declara um "S" de nível
+// global (const interno de border-radius) — nome curto colidiria.
+function UIS(key, params) {
+  let text = UI_STRINGS[key] ?? key;
+  if (params) {
+    for (const name in params) {
+      text = text.split(`{${name}}`).join(String(params[name]));
+    }
+  }
+  return text;
+}
+
 // — toast —
 let toastTimer = null;
 function toast(msg) {
@@ -632,8 +647,6 @@ route("/home", async () => {
   const totalItems = week.checklist.length;
   const pct = totalItems ? Math.round((doneCount / totalItems) * 100) : 0;
 
-  const greetName = settings.name ? `, ${settings.name}` : "";
-
   const lastActivityAt = await DB.getSetting("lastActivityAt", null);
   const daysSinceActivity = lastActivityAt
     ? Math.floor((Date.now() - new Date(lastActivityAt).getTime()) / (24 * 3600 * 1000))
@@ -641,7 +654,11 @@ route("/home", async () => {
   const showRoadRulesNudge = daysSinceActivity !== null && daysSinceActivity >= 3;
 
   const dayCount = dayCountSinceStart(settings);
-  const dayCountLabel = dayCount !== null ? `Dia ${Math.max(1, dayCount)} de ${PROGRAM_LENGTH_DAYS}` : "";
+  const greetingLabel = dayCount !== null
+    ? UIS("home.greeting.dayCount", { day: Math.max(1, dayCount), total: PROGRAM_LENGTH_DAYS })
+    : settings.name
+      ? UIS("home.greeting.withName", { name: settings.name })
+      : UIS("home.greeting.default");
   const maintenanceMode = !!settings.maintenanceMode || isProgramFinished(settings);
   const cyclePending = !maintenanceMode && weekCyclePending(cursor);
   const weekSummary = cyclePending ? await buildWeekSummary(settings, cursor) : null;
@@ -649,63 +666,67 @@ route("/home", async () => {
   const weekDecisionCard = cyclePending
     ? `
     <div class="card dotted">
-      <div class="card-title" style="font-size:1.05rem;">A Semana ${cursor.weekId} completou os 7 dias</div>
-      <p class="muted">${weekSummary.doneCount}/${weekSummary.totalItems} tarefas concluídas · Morning Pages em ${weekSummary.mpDone}/7 dias · Artist Date ${
-        weekSummary.artistDateDone ? "feito" : "não feito"
-      } · check-in ${weekSummary.checkinDone ? "feito" : "não feito"}.</p>
-      <p class="muted">Quer continuar mais um tempo na Semana ${cursor.weekId} ou seguir em frente?</p>
-      <button class="btn secondary block" id="stayWeek">Continuar na Semana ${cursor.weekId}</button>
+      <div class="card-title" style="font-size:1.05rem;">${UIS("home.weekCycle.title", { week: cursor.weekId })}</div>
+      <p class="muted">${UIS("home.weekCycle.summary", {
+        done: weekSummary.doneCount,
+        total: weekSummary.totalItems,
+        mp: weekSummary.mpDone,
+        adStatus: UIS(weekSummary.artistDateDone ? "status.done" : "status.notDone"),
+        ciStatus: UIS(weekSummary.checkinDone ? "status.done" : "status.notDone"),
+      })}</p>
+      <p class="muted">${UIS("home.weekCycle.question", { week: cursor.weekId })}</p>
+      <button class="btn secondary block" id="stayWeek">${UIS("home.weekCycle.stayButton", { week: cursor.weekId })}</button>
       <div class="spacer-sm"></div>
       ${
         cursor.weekId < 12
-          ? `<button class="btn brass block" id="advanceWeek">Ir para a Semana ${cursor.weekId + 1}</button>`
-          : `<button class="btn brass block" id="finishProgram">Concluir o programa</button>`
+          ? `<button class="btn brass block" id="advanceWeek">${UIS("home.weekCycle.advanceButton", { week: cursor.weekId + 1 })}</button>`
+          : `<button class="btn brass block" id="finishProgram">${UIS("home.weekCycle.finishButton")}</button>`
       }
     </div>`
     : "";
 
   const morningPagesCard = `
     <div class="card">
-      <div class="card-title" style="font-size:1.1rem;">Morning Pages</div>
-      <p class="muted">Esta semana</p>
+      <div class="card-title" style="font-size:1.1rem;">${UIS("home.morningPages.title")}</div>
+      <p class="muted">${UIS("home.morningPages.thisWeek")}</p>
       <div class="streak-row">
         ${days
           .map((d) => {
             const dt = new Date(d + "T00:00:00");
-            const label = "DSTQQSS"[dt.getDay()];
+            const label = UIS("home.morningPages.weekdayLetters").split(",")[dt.getDay()];
             const isToday = d === todayStr();
             const isFuture = d > todayStr();
             return `<div class="streak-dot ${mpMap[d] ? "done" : ""} ${isFuture ? "" : "clickable"}" data-date="${d}" style="${isToday ? "box-shadow:0 0 0 2px var(--brass);" : ""}${isFuture ? "opacity:0.4;" : "cursor:pointer;"}">${label}</div>`;
           })
           .join("")}
       </div>
-      <p class="muted" style="font-size:0.85em;margin-top:4px;">Esqueceu de marcar um dia? Toque na bolinha dele.</p>
+      <p class="muted" style="font-size:0.85em;margin-top:4px;">${UIS("home.morningPages.hint")}</p>
       <div class="spacer-sm"></div>
       <button class="btn ${todayDone ? "secondary" : "moss"} block" id="toggleMP">
-        ${todayDone ? "✓ Páginas de hoje feitas" : "Marcar páginas de hoje como feitas"}
+        ${todayDone ? UIS("home.morningPages.toggleOff") : UIS("home.morningPages.toggleOn")}
       </button>
     </div>`;
 
   const affirmationCard = `
     <div class="card dotted text-center">
-      <p class="muted">Afirmação de hoje</p>
+      <p class="muted">${UIS("home.affirmation.label")}</p>
       <p style="font-weight:var(--fontWeightSemibold,600);">${AFFIRMATIONS[dayOfYear(new Date()) % AFFIRMATIONS.length]}</p>
     </div>`;
 
   const artistDateCard = `
     <div class="card">
-      <div class="card-title" style="font-size:1.1rem;">Artist Date dessa semana <span class="icon" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;">${window.ArtistWayIcons.heartRegular}</span></div>
-      <p class="muted">${artistDate.done ? "Feito — " + (artistDate.idea || "") : "Ainda não rolou essa semana."}</p>
-      <a class="btn ${artistDate.done ? "secondary" : "brass"} block" href="#/artist-date">${artistDate.done ? "Ver / trocar" : "Planejar meu Artist Date"}</a>
+      <div class="card-title" style="font-size:1.1rem;">${UIS("home.artistDate.title")} <span class="icon" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;">${window.ArtistWayIcons.heartRegular}</span></div>
+      <p class="muted">${artistDate.done ? UIS("home.artistDate.doneSummary", { idea: artistDate.idea || "" }) : UIS("home.artistDate.notDoneSummary")}</p>
+      <a class="btn ${artistDate.done ? "secondary" : "brass"} block" href="#/artist-date">${artistDate.done ? UIS("home.artistDate.viewButton") : UIS("home.artistDate.planButton")}</a>
     </div>`;
 
   if (maintenanceMode) {
     appEl.innerHTML = `
-      <p class="muted">${dayCountLabel || "seu companheiro de jornada"}</p>
+      <p class="muted">${greetingLabel}</p>
 
       <div class="card dotted text-center">
-        <p class="muted">Modo manutenção</p>
-        <p style="font-weight:var(--fontWeightSemibold,600);">As 12 semanas terminaram — agora é só manter Morning Pages e Artist Date no seu ritmo.</p>
+        <p class="muted">${UIS("home.maintenance.title")}</p>
+        <p style="font-weight:var(--fontWeightSemibold,600);">${UIS("home.maintenance.description")}</p>
       </div>
 
       ${morningPagesCard}
@@ -714,7 +735,7 @@ route("/home", async () => {
     `;
     document.getElementById("toggleMP").addEventListener("click", async () => {
       const done = await DB.toggleMorningPage(todayStr());
-      toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
+      toast(done ? UIS("home.toast.mpMarked") : UIS("home.toast.mpUnmarked"));
       render();
     });
     bindStreakDotClicks();
@@ -722,18 +743,18 @@ route("/home", async () => {
   }
 
   appEl.innerHTML = `
-    <p class="muted">${dayCountLabel || "seu companheiro de jornada"}</p>
+    <p class="muted">${greetingLabel}</p>
 
     ${weekDecisionCard}
 
     <div class="card">
-      <div class="card-sub">Semana ${weekId} de 12</div>
+      <div class="card-sub">${UIS("home.week.label", { week: weekId })}</div>
       <div class="card-title">${week.title}</div>
       <p class="muted">${week.intro}</p>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="progress-label">${doneCount}/${totalItems} tarefas dessa semana concluídas</div>
+      <div class="progress-label">${UIS("home.week.progress", { done: doneCount, total: totalItems })}</div>
       <div class="spacer-sm"></div>
-      <a class="btn brass block" href="#/week/${weekId}">Ver tarefas da semana</a>
+      <a class="btn brass block" href="#/week/${weekId}">${UIS("home.week.openButton")}</a>
     </div>
 
     ${morningPagesCard}
@@ -741,15 +762,15 @@ route("/home", async () => {
     ${artistDateCard}
 
     <div class="card dotted text-center">
-      <p class="muted">Prefere revisar a semana agora?</p>
-      <a class="btn secondary block" href="#/checkin/${weekId}">Ir para o check-in da Semana ${weekId}</a>
+      <p class="muted">${UIS("home.checkin.prompt")}</p>
+      <a class="btn secondary block" href="#/checkin/${weekId}">${UIS("home.checkin.button", { week: weekId })}</a>
     </div>
 
     ${
       showRoadRulesNudge
         ? `<div class="card dotted text-center">
-      <p class="muted">Faz uns dias que você não passa por aqui.</p>
-      <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> Já revisou as Regras da Estrada?</a>
+      <p class="muted">${UIS("home.roadRulesNudge.prompt")}</p>
+      <a class="btn secondary block" href="#/regras-da-estrada"><span class="icon">${window.ArtistWayIcons.pin}</span> ${UIS("home.roadRulesNudge.button")}</a>
     </div>`
         : ""
     }
@@ -757,7 +778,7 @@ route("/home", async () => {
 
   document.getElementById("toggleMP").addEventListener("click", async () => {
     const done = await DB.toggleMorningPage(todayStr());
-    toast(done ? "Páginas de hoje marcadas ✓" : "Desmarcado");
+    toast(done ? UIS("home.toast.mpMarked") : UIS("home.toast.mpUnmarked"));
     render();
   });
   bindStreakDotClicks();
@@ -765,14 +786,14 @@ route("/home", async () => {
   if (cyclePending) {
     document.getElementById("stayWeek").addEventListener("click", async () => {
       await decideWeekCycle(settings, "continue");
-      toast("Continuando na Semana " + cursor.weekId);
+      toast(UIS("home.toast.stayedWeek", { week: cursor.weekId }));
       render();
     });
     const advanceBtn = document.getElementById("advanceWeek");
     if (advanceBtn) {
       advanceBtn.addEventListener("click", async () => {
         await decideWeekCycle(settings, "advance");
-        toast("Seguindo pra próxima semana");
+        toast(UIS("home.toast.advancedWeek"));
         render();
       });
     }
@@ -781,7 +802,7 @@ route("/home", async () => {
       finishBtn.addEventListener("click", async () => {
         settings.maintenanceMode = true;
         await DB.setProfile(settings);
-        toast("Programa concluído — modo manutenção ativado");
+        toast(UIS("home.toast.finishedProgram"));
         render();
       });
     }

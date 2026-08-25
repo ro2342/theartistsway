@@ -44,43 +44,64 @@ namespace ArtistWayUWP.Views
             string weekKey = WeekCalculator.WeekKeyForOffset(profile, weekId);
 
             int? dayCount = WeekCalculator.GetDayCount(profile);
-            string dayCountLabel = dayCount.HasValue ? $"Dia {Math.Max(1, dayCount.Value)} de {WeekCalculator.ProgramLengthDays}" : null;
+            string dayCountLabel = dayCount.HasValue
+                ? ContentStore.S("home.greeting.dayCount", ("day", Math.Max(1, dayCount.Value).ToString()), ("total", WeekCalculator.ProgramLengthDays.ToString()))
+                : null;
             GreetingText.Text = dayCountLabel
-                ?? (string.IsNullOrEmpty(profile.Name) ? "seu companheiro de jornada" : $"Olá, {profile.Name}");
+                ?? (string.IsNullOrEmpty(profile.Name) ? ContentStore.S("home.greeting.default") : ContentStore.S("home.greeting.withName", ("name", profile.Name)));
 
             bool maintenanceMode = profile.MaintenanceMode || WeekCalculator.IsProgramFinished(profile);
             MaintenanceCard.Visibility = maintenanceMode ? Visibility.Visible : Visibility.Collapsed;
             WeekCard.Visibility = maintenanceMode ? Visibility.Collapsed : Visibility.Visible;
             CheckinNudgeCard.Visibility = maintenanceMode ? Visibility.Collapsed : Visibility.Visible;
+            MaintenanceTitleText.Text = ContentStore.S("home.maintenance.title");
+            MaintenanceDescriptionText.Text = ContentStore.S("home.maintenance.description");
 
             bool cyclePending = !maintenanceMode && WeekCalculator.IsWeekCyclePending(cursor);
             WeekDecisionCard.Visibility = cyclePending ? Visibility.Visible : Visibility.Collapsed;
             if (cyclePending)
             {
                 WeekSummary summary = await LocalDataStore.BuildWeekSummaryAsync(profile, cursor);
-                WeekDecisionTitleText.Text = $"A Semana {cursor.WeekId} completou os 7 dias";
-                WeekDecisionSummaryText.Text =
-                    $"{summary.DoneCount}/{summary.TotalItems} tarefas concluídas · Morning Pages em {summary.MorningPagesDone}/7 dias · " +
-                    $"Artist Date {(summary.ArtistDateDone ? "feito" : "não feito")} · check-in {(summary.CheckinDone ? "feito" : "não feito")}.";
-                StayWeekButton.Content = $"Continuar na Semana {cursor.WeekId}";
+                WeekDecisionTitleText.Text = ContentStore.S("home.weekCycle.title", ("week", cursor.WeekId.ToString()));
+                WeekDecisionSummaryText.Text = ContentStore.S(
+                    "home.weekCycle.summary",
+                    ("done", summary.DoneCount.ToString()),
+                    ("total", summary.TotalItems.ToString()),
+                    ("mp", summary.MorningPagesDone.ToString()),
+                    ("adStatus", ContentStore.S(summary.ArtistDateDone ? "status.done" : "status.notDone")),
+                    ("ciStatus", ContentStore.S(summary.CheckinDone ? "status.done" : "status.notDone")));
+                StayWeekButton.Content = ContentStore.S("home.weekCycle.stayButton", ("week", cursor.WeekId.ToString()));
                 _advanceMeansFinish = cursor.WeekId >= 12;
-                AdvanceWeekButton.Content = _advanceMeansFinish ? "Concluir o programa" : $"Ir para a Semana {cursor.WeekId + 1}";
+                AdvanceWeekButton.Content = _advanceMeansFinish
+                    ? ContentStore.S("home.weekCycle.finishButton")
+                    : ContentStore.S("home.weekCycle.advanceButton", ("week", (cursor.WeekId + 1).ToString()));
             }
 
-            WeekLabelText.Text = $"Semana {weekId} de 12";
+            WeekLabelText.Text = ContentStore.S("home.week.label", ("week", weekId.ToString()));
             WeekTitleText.Text = week?.Title ?? "";
             WeekIntroText.Text = week?.Intro ?? "";
+            OpenWeekButton.Content = ContentStore.S("home.week.openButton");
 
             HashSet<int> doneIndexes = await LocalDataStore.GetDoneChecklistIndexesAsync(weekId);
             int totalItems = week?.Checklist.Count ?? 0;
             int doneCount = doneIndexes.Count(idx => idx < totalItems);
             int pct = totalItems > 0 ? (int)Math.Round(100.0 * doneCount / totalItems) : 0;
             WeekProgressBar.Value = pct;
-            WeekProgressLabel.Text = $"{doneCount}/{totalItems} tarefas dessa semana concluídas";
+            WeekProgressLabel.Text = ContentStore.S("home.week.progress", ("done", doneCount.ToString()), ("total", totalItems.ToString()));
+
+            MorningPagesTitleText.Text = ContentStore.S("home.morningPages.title");
+            MorningPagesThisWeekText.Text = ContentStore.S("home.morningPages.thisWeek");
+            MorningPagesHintText.Text = ContentStore.S("home.morningPages.hint");
+            AffirmationLabelText.Text = ContentStore.S("home.affirmation.label");
+            ArtistDateTitleText.Text = ContentStore.S("home.artistDate.title");
+            CheckinPromptText.Text = ContentStore.S("home.checkin.prompt");
+            OpenCheckinButton.Content = ContentStore.S("home.checkin.button", ("week", weekId.ToString()));
+            RoadRulesPromptText.Text = ContentStore.S("home.roadRulesNudge.prompt");
+            OpenRoadRulesButton.Content = ContentStore.S("home.roadRulesNudge.button");
 
             Dictionary<string, bool> allMp = await LocalDataStore.GetAllMorningPagesAsync();
             StreakPanel.Children.Clear();
-            string[] weekdayLetters = { "D", "S", "T", "Q", "Q", "S", "S" };
+            string[] weekdayLetters = ContentStore.S("home.morningPages.weekdayLetters").Split(',');
             DateTime today = DateTime.Now.Date;
             DateTime weekStart = WeekCalculator.CurrentStreakWeekStart(profile, today);
             bool todayDone = false;
@@ -129,7 +150,7 @@ namespace ArtistWayUWP.Views
                 StreakPanel.Children.Add(dot);
             }
 
-            ToggleMpButton.Content = todayDone ? "✓ Páginas de hoje feitas" : "Marcar páginas de hoje como feitas";
+            ToggleMpButton.Content = todayDone ? ContentStore.S("home.morningPages.toggleOff") : ContentStore.S("home.morningPages.toggleOn");
 
             List<string> affirmations = ContentStore.Content.Affirmations;
             if (affirmations.Count > 0)
@@ -144,9 +165,9 @@ namespace ArtistWayUWP.Views
             ArtistDateEntry artistDate = await LocalDataStore.GetArtistDateAsync(weekKey);
             bool adDone = artistDate?.Done ?? false;
             ArtistDateStatusText.Text = adDone
-                ? "Feito — " + (artistDate?.Idea ?? "")
-                : "Ainda não rolou essa semana.";
-            OpenArtistDateButton.Content = adDone ? "Ver / trocar" : "Planejar meu Artist Date";
+                ? ContentStore.S("home.artistDate.doneSummary", ("idea", artistDate?.Idea ?? ""))
+                : ContentStore.S("home.artistDate.notDoneSummary");
+            OpenArtistDateButton.Content = adDone ? ContentStore.S("home.artistDate.viewButton") : ContentStore.S("home.artistDate.planButton");
 
             DateTimeOffset? lastActivity = await LocalDataStore.GetLastActivityAsync();
             bool showNudge = !maintenanceMode && lastActivity.HasValue && (DateTimeOffset.UtcNow - lastActivity.Value).TotalDays >= 3;

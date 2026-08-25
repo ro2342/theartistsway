@@ -45,8 +45,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-private val WEEKDAY_LETTERS = listOf("D", "S", "T", "Q", "Q", "S", "S")
-
 private data class HomeUiState(
     val profile: ProfileSettings,
     val cursor: WeekCursor,
@@ -77,9 +75,11 @@ private suspend fun loadHomeState(): HomeUiState? {
     val weekKey = WeekCalculator.weekKeyForOffset(profile, weekId)
 
     val dayCount = WeekCalculator.getDayCount(profile)
-    val greeting = dayCount?.let { "Dia ${maxOf(1, it)} de ${WeekCalculator.PROGRAM_LENGTH_DAYS}" }
-        ?: profile.name.trim().ifEmpty { null }?.let { "Olá, $it" }
-        ?: "seu companheiro de jornada"
+    val greeting = dayCount?.let {
+        ContentStore.s("home.greeting.dayCount", "day" to maxOf(1, it).toString(), "total" to WeekCalculator.PROGRAM_LENGTH_DAYS.toString())
+    }
+        ?: profile.name.trim().ifEmpty { null }?.let { ContentStore.s("home.greeting.withName", "name" to it) }
+        ?: ContentStore.s("home.greeting.default")
 
     val maintenanceMode = profile.maintenanceMode || WeekCalculator.isProgramFinished(profile)
     val cyclePending = !maintenanceMode && WeekCalculator.isWeekCyclePending(cursor)
@@ -102,7 +102,11 @@ private suspend fun loadHomeState(): HomeUiState? {
 
     val artistDate = LocalDataStore.getArtistDate(weekKey)
     val artistDateDone = artistDate?.done == true
-    val artistDateSummary = if (artistDateDone) "Feito — ${artistDate?.idea.orEmpty()}" else "Ainda não rolou essa semana."
+    val artistDateSummary = if (artistDateDone) {
+        ContentStore.s("home.artistDate.doneSummary", "idea" to artistDate?.idea.orEmpty())
+    } else {
+        ContentStore.s("home.artistDate.notDoneSummary")
+    }
 
     val lastActivity = LocalDataStore.getLastActivity()
     val showNudge = !maintenanceMode && lastActivity != null &&
@@ -159,6 +163,7 @@ fun HomeScreen(
 
     val current = state ?: return
     val reload = { reloadKey++ }
+    val weekdayLetters = ContentStore.s("home.morningPages.weekdayLetters").split(",")
 
     Column(
         modifier = Modifier
@@ -171,11 +176,10 @@ fun HomeScreen(
 
         if (current.maintenanceMode) {
             Card(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    "Modo manutenção: continue com Morning Pages e Artist Date no seu ritmo.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(ContentStore.s("home.maintenance.title"), style = MaterialTheme.typography.labelLarge)
+                    Text(ContentStore.s("home.maintenance.description"), style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
 
@@ -183,13 +187,17 @@ fun HomeScreen(
             val summary = current.cycleSummary
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("A Semana ${current.cursor.weekId} completou os 7 dias", style = MaterialTheme.typography.titleMedium)
+                    Text(ContentStore.s("home.weekCycle.title", "week" to current.cursor.weekId.toString()), style = MaterialTheme.typography.titleMedium)
                     if (summary != null) {
                         Text(
-                            "${summary.doneCount}/${summary.totalItems} tarefas concluídas · " +
-                                "Morning Pages em ${summary.morningPagesDone}/7 dias · " +
-                                "Artist Date ${if (summary.artistDateDone) "feito" else "não feito"} · " +
-                                "check-in ${if (summary.checkinDone) "feito" else "não feito"}.",
+                            ContentStore.s(
+                                "home.weekCycle.summary",
+                                "done" to summary.doneCount.toString(),
+                                "total" to summary.totalItems.toString(),
+                                "mp" to summary.morningPagesDone.toString(),
+                                "adStatus" to ContentStore.s(if (summary.artistDateDone) "status.done" else "status.notDone"),
+                                "ciStatus" to ContentStore.s(if (summary.checkinDone) "status.done" else "status.notDone"),
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -199,7 +207,7 @@ fun HomeScreen(
                                 LocalDataStore.decideWeekCycle(current.profile, advance = false)
                                 reload()
                             }
-                        }) { Text("Continuar na Semana ${current.cursor.weekId}") }
+                        }) { Text(ContentStore.s("home.weekCycle.stayButton", "week" to current.cursor.weekId.toString())) }
                         Button(onClick = {
                             scope.launch {
                                 if (current.advanceMeansFinish) {
@@ -209,7 +217,15 @@ fun HomeScreen(
                                 }
                                 reload()
                             }
-                        }) { Text(if (current.advanceMeansFinish) "Concluir o programa" else "Ir para a Semana ${current.cursor.weekId + 1}") }
+                        }) {
+                            Text(
+                                if (current.advanceMeansFinish) {
+                                    ContentStore.s("home.weekCycle.finishButton")
+                                } else {
+                                    ContentStore.s("home.weekCycle.advanceButton", "week" to (current.cursor.weekId + 1).toString())
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -218,14 +234,14 @@ fun HomeScreen(
         if (!current.maintenanceMode) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Semana ${current.weekId} de 12", style = MaterialTheme.typography.labelLarge)
+                    Text(ContentStore.s("home.week.label", "week" to current.weekId.toString()), style = MaterialTheme.typography.labelLarge)
                     Text(current.weekTitle, style = MaterialTheme.typography.titleMedium)
                     Text(current.weekIntro, style = MaterialTheme.typography.bodySmall)
                     val pct = if (current.weekTotalItems > 0) current.weekDoneCount.toFloat() / current.weekTotalItems else 0f
                     LinearProgressIndicator(progress = { pct }, modifier = Modifier.fillMaxWidth())
-                    Text("${current.weekDoneCount}/${current.weekTotalItems} tarefas dessa semana concluídas", style = MaterialTheme.typography.bodySmall)
+                    Text(ContentStore.s("home.week.progress", "done" to current.weekDoneCount.toString(), "total" to current.weekTotalItems.toString()), style = MaterialTheme.typography.bodySmall)
                     OutlinedButton(onClick = { onOpenWeek(current.weekId) }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Ver checklist da semana")
+                        Text(ContentStore.s("home.week.openButton"))
                     }
                 }
             }
@@ -233,13 +249,14 @@ fun HomeScreen(
 
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Morning Pages", style = MaterialTheme.typography.titleMedium)
+                Text(ContentStore.s("home.morningPages.title"), style = MaterialTheme.typography.titleMedium)
+                Text(ContentStore.s("home.morningPages.thisWeek"), style = MaterialTheme.typography.bodySmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
                     val todayStr = WeekCalculator.dateToStr(LocalDate.now())
                     current.streakDone.forEachIndexed { i, done ->
                         val date = current.streakDates[i]
                         StreakDot(
-                            letter = WEEKDAY_LETTERS[i],
+                            letter = weekdayLetters[i],
                             done = done,
                             enabled = date <= todayStr,
                             onClick = { scope.launch { LocalDataStore.toggleMorningPage(date); reload() } },
@@ -251,7 +268,7 @@ fun HomeScreen(
                 // dá pra fazer check-in retroativo de um dia esquecido, sem
                 // precisar de tela própria só pra isso.
                 Text(
-                    "Esqueceu de marcar um dia? Toque na bolinha dele.",
+                    ContentStore.s("home.morningPages.hint"),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Button(
@@ -263,44 +280,51 @@ fun HomeScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(if (current.todayDone) "✓ Páginas de hoje feitas" else "Marcar páginas de hoje como feitas")
+                    Text(if (current.todayDone) ContentStore.s("home.morningPages.toggleOff") else ContentStore.s("home.morningPages.toggleOn"))
                 }
             }
         }
 
         if (current.affirmation.isNotEmpty()) {
             Card(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    current.affirmation,
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                )
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(ContentStore.s("home.affirmation.label"), style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        current.affirmation,
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
 
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Artist Date", style = MaterialTheme.typography.titleMedium)
+                Text(ContentStore.s("home.artistDate.title"), style = MaterialTheme.typography.titleMedium)
                 Text(current.artistDateSummary, style = MaterialTheme.typography.bodyMedium)
                 OutlinedButton(onClick = onOpenArtistDate, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (current.artistDateDone) "Ver / trocar" else "Planejar meu Artist Date")
+                    Text(if (current.artistDateDone) ContentStore.s("home.artistDate.viewButton") else ContentStore.s("home.artistDate.planButton"))
                 }
             }
         }
 
         if (!current.maintenanceMode) {
-            OutlinedButton(onClick = { onOpenCheckin(current.weekId) }, modifier = Modifier.fillMaxWidth()) {
-                Text("Fazer o check-in da semana")
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(ContentStore.s("home.checkin.prompt"), style = MaterialTheme.typography.bodyMedium)
+                    OutlinedButton(onClick = { onOpenCheckin(current.weekId) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(ContentStore.s("home.checkin.button", "week" to current.weekId.toString()))
+                    }
+                }
             }
         }
 
         if (current.showRoadRulesNudge) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Faz um tempo que você não abre o app.", style = MaterialTheme.typography.bodyMedium)
+                    Text(ContentStore.s("home.roadRulesNudge.prompt"), style = MaterialTheme.typography.bodyMedium)
                     OutlinedButton(onClick = onOpenRoadRules, modifier = Modifier.fillMaxWidth()) {
-                        Text("Reler as Regras da Estrada")
+                        Text(ContentStore.s("home.roadRulesNudge.button"))
                     }
                 }
             }

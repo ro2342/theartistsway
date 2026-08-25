@@ -58,12 +58,35 @@ precisa ser replicada nas três plataformas na mesma sessão, não só numa.
   existe (`data/ContentStore.kt`, lendo de `assets/`, com `fun
   s(key)`) — usar sempre que um texto de UI puder vir de `UI_STRINGS`
   em vez de string local, nas duas plataformas.
-- Retrofit de `UI_STRINGS` cobre nav labels, títulos de card, títulos
-  de tela "bespoke" (`tools.*`) e os textos de botão/diálogo da tela de
-  Ajustes (`settings.*` — exportar/importar, sair, apagar dados,
-  resetar), mas
-  descrições longas/strings muito dinâmicas continuam locais em cada
-  plataforma (decisão consciente de escopo, não esquecimento).
+- **Regra do usuário, sem exceção: todo texto de interface do app tem
+  que vir de `UI_STRINGS`, nenhum texto pode ser escrito direto no
+  código de nenhuma das 3 plataformas** — o motivo é permitir tradução
+  futura pra outro idioma editando só esse arquivo. Isso vale pra texto
+  estático E dinâmico (com variável dentro, tipo "Dia {day} de
+  {total}"). Pra texto dinâmico, cada plataforma tem um helper de
+  substituição de placeholder `{nome}`: `UIS(key, params)` no PWA
+  (`www/js/app.js` — nomeado `UIS`, não `S`, porque o bundle do
+  FluentUI já declara um `S` de nível global e colide), `ContentStore.S(key,
+  params (string,string)[])` no UWP, `ContentStore.s(key, vararg
+  Pair<String,String>)` no Android. O **conteúdo do livro** (`WEEKS`,
+  `TOOL_CONFIGS`, `BASIC_PRINCIPLES`, etc.) já satisfaz esse objetivo
+  por outro caminho — são objetos irmãos de `UI_STRINGS` no mesmo
+  `data.js`, também únicos e também traduzíveis, só não ficam dentro do
+  dicionário plano por terem estrutura própria (título/subtítulo/campos
+  etc.) que faria sentido perder virando string solta.
+- Retrofit de `UI_STRINGS` (histórico, ver `ai/CHANGELOG.md` pros
+  detalhes): baldes 1-3 (nav labels, títulos de card, títulos de tela
+  "bespoke", botões/diálogos de Ajustes) e balde 5 (Home dinâmica —
+  saudação, cartão de decisão de semana, streak de Morning Pages,
+  Artist Date, lembretes) **completos**. Balde 4 (onboarding): estrutura
+  e comportamento já unificados entre as 3 plataformas (mesmo número de
+  passos, mesmo texto de botão), mas o texto ainda não foi movido pra
+  `UI_STRINGS` — próximo candidato a fechar. Fora dos baldes originais,
+  o resto do app (Artist Date, Checklist/Jornada, Quiz, notificações,
+  mensagens de erro) ainda não foi auditado — dado o objetivo de
+  tradução, qualquer string nova ou já existente encontrada fora de
+  `UI_STRINGS` deve ser migrada pra lá ao ser tocada, mesmo fora do
+  escopo original do pedido que motivou a mudança.
 
 ## Identidade visual
 

@@ -21,6 +21,20 @@ namespace ArtistWayUWP.Services
             return Content != null && Content.UiStrings.ContainsKey(key) ? Content.UiStrings[key] : key;
         }
 
+        // Mesma coisa, mas substitui placeholders "{nome}" pelos valores em
+        // replacements — usado pra textos com variável (ex.: "Dia {day} de
+        // {total}"), mesmo padrão em www/js/app.js (função S) e
+        // ContentStore.kt (Android).
+        public static string S(string key, params (string Name, string Value)[] replacements)
+        {
+            string text = S(key);
+            foreach ((string name, string value) in replacements)
+            {
+                text = text.Replace("{" + name + "}", value);
+            }
+            return text;
+        }
+
         public static async Task InitializeAsync()
         {
             if (Content != null)

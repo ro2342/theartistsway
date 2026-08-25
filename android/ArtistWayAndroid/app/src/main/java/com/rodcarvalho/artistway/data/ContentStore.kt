@@ -29,4 +29,16 @@ object ContentStore {
     // acontecer, mas evita um crash bobo), devolve a própria chave em vez
     // de estourar exceção.
     fun s(key: String): String = loaded?.uiStrings?.get(key) ?: key
+
+    // Mesma coisa, mas substitui placeholders "{nome}" pelos valores em
+    // replacements — usado pra textos com variável (ex.: "Dia {day} de
+    // {total}"), mesmo padrão em www/js/app.js (função S) e
+    // ContentStore.cs (UWP).
+    fun s(key: String, vararg replacements: Pair<String, String>): String {
+        var text = s(key)
+        for ((name, value) in replacements) {
+            text = text.replace("{$name}", value)
+        }
+        return text
+    }
 }

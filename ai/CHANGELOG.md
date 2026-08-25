@@ -462,3 +462,171 @@ original estava errada em pontos importantes.
    qualquer um dos dois nativos muda): UWP `42.2.0.25 → 42.2.0.26`;
    Android `versionCode 33→34`, `versionName "42.2.0.25"→"42.2.0.26"`;
    PWA `CACHE_NAME` `"...v13"→"...v14"`.
+5. **CI do Android falhou por motivo alheio ao código**: o run
+   `32821163303` (push do commit acima) deu `failure` no passo
+   "Publicar no GitHub Pages" com `Failed to get ID Token... Request
+   timeout` — um hiccup transiente do serviço OIDC do GitHub Actions, não
+   um bug introduzido. Tentei `gh run rerun --failed`, mas isso criou um
+   2º artefato `github-pages` sob o mesmo run (reruns parciais de
+   workflows upload+deploy não limpam o artefato anterior), causando um
+   2º erro diferente: `Multiple artifacts named "github-pages" were
+   unexpectedly found`. Correção: **não** insistir em rerun do mesmo run
+   corrompido — disparei um run inteiramente novo via `gh workflow run
+   04-build-apk.yml --ref main` (o workflow já tinha `workflow_dispatch`
+   como trigger manual configurado). Esse run novo (`32822241669`)
+   compilou e publicou limpo. Lição registrada: se um workflow
+   upload+deploy falhar no passo de deploy, preferir `workflow_dispatch`
+   (ou um novo push) a `gh run rerun --failed` do mesmo run_id.
+
+## 2026-08-25 (2)
+
+Usuário deu uma instrução permanente: **"todo texto do app deve estar
+nessa ui strings absolutamente tudo!! não quero que nenhum texto seja
+escrito direto nos apps"** — o motivo declarado é permitir tradução do
+app pra outro idioma no futuro, editando só `UI_STRINGS` em vez de
+caçar string por string em 3 codebases diferentes.
+
+1. **Esclarecimento de arquitetura, sem mudança de código**: o
+   conteúdo do livro (`WEEKS`, `TOOL_CONFIGS`, `BASIC_PRINCIPLES`,
+   `ROAD_RULES`, `AFFIRMATIONS`, `BELIEF_TABLE`) já satisfazia o
+   objetivo de tradução por outro caminho — são objetos irmãos de
+   `UI_STRINGS` dentro do mesmo `data.js`, também centralizados,
+   também regenerados pro `content.json` das duas plataformas nativas.
+   Não fazia sentido nem seria melhor achatar essa estrutura (título +
+   subtítulo + campos tipados) dentro do dicionário plano de
+   `UI_STRINGS` só por uma questão de nomenclatura — a "fonte única"
+   já existia pra esse conteúdo, só não se chamava `UI_STRINGS`
+   especificamente. O que realmente faltava era **texto de interface**
+   (onboarding, Home dinâmica, e o resto do app ainda não auditado).
+
+2. **Helper de placeholder `{nome}` criado nas 3 plataformas** (não
+   existia — `UI_STRINGS` até aqui só guardava string estática, nunca
+   precisou de substituição de variável):
+   - **PWA** (`www/js/app.js`): função `S(key, params)` — tentativa
+     inicial. **Colidiu**: o bundle vendorizado do FluentUI
+     (`www/vendor/fluentui/web-components.min.js`, ~274KB minificado)
+     já declara um identificador de nível global `S` (`S="var(--borderRadiusSmall)"`,
+     um valor de design token, aparece dentro de uma declaração
+     `const`/`let` de múltiplas variáveis). Como esse bundle é
+     carregado como `<script>` clássico (não `type="module"`), ele
+     compartilha o mesmo escopo léxico global da página — declarações
+     `let`/`const`/`class` de nível superior em scripts clássicos
+     diferentes colidem entre si mesmo em arquivos separados. Resultado
+     em runtime: `SyntaxError: Identifier 'S' has already been
+     declared`, app inteiro quebrado (tela em branco). Diagnosticado
+     isolando um teste mínimo via Chrome headless/CDP que confirmava
+     app.js sendo buscado uma única vez pela rede (não era duplicação
+     de carregamento) e depois localizando o `S=` dentro do bundle
+     minificado via grep. **Corrigido**: renomeada a função pra `UIS`
+     em toda a `app.js` (40 ocorrências, substituição via regex Node
+     com lookbehind pra não pegar substrings parecidas), com comentário
+     no código explicando o motivo do nome não-óbvio pra não se perder
+     de novo no futuro.
+   - **UWP** (`Services/ContentStore.cs`): overload novo
+     `S(string key, params (string Name, string Value)[] replacements)`
+     ao lado do `S(string key)` existente — sem ambiguidade de overload
+     porque C# prefere a assinatura mais específica quando só 1
+     argumento é passado.
+   - **Android** (`data/ContentStore.kt`): overload novo
+     `fun s(key: String, vararg replacements: Pair<String, String>): String`
+     ao lado do `fun s(key: String)` existente.
+   - Todos os três substituem `{nome}` literal dentro da string pelo
+     valor correspondente, mesma sintaxe de placeholder nas 3
+     plataformas (facilita pro tradutor entender o padrão olhando só
+     `UI_STRINGS`).
+
+3. **Balde 5 (Home dinâmica) migrado por completo** — 38 chaves novas
+   em `UI_STRINGS` (`home.*` e `status.*`), lidas em detalhe de
+   `HomePage.xaml`/`.xaml.cs` (UWP), `HomeScreen.kt` (Android) e a rota
+   `/home` de `app.js` (PWA) antes de desenhar as chaves:
+   - `home.greeting.dayCount` ("Dia {day} de {total}"),
+     `home.greeting.withName` ("Olá, {name}"),
+     `home.greeting.default` ("seu companheiro de jornada").
+   - `home.maintenance.title`/`.description`.
+   - `home.weekCycle.title`/`.summary`/`.question`/`.stayButton`/
+     `.advanceButton`/`.finishButton` (cartão de decisão ao completar 7
+     dias de uma semana) + `status.done`/`status.notDone` (reaproveitado
+     dentro do template de `.summary` pra "Artist Date feito/não feito"
+     e "check-in feito/não feito").
+   - `home.week.label`/`.progress`/`.openButton`.
+   - `home.morningPages.title`/`.thisWeek`/`.hint`/`.toggleOn`/
+     `.toggleOff`/`.weekdayLetters` (esta última guarda "D,S,T,Q,Q,S,S"
+     como string única separada por vírgula, dividida em array em cada
+     plataforma — mantém o padrão "tudo em UI_STRINGS" mesmo pra um
+     array pequeno de letras).
+   - `home.affirmation.label`.
+   - `home.artistDate.title`/`.doneSummary`/`.notDoneSummary`/
+     `.planButton`/`.viewButton`.
+   - `home.checkin.prompt`/`.button`.
+   - `home.roadRulesNudge.prompt`/`.button`.
+   - `home.toast.mpMarked`/`.mpUnmarked`/`.stayedWeek`/`.advancedWeek`/
+     `.finishedProgram` (só usados pelo PWA — os toasts de feedback de
+     ação; UWP/Android não têm toast equivalente pra essas ações
+     específicas, mas o texto entra em `UI_STRINGS` do mesmo jeito,
+     porque é texto do app que existiria numa tradução).
+
+4. **Bugs e divergências reais encontrados e corrigidos no processo**
+   (não é só "mover string" — a leitura linha a linha revelou
+   problemas de verdade):
+   - **Bug real no PWA**: a rota `/home` calculava
+     `const greetName = settings.name ? ", ${settings.name}" : ""`
+     mas **nunca usava essa variável em lugar nenhum** — o PWA sempre
+     caía direto no fallback genérico "seu companheiro de jornada"
+     assim que o `dayCountLabel` ficava vazio (perfil sem `startDate`
+     dentro da janela do programa), pulando inteiramente o caso do meio
+     ("Olá, {nome}") que UWP e Android já implementavam corretamente.
+     Corrigido: agora o PWA usa a mesma cadeia de 3 fallbacks das
+     outras duas plataformas (`dayCount → nome → padrão`).
+   - **Android tinha divergido de PWA/UWP em vários pontos pequenos**
+     (PWA e UWP já concordavam palavra por palavra em quase tudo — só
+     o Android tinha desviado, provavelmente por terem sido escritos em
+     momentos diferentes sem comparação cruzada): card de "Modo
+     manutenção" era uma frase só ("Modo manutenção: continue...") em
+     vez do padrão de 2 partes (título + descrição) que PWA/UWP usam —
+     unificado pro padrão de 2 partes; título "Artist Date" curto vs
+     "Artist Date dessa semana" nas outras duas — unificado pro nome
+     completo; botão "Ver checklist da semana" vs "Ver tarefas da
+     semana" — unificado pro texto que PWA/UWP já usavam; texto de
+     lembrete de Regras da Estrada ("Faz um tempo que você não abre o
+     app." / "Reler as Regras da Estrada") divergia de PWA/UWP ("Faz
+     uns dias que você não passa por aqui." / "Já revisou as Regras da
+     Estrada?") — unificado; botão de check-in era um botão solto sem
+     card/pergunta ("Fazer o check-in da semana"), enquanto PWA/UWP têm
+     um card com pergunta + botão — mudado pra ter a mesma estrutura de
+     card+pergunta+botão, com o texto do botão agora incluindo o número
+     da semana (`"Ir para o check-in da Semana {week}"`, que só o PWA
+     tinha antes) nas 3 plataformas.
+   - **Repetição do bug de ordem de inicialização já visto no balde
+     1-3** (ver entrada de 2026-08-23): `WEEKDAY_LETTERS` era um `private
+     val` de nível de arquivo em `HomeScreen.kt`. Mesmo risco de rodar
+     antes de `ContentStore.initialize()` completar. Removido e
+     substituído por `val weekdayLetters = ContentStore.s(...).split(",")`
+     local, calculado dentro do próprio composable `HomeScreen`, no
+     mesmo padrão já usado pra corrigir `TAB_TITLES` em
+     `SettingsScreen.kt`.
+
+5. **Validação**: varredura de `--` literal (`\s--\s`) em todos os
+   arquivos tocados, zero ocorrência. XML de `HomePage.xaml` validado.
+   `node scripts/generate-content-json.js --check` confirmado em dia.
+   Testes E2E via Chrome headless/CDP (scripts no scratchpad):
+   `test-home.js` — cria um perfil onboarded direto via `DB.setProfile`
+   (sem passar pela tela de onboarding), testa tanto o branch normal
+   (saudação "Dia X de Y", card da semana, progresso, botões de MP/AD,
+   card de check-in) quanto o branch de modo manutenção (título +
+   descrição em 2 partes) — zero erro de console nos dois. Reexecutados
+   também `test-uistrings.js` e `test-onboarding.js` (dos rounds
+   anteriores) pra confirmar que a renomeação `S`→`UIS` não quebrou nada
+   que já estava funcionando — ambos continuam passando.
+
+6. Versão bumpada nas 3 plataformas: UWP `42.2.0.26 → 42.2.0.27`;
+   Android `versionCode 34→35`, `versionName "42.2.0.26"→"42.2.0.27"`;
+   PWA `CACHE_NAME` `"...v14"→"...v15"`.
+
+7. **Regra registrada no `CLAUDE.md`** (seção "Fonte única de conteúdo
+   e texto de UI") pra persistir além desta sessão: todo texto de
+   interface tem que vir de `UI_STRINGS`, sem exceção, incluindo texto
+   novo que for escrito daqui pra frente. O resto do app (Artist Date,
+   Checklist/Jornada, Quiz, notificações, mensagens de erro) ainda não
+   foi auditado — registrado como pendência em "Possíveis próximos
+   passos" do `PROGRESS.md`, tamanho real desconhecido até rodar uma
+   auditoria própria.
