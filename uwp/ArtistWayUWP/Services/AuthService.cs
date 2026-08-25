@@ -179,7 +179,7 @@ namespace ArtistWayUWP.Services
 
                 if (result.ResponseStatus != WebAuthenticationStatus.Success)
                 {
-                    return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.browserError", "status", result.ResponseStatus.ToString(), "detail", result.ResponseErrorDetail) };
+                    return new AuthResult { Success = false, ErrorMessage = ContentStore.S("auth.browserError", "status", result.ResponseStatus.ToString(), "detail", result.ResponseErrorDetail.ToString()) };
                 }
 
                 Uri responseUri = new Uri(result.ResponseData);
