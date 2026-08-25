@@ -3,7 +3,12 @@ const DB = window.ArtistWayDB;
 const NOTIF = window.ArtistWayNotifications;
 const GCAL = window.ArtistWayCalendar;
 
-const WEEKDAY_NAMES = ["", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+// Nomes dos dias da semana vêm de UI_STRINGS (common.weekdayNames) —
+// convenção de índice "1=Domingo...7=Sábado" (índice 0 fica vazio, nunca
+// usado) mantida em toda a codebase, inclusive nas outras 2 plataformas.
+function weekdayNames() {
+  return ["", ...UI_STRINGS["common.weekdayNames"].split(",")];
+}
 
 const appEl = document.getElementById("app");
 
@@ -451,85 +456,86 @@ route("/onboarding", async () => {
   };
   window.__onboardDraft = draft;
 
+  const appTitleHtml = UIS("onboarding.appTitle");
   const steps = [
     // 0 — já é usuário?
     () => `
       <div class="onboard-screen">
-        <h1 class="onboard-title">The Artist's Way<br/>— Companheiro —</h1>
-        <p class="onboard-sub">Você já usa esse app em outro aparelho?</p>
-        <p class="muted" style="text-align:center;">Entre com a mesma conta Google pra trazer seus dados agora, sem preencher tudo de novo.</p>
-        <button class="btn brass block" id="loginBtn">Já sou usuário(a) — entrar com Google</button>
+        <h1 class="onboard-title">${appTitleHtml}</h1>
+        <p class="onboard-sub">${UIS("onboarding.returningUser.question")}</p>
+        <p class="muted" style="text-align:center;">${UIS("onboarding.returningUser.description")}</p>
+        <button class="btn brass block" id="loginBtn">${UIS("onboarding.returningUser.loginButton")}</button>
         <p class="muted" id="loginStatus" style="display:none;text-align:center;"></p>
-        <button class="btn secondary block" id="next" style="margin-top:12px;">Começar sem login</button>
+        <button class="btn secondary block" id="next" style="margin-top:12px;">${UIS("onboarding.returningUser.skipButton")}</button>
         <div class="dots-progress"><span class="active"></span><span></span><span></span><span></span><span></span></div>
       </div>`,
     // 1 — boas vindas
     () => `
       <div class="onboard-screen">
-        <div class="quote-banner">"A criatividade recuperada nunca é perdida de novo."</div>
-        <h1 class="onboard-title">The Artist's Way<br/>— Companheiro —</h1>
-        <p class="onboard-sub">Um espaço para transformar as tarefas do livro em passos claros, um dia de cada vez. Vamos organizar sua jornada de 12 semanas.</p>
-        <button class="btn brass block" id="next">Começar</button>
+        <div class="quote-banner">${UIS("onboarding.welcome.quote")}</div>
+        <h1 class="onboard-title">${appTitleHtml}</h1>
+        <p class="onboard-sub">${UIS("onboarding.welcome.description")}</p>
+        <button class="btn brass block" id="next">${UIS("onboarding.welcome.startButton")}</button>
         <div class="dots-progress"><span></span><span class="active"></span><span></span><span></span><span></span></div>
       </div>`,
     // 2 — nome + data de início
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
-        <h2 class="onboard-title">Como posso te chamar?</h2>
-        <p class="onboard-sub">E quando você quer começar sua Semana 1 (domingo a sábado)?</p>
-        <label>Nome</label>
-        <input type="text" id="fname" value="${draft.name}" placeholder="Seu nome" />
-        <label>Início da Semana 1</label>
+        <h2 class="onboard-title">${UIS("onboarding.nameDate.title")}</h2>
+        <p class="onboard-sub">${UIS("onboarding.nameDate.subtitle")}</p>
+        <label>${UIS("onboarding.nameDate.nameLabel")}</label>
+        <input type="text" id="fname" value="${draft.name}" placeholder="${UIS("onboarding.nameDate.namePlaceholder")}" />
+        <label>${UIS("onboarding.nameDate.startDateLabel")}</label>
         <input type="date" id="fstart" value="${draft.startDate}" />
         <div class="spacer"></div>
-        <button class="btn brass block" id="next">Continuar</button>
+        <button class="btn brass block" id="next">${UIS("onboarding.continueButton")}</button>
         <div class="dots-progress"><span></span><span></span><span class="active"></span><span></span><span></span></div>
       </div>`,
     // 3 — rituais: morning pages + artist date + check-in, tudo numa tela só
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
-        <h2 class="onboard-title">Seus rituais</h2>
-        <p class="onboard-sub">Quando você prefere ser lembrado(a) de cada hábito?</p>
-        <label class="onboard-section-label">Morning Pages (todo dia)</label>
-        <label>Horário</label>
+        <h2 class="onboard-title">${UIS("onboarding.rituals.title")}</h2>
+        <p class="onboard-sub">${UIS("onboarding.rituals.subtitle")}</p>
+        <label class="onboard-section-label">${UIS("onboarding.rituals.morningPagesSection")}</label>
+        <label>${UIS("onboarding.rituals.timeLabel")}</label>
         <input type="time" id="fmp" value="${draft.morningPagesTime}" />
-        <label class="onboard-section-label">Artist Date (semanal)</label>
-        <label>Dia da semana</label>
+        <label class="onboard-section-label">${UIS("onboarding.rituals.artistDateSection")}</label>
+        <label>${UIS("onboarding.rituals.weekdayLabel")}</label>
         <select id="fadday">
           ${[1, 2, 3, 4, 5, 6, 7]
-            .map((d) => `<option value="${d}" ${String(d) === draft.artistDateDay ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+            .map((d) => `<option value="${d}" ${String(d) === draft.artistDateDay ? "selected" : ""}>${weekdayNames()[d]}</option>`)
             .join("")}
         </select>
-        <label>Horário</label>
+        <label>${UIS("onboarding.rituals.timeLabel")}</label>
         <input type="time" id="fadtime" value="${draft.artistDateTime}" />
-        <label class="onboard-section-label">Check-in semanal</label>
-        <label>Dia da semana</label>
+        <label class="onboard-section-label">${UIS("onboarding.rituals.checkinSection")}</label>
+        <label>${UIS("onboarding.rituals.weekdayLabel")}</label>
         <select id="fciday">
           ${[1, 2, 3, 4, 5, 6, 7]
-            .map((d) => `<option value="${d}" ${String(d) === draft.checkinDay ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+            .map((d) => `<option value="${d}" ${String(d) === draft.checkinDay ? "selected" : ""}>${weekdayNames()[d]}</option>`)
             .join("")}
         </select>
-        <label>Horário</label>
+        <label>${UIS("onboarding.rituals.timeLabel")}</label>
         <input type="time" id="fcitime" value="${draft.checkinTime}" />
         <div class="spacer"></div>
-        <button class="btn brass block" id="next">Continuar</button>
+        <button class="btn brass block" id="next">${UIS("onboarding.continueButton")}</button>
         <div class="dots-progress"><span></span><span></span><span></span><span class="active"></span><span></span></div>
       </div>`,
     // 4 — contrato inicial assinável
     () => `
       <div class="onboard-screen">
         <button class="icon-btn" id="stepBack"><span class="icon">${window.ArtistWayIcons.arrowLeft}</span></button>
-        <h2 class="onboard-title">Seu contrato inicial</h2>
-        <p class="onboard-sub">O livro abre com um compromisso de 12 semanas: Morning Pages todo dia, Artist Date semanal, e cuidado consigo mesmo(a) ao longo do processo. Assine com seu nome pra começar.</p>
+        <h2 class="onboard-title">${UIS("onboarding.contract.title")}</h2>
+        <p class="onboard-sub">${UIS("onboarding.contract.description")}</p>
         <div class="card">
-          <p class="muted">Eu, <strong>${draft.name || "___"}</strong>, me comprometo com 12 semanas de recuperação criativa: escrever minhas Morning Pages todos os dias, fazer meu Artist Date toda semana, e ser gentil comigo mesmo(a) no caminho.</p>
+          <p class="muted">${UIS("onboarding.contract.sentence", { name: `<strong>${draft.name || "___"}</strong>` })}</p>
         </div>
-        <label>Assinatura (seu nome)</label>
-        <input type="text" id="fsignature" value="${draft.contractSignedName || draft.name || ""}" placeholder="Seu nome" />
+        <label>${UIS("onboarding.contract.signatureLabel")}</label>
+        <input type="text" id="fsignature" value="${draft.contractSignedName || draft.name || ""}" placeholder="${UIS("onboarding.contract.signaturePlaceholder")}" />
         <div class="spacer"></div>
-        <button class="btn moss block" id="finish">Assinar e começar</button>
+        <button class="btn moss block" id="finish">${UIS("onboarding.contract.finishButton")}</button>
         <div class="dots-progress"><span></span><span></span><span></span><span></span><span class="active"></span></div>
       </div>`,
   ];
@@ -573,10 +579,10 @@ route("/onboarding", async () => {
   if (loginBtn) {
     loginBtn.addEventListener("click", () => {
       loginBtn.disabled = true;
-      loginBtn.textContent = "Entrando...";
+      loginBtn.textContent = UIS("onboarding.returningUser.loggingIn");
       if (loginStatus) {
         loginStatus.style.display = "";
-        loginStatus.textContent = "Você vai ser levado(a) pro login do Google e volta pra cá.";
+        loginStatus.textContent = UIS("onboarding.returningUser.redirectStatus");
       }
       window.ArtistWayAuth.startGoogleLogin();
     });
@@ -592,10 +598,10 @@ route("/onboarding", async () => {
         await NOTIF.applySettings(draft);
         window.__onboardStep = 0;
         window.__onboardDraft = null;
-        toast("Tudo pronto! Bem-vindo(a)");
+        toast(UIS("onboarding.toast.done"));
         navigate("#/home");
       } catch (err) {
-        toast("Erro ao concluir: " + err.message);
+        toast(UIS("onboarding.toast.errorPrefix") + err.message);
       }
     });
   }
@@ -1660,7 +1666,7 @@ route("/profile", async () => {
       <label>Dia do Artist Date</label>
       <select id="fadday">
         ${[1, 2, 3, 4, 5, 6, 7]
-          .map((d) => `<option value="${d}" ${String(d) === String(settings.artistDateDay) ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+          .map((d) => `<option value="${d}" ${String(d) === String(settings.artistDateDay) ? "selected" : ""}>${weekdayNames()[d]}</option>`)
           .join("")}
       </select>
       <label>Horário do Artist Date</label>
@@ -1668,7 +1674,7 @@ route("/profile", async () => {
       <label>Dia do check-in</label>
       <select id="fciday">
         ${[1, 2, 3, 4, 5, 6, 7]
-          .map((d) => `<option value="${d}" ${String(d) === String(settings.checkinDay) ? "selected" : ""}>${WEEKDAY_NAMES[d]}</option>`)
+          .map((d) => `<option value="${d}" ${String(d) === String(settings.checkinDay) ? "selected" : ""}>${weekdayNames()[d]}</option>`)
           .join("")}
       </select>
       <label>Horário do check-in</label>

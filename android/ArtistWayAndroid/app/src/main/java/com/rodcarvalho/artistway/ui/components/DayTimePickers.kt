@@ -17,17 +17,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.rodcarvalho.artistway.data.ContentStore
 
-// Convenção "1=Domingo...7=Sábado", igual PWA e UWP.
-private val WEEKDAY_NAMES = listOf("", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado")
+// Convenção "1=Domingo...7=Sábado", igual PWA e UWP. Nomes vêm de
+// UI_STRINGS (common.weekdayNames) — calculado dentro do composable (não
+// como val de nível de arquivo) pra não rodar antes de
+// ContentStore.initialize() terminar.
+private fun weekdayNames(): List<String> = listOf("") + ContentStore.s("common.weekdayNames").split(",")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekdayDropdown(label: String, selectedDay: Int, onDaySelected: (Int) -> Unit, modifier: Modifier = Modifier) {
     var expanded by remember { mutableStateOf(false) }
+    val names = weekdayNames()
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }, modifier = modifier) {
         OutlinedTextField(
-            value = WEEKDAY_NAMES[selectedDay],
+            value = names[selectedDay],
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
@@ -37,7 +42,7 @@ fun WeekdayDropdown(label: String, selectedDay: Int, onDaySelected: (Int) -> Uni
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             for (day in 1..7) {
                 DropdownMenuItem(
-                    text = { Text(WEEKDAY_NAMES[day]) },
+                    text = { Text(names[day]) },
                     onClick = {
                         onDaySelected(day)
                         expanded = false
@@ -70,7 +75,7 @@ fun TimePickerField(label: String, time: String, onTimeChange: (String) -> Unit,
         label = { Text(label) },
         modifier = modifier,
         trailingIcon = {
-            TextButton(onClick = { showDialog = true }) { Text("Trocar") }
+            TextButton(onClick = { showDialog = true }) { Text(ContentStore.s("common.timePickerChangeButton")) }
         },
     )
     if (showDialog) {
@@ -82,10 +87,10 @@ fun TimePickerField(label: String, time: String, onTimeChange: (String) -> Unit,
                 TextButton(onClick = {
                     onTimeChange(formatTime(state.hour, state.minute))
                     showDialog = false
-                }) { Text("OK") }
+                }) { Text(ContentStore.s("common.ok")) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("Cancelar") }
+                TextButton(onClick = { showDialog = false }) { Text(ContentStore.s("common.cancel")) }
             },
             text = { TimePicker(state = state) },
         )

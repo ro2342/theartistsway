@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.rodcarvalho.artistway.auth.AuthService
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.notifications.NotificationScheduler
@@ -141,12 +142,9 @@ private fun ReturningUserStep(onSkip: () -> Unit, onLoggedInWithProfile: () -> U
     var loggingIn by remember { mutableStateOf(false) }
     var status by remember { mutableStateOf<String?>(null) }
 
-    Text("Bem-vindo(a)", style = MaterialTheme.typography.headlineMedium)
-    Text(
-        "Companheiro de leitura pra The Artist's Way. Se você já usa esse app " +
-            "em outro aparelho, entre com a mesma conta Google pra continuar de onde parou.",
-        style = MaterialTheme.typography.bodyLarge,
-    )
+    Text(ContentStore.s("onboarding.appTitle"), style = MaterialTheme.typography.headlineMedium)
+    Text(ContentStore.s("onboarding.returningUser.question"), style = MaterialTheme.typography.bodyLarge)
+    Text(ContentStore.s("onboarding.returningUser.description"), style = MaterialTheme.typography.bodyMedium)
     Button(
         onClick = {
             loggingIn = true
@@ -158,35 +156,34 @@ private fun ReturningUserStep(onSkip: () -> Unit, onLoggedInWithProfile: () -> U
                     status = outcome.errorMessage
                     return@launch
                 }
-                status = "Login OK — buscando seus dados..."
+                status = ContentStore.s("onboarding.returningUser.syncingStatus")
                 SyncService.syncAll()
                 val profile = LocalDataStore.getProfile()
                 loggingIn = false
                 if (profile != null && profile.onboarded) {
                     onLoggedInWithProfile()
                 } else {
-                    status = "Login OK, mas não achei dados salvos com essa conta. " +
-                        "Vamos configurar do zero — a partir de agora, tudo já fica salvo na nuvem."
+                    status = ContentStore.s("onboarding.returningUser.noDataFoundStatus")
                     onSkip()
                 }
             }
         },
         enabled = !loggingIn,
         modifier = Modifier.fillMaxWidth(),
-    ) { Text(if (loggingIn) "Entrando..." else "Já sou usuário(a) — entrar com Google") }
+    ) { Text(if (loggingIn) ContentStore.s("onboarding.returningUser.loggingIn") else ContentStore.s("onboarding.returningUser.loginButton")) }
     status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-    TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) { Text("Começar sem login") }
+    TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) { Text(ContentStore.s("onboarding.returningUser.skipButton")) }
 }
 
 @Composable
 private fun WelcomeStep(onNext: () -> Unit) {
-    Text("Bem-vindo(a)", style = MaterialTheme.typography.headlineMedium)
     Text(
-        "Vamos configurar seu programa de 12 semanas de recuperação criativa, " +
-            "baseado no livro The Artist's Way. Leva menos de um minuto.",
-        style = MaterialTheme.typography.bodyLarge,
+        ContentStore.s("onboarding.welcome.quote"),
+        style = MaterialTheme.typography.titleMedium,
     )
-    Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) { Text("Começar") }
+    Text(ContentStore.s("onboarding.appTitle"), style = MaterialTheme.typography.headlineMedium)
+    Text(ContentStore.s("onboarding.welcome.description"), style = MaterialTheme.typography.bodyLarge)
+    Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) { Text(ContentStore.s("onboarding.welcome.startButton")) }
 }
 
 @Composable
@@ -198,12 +195,13 @@ private fun NameDateStep(
     onBack: () -> Unit,
     onNext: () -> Unit,
 ) {
-    Text("Seu nome e data de início", style = MaterialTheme.typography.headlineSmall)
-    OutlinedTextField(value = name, onValueChange = onNameChange, label = { Text("Como podemos te chamar?") }, modifier = Modifier.fillMaxWidth())
+    Text(ContentStore.s("onboarding.nameDate.title"), style = MaterialTheme.typography.headlineSmall)
+    Text(ContentStore.s("onboarding.nameDate.subtitle"), style = MaterialTheme.typography.bodyMedium)
+    OutlinedTextField(value = name, onValueChange = onNameChange, label = { Text(ContentStore.s("onboarding.nameDate.nameLabel")) }, modifier = Modifier.fillMaxWidth())
     OutlinedTextField(
         value = startDate,
         onValueChange = onStartDateChange,
-        label = { Text("Data de início (aaaa-mm-dd)") },
+        label = { Text(ContentStore.s("onboarding.nameDate.startDateLabel")) },
         modifier = Modifier.fillMaxWidth(),
     )
     StepNavRow(onBack = onBack, onNext = onNext, nextEnabled = name.isNotBlank())
@@ -224,19 +222,19 @@ private fun RitualsStep(
     onBack: () -> Unit,
     onNext: () -> Unit,
 ) {
-    Text("Seus rituais", style = MaterialTheme.typography.headlineSmall)
-    Text("Quando você prefere ser lembrado(a) de cada hábito?", style = MaterialTheme.typography.bodyMedium)
+    Text(ContentStore.s("onboarding.rituals.title"), style = MaterialTheme.typography.headlineSmall)
+    Text(ContentStore.s("onboarding.rituals.subtitle"), style = MaterialTheme.typography.bodyMedium)
 
-    Text("Morning Pages (todo dia)", style = MaterialTheme.typography.titleSmall)
-    TimePickerField("Horário", morningPagesTime, onMorningPagesTimeChange, modifier = Modifier.fillMaxWidth())
+    Text(ContentStore.s("onboarding.rituals.morningPagesSection"), style = MaterialTheme.typography.titleSmall)
+    TimePickerField(ContentStore.s("onboarding.rituals.timeLabel"), morningPagesTime, onMorningPagesTimeChange, modifier = Modifier.fillMaxWidth())
 
-    Text("Artist Date (semanal)", style = MaterialTheme.typography.titleSmall)
-    WeekdayDropdown("Dia da semana", artistDateDay, onArtistDateDayChange, modifier = Modifier.fillMaxWidth())
-    TimePickerField("Horário", artistDateTime, onArtistDateTimeChange, modifier = Modifier.fillMaxWidth())
+    Text(ContentStore.s("onboarding.rituals.artistDateSection"), style = MaterialTheme.typography.titleSmall)
+    WeekdayDropdown(ContentStore.s("onboarding.rituals.weekdayLabel"), artistDateDay, onArtistDateDayChange, modifier = Modifier.fillMaxWidth())
+    TimePickerField(ContentStore.s("onboarding.rituals.timeLabel"), artistDateTime, onArtistDateTimeChange, modifier = Modifier.fillMaxWidth())
 
-    Text("Check-in semanal", style = MaterialTheme.typography.titleSmall)
-    WeekdayDropdown("Dia da semana", checkinDay, onCheckinDayChange, modifier = Modifier.fillMaxWidth())
-    TimePickerField("Horário", checkinTime, onCheckinTimeChange, modifier = Modifier.fillMaxWidth())
+    Text(ContentStore.s("onboarding.rituals.checkinSection"), style = MaterialTheme.typography.titleSmall)
+    WeekdayDropdown(ContentStore.s("onboarding.rituals.weekdayLabel"), checkinDay, onCheckinDayChange, modifier = Modifier.fillMaxWidth())
+    TimePickerField(ContentStore.s("onboarding.rituals.timeLabel"), checkinTime, onCheckinTimeChange, modifier = Modifier.fillMaxWidth())
 
     StepNavRow(onBack = onBack, onNext = onNext)
 }
@@ -249,24 +247,23 @@ private fun ContractStep(
     onBack: () -> Unit,
     onFinish: () -> Unit,
 ) {
-    Text("Contrato Inicial", style = MaterialTheme.typography.headlineSmall)
+    Text(ContentStore.s("onboarding.contract.title"), style = MaterialTheme.typography.headlineSmall)
+    Text(ContentStore.s("onboarding.contract.description"), style = MaterialTheme.typography.bodyMedium)
     Text(
-        "Eu, $name, me comprometo com 12 semanas de recuperação criativa: " +
-            "escrever minhas Morning Pages todos os dias, fazer meu Artist Date " +
-            "toda semana, e ser gentil comigo mesmo(a) no caminho.",
+        ContentStore.s("onboarding.contract.sentence", "name" to name),
         style = MaterialTheme.typography.bodyLarge,
     )
-    OutlinedTextField(value = signature, onValueChange = onSignatureChange, label = { Text("Assinatura") }, modifier = Modifier.fillMaxWidth())
+    OutlinedTextField(value = signature, onValueChange = onSignatureChange, label = { Text(ContentStore.s("onboarding.contract.signatureLabel")) }, modifier = Modifier.fillMaxWidth())
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        TextButton(onClick = onBack) { Text("Voltar") }
-        Button(onClick = onFinish) { Text("Concluir") }
+        TextButton(onClick = onBack) { Text(ContentStore.s("onboarding.backButton")) }
+        Button(onClick = onFinish) { Text(ContentStore.s("onboarding.contract.finishButton")) }
     }
 }
 
 @Composable
 private fun StepNavRow(onBack: () -> Unit, onNext: () -> Unit, nextEnabled: Boolean = true) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        TextButton(onClick = onBack) { Text("Voltar") }
-        Button(onClick = onNext, enabled = nextEnabled) { Text("Avançar") }
+        TextButton(onClick = onBack) { Text(ContentStore.s("onboarding.backButton")) }
+        Button(onClick = onNext, enabled = nextEnabled) { Text(ContentStore.s("onboarding.continueButton")) }
     }
 }

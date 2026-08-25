@@ -676,3 +676,103 @@ onboarding deste mesmo dia.
    problema de target, só bump pra manter o número em lockstep). PWA
    não mudou nesta rodada (o bug era só C#), `CACHE_NAME` continua
    `v15`.
+
+## 2026-08-25 (4)
+
+Usuário confirmou ("sim") continuar pro balde 4 (texto do onboarding —
+estrutura já tinha sido alinhada em "2026-08-25", faltava só mover o
+texto) e começar a auditoria do resto do app.
+
+1. **Levantamento completo do texto de onboarding nas 3 plataformas**
+   antes de desenhar as chaves — leitura lado a lado de
+   `www/js/app.js` (rota `/onboarding`), `OnboardingPage.xaml`/`.xaml.cs`
+   (UWP) e `OnboardingScreen.kt` (Android). Descoberta: PWA e UWP já
+   concordavam palavra por palavra em quase todo o texto (mesma origem
+   histórica); só o Android tinha divergido — títulos diferentes ("Bem-
+   vindo(a)" genérico em vez de "The Artist's Way — Companheiro" nas
+   telas 0 e 1), descrições reescritas com outras palavras, botão
+   "Voltar"/"Avançar" em vez de "Continuar", "Contrato Inicial" em vez
+   de "Seu contrato inicial", "Concluir" em vez de "Assinar e começar",
+   e faltava o parágrafo de introdução do contrato que PWA/UWP têm.
+   Critério aplicado: onde 2 das 3 plataformas já concordavam, esse
+   texto virou o canônico e a 3ª foi alinhada — mesmo padrão já usado
+   pro balde 5 (Home).
+2. **~35 chaves novas em `UI_STRINGS`**: `common.weekdayNames`
+   ("Domingo,Segunda,...,Sábado" — 7 nomes separados por vírgula),
+   `common.timePickerChangeButton` ("Trocar"), e o grupo `onboarding.*`
+   cobrindo `appTitle`, `backButton`, `continueButton`,
+   `returningUser.*` (question/description/loginButton/loggingIn/
+   skipButton/redirectStatus/loggingInStatus/loginFailedDefault/
+   syncingStatus/noDataFoundStatus), `welcome.*` (quote/description/
+   startButton), `nameDate.*` (title/subtitle/nameLabel/
+   namePlaceholder/startDateLabel), `rituals.*` (title/subtitle/
+   morningPagesSection/artistDateSection/checkinSection/timeLabel/
+   weekdayLabel), `contract.*` (title/description/sentence/
+   signatureLabel/signaturePlaceholder/finishButton) e `toast.*`
+   (done/errorPrefix, usados só pelo PWA).
+3. **Array de nomes de dias da semana estava duplicado 4 vezes com
+   texto hardcoded** — achado ao investigar onde `WEEKDAY_NAMES`/
+   `WeekdayNames` eram usados antes de decidir a chave: `www/js/app.js`
+   (`WEEKDAY_NAMES`, usado no onboarding E na tela de Ajustes),
+   `OnboardingPage.xaml.cs` (UWP), `ProfilePage.xaml.cs` (UWP — cópia
+   separada, mesmo array duplicado dentro do próprio UWP) e
+   `DayTimePickers.kt` (Android, componente `WeekdayDropdown`
+   compartilhado entre Onboarding e Perfil). Todos os 4 agora leem de
+   `UI_STRINGS["common.weekdayNames"]` — em vez de mudar a indexação
+   (convenção "1=Domingo...7=Sábado" com índice 0 vazio, já usada em
+   várias partes do código), cada plataforma reconstrói o array local
+   prependando uma string vazia (`["", ...valor.split(",")]` no
+   PWA/Android; `new[] { "" }.Concat(...).ToArray()` no UWP, exigindo
+   `using System.Linq;` novo nos dois arquivos UWP tocados) — assim
+   nenhum call site existente (`array[dia]`) precisou mudar.
+4. **PWA** (`www/js/app.js`): título do onboarding trocado de um
+   `<h1>` com `<br/>` manual + travessões decorativos hardcoded pra um
+   `<h1>` simples com o valor de `UI_STRINGS` (a quebra de linha
+   decorativa dependia de manipulação frágil de string por
+   `.replace()` — descartada em favor de deixar o CSS/wrap natural do
+   navegador cuidar disso). Os 5 `steps[]` reescritos ponta a ponta com
+   `UIS(...)`; handlers de clique (`loginBtn`, `finish`) também. Nova
+   função `weekdayNames()` substituindo a constante `WEEKDAY_NAMES`,
+   usada nos 4 lugares que já existiam (2 no onboarding, 2 na tela de
+   Ajustes).
+5. **UWP**: `OnboardingPage.xaml` — todo `TextBlock`/`Button` estático
+   ganhou `x:Name` (14 novos) e o construtor de `OnboardingPage.xaml.cs`
+   passou a setar cada um via `ContentStore.S(...)`, no mesmo padrão já
+   usado nas outras páginas. `ShowStep` (frase do contrato) e
+   `ReturningUserLogin_Click` (5 textos de status/botão) também
+   migrados. `ProfilePage.xaml.cs`: array `WeekdayNames` removido,
+   `PopulateWeekdayCombo` (método `static`) agora lê de
+   `ContentStore.S("common.weekdayNames")`.
+6. **Android**: `OnboardingScreen.kt` reescrito ponta a ponta —
+   `ReturningUserStep`, `WelcomeStep`, `NameDateStep`, `RitualsStep`,
+   `ContractStep`, `StepNavRow`, todos usando `ContentStore.s(...)`.
+   `DayTimePickers.kt` (componente compartilhado
+   `WeekdayDropdown`/`TimePickerField`): `WEEKDAY_NAMES` (val de nível
+   de arquivo) removido e substituído por uma função `weekdayNames()`
+   calculada dentro do composable (mesma cautela de ordem de
+   inicialização já aplicada em `TAB_TITLES`/`WEEKDAY_LETTERS` nas
+   entradas anteriores); botões "Trocar"/"OK"/"Cancelar" do
+   `TimePickerField` também migrados (`common.timePickerChangeButton`,
+   reaproveitando `common.ok`/`common.cancel` já existentes).
+7. **Validação**: `node --check` no `app.js`, XML de `OnboardingPage.xaml`
+   validado, varredura de `--` literal e de literais PT-BR remanescentes
+   (grep dedicado por arquivo) — zero ocorrência em todos os 7 arquivos
+   tocados. `node scripts/generate-content-json.js --check` confirmado.
+   Testes E2E via Chrome headless/CDP: `test-onboarding.js` (dos rounds
+   anteriores, reexecutado) confirma os 5 passos e zero erro de
+   console; novo `test-onboarding2.js` (scratchpad) navega até o passo
+   3 confirmando as 7 opções do `<select>` de dia da semana renderizam
+   nomes em português (não a chave crua), e até o passo 4 confirmando
+   que `{name}` foi substituído corretamente dentro do HTML da frase do
+   contrato (`Eu, <strong>Maria</strong>, me comprometo...`).
+   Reexecutados também `test-uistrings.js` e `test-home.js` (rounds
+   anteriores) pra confirmar que a extração de `weekdayNames()` na tela
+   de Ajustes não quebrou nada — ambos continuam passando.
+8. Versão bumpada nas 3 plataformas: UWP `42.2.0.28 → 42.2.0.29`;
+   Android `versionCode 36→37`, `versionName "42.2.0.28"→"42.2.0.29"`;
+   PWA `CACHE_NAME` `"...v15"→"...v16"`.
+9. **Balde 4 fechado por completo.** Próximo passo (ainda não
+   iniciado): auditoria do resto do app — Artist Date, Checklist/
+   Jornada, Quiz, Perfil, notificações, calendário, mensagens de erro
+   — pra saber o tamanho real do que falta pro objetivo de "absolutamente
+   tudo".

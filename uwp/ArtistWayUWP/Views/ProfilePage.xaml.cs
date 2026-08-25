@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
 using Windows.UI.Xaml;
@@ -13,9 +14,6 @@ namespace ArtistWayUWP.Views
     // não é bem um "ajuste", é o próprio programa de 12 semanas da pessoa.
     public sealed partial class ProfilePage : Page
     {
-        private static readonly string[] WeekdayNames =
-            { "", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado" };
-
         private ProfileSettings _profile;
 
         public ProfilePage()
@@ -27,9 +25,10 @@ namespace ArtistWayUWP.Views
 
         private static void PopulateWeekdayCombo(ComboBox combo)
         {
+            string[] weekdayNames = new[] { "" }.Concat(ContentStore.S("common.weekdayNames").Split(',')).ToArray();
             for (int i = 1; i <= 7; i++)
             {
-                combo.Items.Add(new ComboBoxItem { Content = WeekdayNames[i], Tag = i });
+                combo.Items.Add(new ComboBoxItem { Content = weekdayNames[i], Tag = i });
             }
         }
 

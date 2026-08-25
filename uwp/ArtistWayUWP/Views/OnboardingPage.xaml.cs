@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ArtistWayUWP.Models;
 using ArtistWayUWP.Services;
 using Windows.UI.Xaml;
@@ -8,9 +9,6 @@ namespace ArtistWayUWP.Views
 {
     public sealed partial class OnboardingPage : Page
     {
-        private static readonly string[] WeekdayNames =
-            { "", "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado" };
-
         private int _step;
         private StackPanel[] _panels;
 
@@ -19,10 +17,44 @@ namespace ArtistWayUWP.Views
             this.InitializeComponent();
             _panels = new[] { ReturningUserPanel, WelcomePanel, NameDatePanel, RitualsPanel, ContractPanel };
 
+            AppTitleText1.Text = ContentStore.S("onboarding.appTitle");
+            AppTitleText2.Text = ContentStore.S("onboarding.appTitle");
+            ReturningUserQuestionText.Text = ContentStore.S("onboarding.returningUser.question");
+            ReturningUserDescriptionText.Text = ContentStore.S("onboarding.returningUser.description");
+            ReturningUserLoginButton.Content = ContentStore.S("onboarding.returningUser.loginButton");
+            SkipLoginButton.Content = ContentStore.S("onboarding.returningUser.skipButton");
+            WelcomeQuoteText.Text = ContentStore.S("onboarding.welcome.quote");
+            WelcomeDescriptionText.Text = ContentStore.S("onboarding.welcome.description");
+            WelcomeStartButton.Content = ContentStore.S("onboarding.welcome.startButton");
+            NameDateTitleText.Text = ContentStore.S("onboarding.nameDate.title");
+            NameDateSubtitleText.Text = ContentStore.S("onboarding.nameDate.subtitle");
+            NameLabelText.Text = ContentStore.S("onboarding.nameDate.nameLabel");
+            StartDateLabelText.Text = ContentStore.S("onboarding.nameDate.startDateLabel");
+            BackButton1.Content = ContentStore.S("onboarding.backButton");
+            ContinueButton1.Content = ContentStore.S("onboarding.continueButton");
+            RitualsTitleText.Text = ContentStore.S("onboarding.rituals.title");
+            RitualsSubtitleText.Text = ContentStore.S("onboarding.rituals.subtitle");
+            MorningPagesSectionText.Text = ContentStore.S("onboarding.rituals.morningPagesSection");
+            MpTimeLabelText.Text = ContentStore.S("onboarding.rituals.timeLabel");
+            ArtistDateSectionText.Text = ContentStore.S("onboarding.rituals.artistDateSection");
+            AdWeekdayLabelText.Text = ContentStore.S("onboarding.rituals.weekdayLabel");
+            AdTimeLabelText.Text = ContentStore.S("onboarding.rituals.timeLabel");
+            CheckinSectionText.Text = ContentStore.S("onboarding.rituals.checkinSection");
+            CiWeekdayLabelText.Text = ContentStore.S("onboarding.rituals.weekdayLabel");
+            CiTimeLabelText.Text = ContentStore.S("onboarding.rituals.timeLabel");
+            BackButton2.Content = ContentStore.S("onboarding.backButton");
+            ContinueButton2.Content = ContentStore.S("onboarding.continueButton");
+            ContractTitleText.Text = ContentStore.S("onboarding.contract.title");
+            ContractDescriptionText.Text = ContentStore.S("onboarding.contract.description");
+            SignatureLabelText.Text = ContentStore.S("onboarding.contract.signatureLabel");
+            BackButton3.Content = ContentStore.S("onboarding.backButton");
+            FinishButton.Content = ContentStore.S("onboarding.contract.finishButton");
+
+            string[] weekdayNames = new[] { "" }.Concat(ContentStore.S("common.weekdayNames").Split(',')).ToArray();
             for (int i = 1; i <= 7; i++)
             {
-                ArtistDateDayCombo.Items.Add(new ComboBoxItem { Content = WeekdayNames[i], Tag = i });
-                CheckinDayCombo.Items.Add(new ComboBoxItem { Content = WeekdayNames[i], Tag = i });
+                ArtistDateDayCombo.Items.Add(new ComboBoxItem { Content = weekdayNames[i], Tag = i });
+                CheckinDayCombo.Items.Add(new ComboBoxItem { Content = weekdayNames[i], Tag = i });
             }
 
             DateTime suggestedStart = WeekCalculator.StartOfWeek(DateTime.Now.AddDays(7));
@@ -47,7 +79,7 @@ namespace ArtistWayUWP.Views
             if (_panels[step] == ContractPanel)
             {
                 string name = string.IsNullOrEmpty(NameBox.Text.Trim()) ? "___" : NameBox.Text.Trim();
-                ContractText.Text = $"Eu, {name}, me comprometo com 12 semanas de recuperação criativa: escrever minhas Morning Pages todos os dias, fazer meu Artist Date toda semana, e ser gentil comigo mesmo(a) no caminho.";
+                ContractText.Text = ContentStore.S("onboarding.contract.sentence", "name", name);
                 if (string.IsNullOrEmpty(SignatureBox.Text))
                 {
                     SignatureBox.Text = NameBox.Text.Trim();
@@ -68,21 +100,21 @@ namespace ArtistWayUWP.Views
         {
             Button button = (Button)sender;
             button.IsEnabled = false;
-            button.Content = "Entrando...";
+            button.Content = ContentStore.S("onboarding.returningUser.loggingIn");
             ReturningUserStatusText.Visibility = Visibility.Visible;
-            ReturningUserStatusText.Text = "Entrando com o Google...";
+            ReturningUserStatusText.Text = ContentStore.S("onboarding.returningUser.loggingInStatus");
 
             AuthResult result = await AuthService.SignInWithGoogleConsentAsync();
             if (!result.Success)
             {
                 button.IsEnabled = true;
-                button.Content = "Já sou usuário(a) — entrar com Google";
-                ReturningUserStatusText.Text = result.ErrorMessage ?? "Login cancelado.";
+                button.Content = ContentStore.S("onboarding.returningUser.loginButton");
+                ReturningUserStatusText.Text = result.ErrorMessage ?? ContentStore.S("onboarding.returningUser.loginFailedDefault");
                 return;
             }
 
             SessionService.SaveSession(result);
-            ReturningUserStatusText.Text = "Login OK — buscando seus dados...";
+            ReturningUserStatusText.Text = ContentStore.S("onboarding.returningUser.syncingStatus");
             await SyncService.SyncAllAsync();
 
             ProfileSettings profile = await LocalDataStore.GetProfileAsync();
@@ -94,8 +126,8 @@ namespace ArtistWayUWP.Views
             }
 
             button.IsEnabled = true;
-            button.Content = "Já sou usuário(a) — entrar com Google";
-            ReturningUserStatusText.Text = "Login OK, mas não achei dados salvos com essa conta. Vamos configurar do zero — a partir de agora, tudo já fica salvo na nuvem.";
+            button.Content = ContentStore.S("onboarding.returningUser.loginButton");
+            ReturningUserStatusText.Text = ContentStore.S("onboarding.returningUser.noDataFoundStatus");
             ShowStep(1);
         }
 

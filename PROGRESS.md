@@ -8,24 +8,23 @@
 
 ## Estado atual
 
-- **Versão compartilhada (UWP + Android): `42.2.0.28`** (`versionCode`
-  Android = 36).
-- PWA: `CACHE_NAME = "artist-way-companion-v15"` no service worker.
+- **Versão compartilhada (UWP + Android): `42.2.0.29`** (`versionCode`
+  Android = 37).
+- PWA: `CACHE_NAME = "artist-way-companion-v16"` no service worker.
 - As 3 plataformas (PWA, UWP, Android) estão com conteúdo/funcionalidade
   equivalente — nenhuma feature pendente de portar de uma pra outra no
   momento.
 - **Zona cinzenta fechada**: as 12 semanas do livro têm 100% dos itens
   "liste/escreva X" com link "toque pra abrir" — não sobrou nenhuma
   reflexão sem lugar pra escrever.
-- **Regra nova do usuário (2026-08-25, sem exceção): todo texto de
+- **Regra do usuário (2026-08-25, sem exceção): todo texto de
   interface tem que vir de `UI_STRINGS`** — objetivo é permitir
   tradução futura editando só esse arquivo. Ver seção "Fonte única de
   conteúdo e texto de UI" no `CLAUDE.md`.
-- **Retrofit de `UI_STRINGS` — baldes 1, 2, 3 e 5 completos.** Balde 4
-  (onboarding): estrutura/comportamento unificados, texto ainda local.
-  Resto do app (Artist Date, Checklist, Jornada, Quiz, notificações,
+- **Retrofit de `UI_STRINGS` — baldes 1, 2, 3, 4 e 5 completos.** Resto
+  do app (Artist Date, Checklist, Jornada, Quiz, Perfil, notificações,
   erros) ainda não auditado — ver "Possíveis próximos passos".
-- CI rodando pra `42.2.0.27` — checar `gh run list --branch main --limit
+- CI rodando pra `42.2.0.29` — checar `gh run list --branch main --limit
   2` antes de considerar publicado (os workflows fazem um commit
   automático próprio depois do build).
 
@@ -81,6 +80,15 @@
   `System.ValueTuple` (`CS8137`/`CS8179`). Trocado pra
   `params string[]` alternando chave/valor — sem tupla, mesmo
   resultado. Versão `42.2.0.28`.
+- **2026-08-25 (4)**: balde 4 (onboarding) fechado por completo — texto
+  migrado pra `UI_STRINGS` nas 3 plataformas (~35 chaves novas:
+  `onboarding.*` + `common.weekdayNames`/`common.timePickerChangeButton`).
+  Corrigido também o array de nomes de dias da semana, que estava
+  duplicado 4 vezes (PWA, UWP em 2 arquivos, Android) com texto
+  hardcoded — agora só existe em `UI_STRINGS`. Onde PWA/UWP já
+  concordavam entre si e o Android tinha desviado (títulos, descrições,
+  botão "Voltar"/"Avançar" vs "Continuar"), unificado pro texto das
+  duas primeiras. Versão `42.2.0.29` / `v16`.
 
 ## Identidade visual (referência rápida)
 
@@ -103,18 +111,13 @@
 
 ## Possíveis próximos passos (não decididos ainda)
 
-- **Retrofit de `UI_STRINGS` — resto do balde 4**: estrutura/
-  comportamento do onboarding já alinhados (2026-08-25), mas o texto em
-  si ainda não foi movido pra `UI_STRINGS` (fica local em cada
-  plataforma, já com o conteúdo correspondente 1:1 entre as 3).
 - **Retrofit de `UI_STRINGS` — auditoria do resto do app** (pedido do
-  usuário: "absolutamente tudo"): os baldes originais (1-3, 5, e o que
-  falta do 4) cobrem só onboarding/Home/Ajustes/Ferramentas. Ainda não
-  auditado: telas de Artist Date, Checklist/Jornada semanal, Quiz,
-  Perfil, notificações (texto de canal/conteúdo), calendário (Intent),
-  e mensagens de erro/validação espalhadas pelo app. Tamanho real
-  desconhecido ainda — precisa de uma auditoria própria (nos moldes da
-  de 2026-08-23) antes de estimar.
+  usuário: "absolutamente tudo"): baldes 1-5 (nav/card/bespoke/settings/
+  onboarding/Home) completos. Ainda não auditado: telas de Artist Date,
+  Checklist/Jornada semanal, Quiz, Perfil, notificações (texto de
+  canal/conteúdo), calendário (Intent), e mensagens de erro/validação
+  espalhadas pelo app. Tamanho real desconhecido ainda — precisa de uma
+  auditoria própria (nos moldes da de 2026-08-23) antes de estimar.
 - Testar manualmente nos dois aparelhos (Lumia 830 e o Android físico
   usado pra teste): ícone com o tamanho novo, notificação, tile UWP
   herdando a cor de acento certa, todos os links tocáveis das 12
@@ -123,9 +126,8 @@
   `valorMorningPages`, `cenaIdeal`, `habitoQueAtrapalha`,
   `promessasGentis`, `semanaAutocuidado`, `resistenciasMedosContinuar`,
   `areasProcrastinacao`, `recipientePreocupacoes`), os textos
-  unificados de Ajustes/Ferramentas/Home (baldes 1-3 e 5 do
-  `UI_STRINGS`), e o onboarding com 5 passos (novo fluxo compacto,
-  2026-08-25).
+  unificados de Ajustes/Ferramentas/Home/Onboarding (baldes 1-5 do
+  `UI_STRINGS`, novo fluxo compacto de 5 passos).
 
 `settings.json` global (`remoteControlAtStartup`) já foi ligado nesta
 sessão — não é mais pendência, é config global, fora deste repo.
