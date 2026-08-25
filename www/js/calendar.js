@@ -71,8 +71,8 @@ function buildRenderUrl({ title, details, hour, minute, durationMinutes = 30, we
 function morningPagesUrl(time) {
   const [h, m] = time.split(":").map(Number);
   return buildRenderUrl({
-    title: "Morning Pages",
-    details: "3 páginas à mão, sem reler. Companheiro The Artist's Way.",
+    title: UI_STRINGS["home.morningPages.title"],
+    details: UI_STRINGS["morningPages.calendarEventDescription"],
     hour: h,
     minute: m,
     durationMinutes: 30,
@@ -83,8 +83,8 @@ function morningPagesUrl(time) {
 function artistDateUrl(weekdayIndex, time) {
   const [h, m] = time.split(":").map(Number);
   return buildRenderUrl({
-    title: "Artist Date",
-    details: "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
+    title: UI_STRINGS["artistDate.calendarEventTitle"],
+    details: UI_STRINGS["artistDate.calendarEventDescription"],
     hour: h,
     minute: m,
     durationMinutes: 90,
@@ -96,8 +96,8 @@ function artistDateUrl(weekdayIndex, time) {
 function checkinUrl(weekdayIndex, time) {
   const [h, m] = time.split(":").map(Number);
   return buildRenderUrl({
-    title: "Check-in semanal",
-    details: "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
+    title: UI_STRINGS["onboarding.rituals.checkinSection"],
+    details: UI_STRINGS["checkin.calendarEventDescription"],
     hour: h,
     minute: m,
     durationMinutes: 20,

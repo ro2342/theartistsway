@@ -20,6 +20,14 @@ namespace ArtistWayUWP.Views
         public ArtistDatePage()
         {
             this.InitializeComponent();
+            DescriptionText.Text = ContentStore.S("artistDate.description");
+            SummaryTitleText.Text = ContentStore.S("artistDate.summaryTitle");
+            EditButton.Content = ContentStore.S("artistDate.editButton");
+            IdeaBox.PlaceholderText = ContentStore.S("artistDate.ideaPlaceholder");
+            ShuffleText.Text = ContentStore.S("artistDate.shuffleButton");
+            SaveDateButton.Content = ContentStore.S("artistDate.saveButton");
+            CancelEditButton.Content = ContentStore.S("common.cancel");
+            AddCalendarButton.Content = ContentStore.S("artistDate.addWindowsCalendarButton");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -33,7 +41,7 @@ namespace ArtistWayUWP.Views
             ProfileSettings profile = await LocalDataStore.GetProfileAsync();
             _weekId = WeekCalculator.GetWeekCursor(profile).WeekId;
             _weekKey = WeekCalculator.WeekKeyForOffset(profile, _weekId);
-            SubText.Text = $"semana {_weekId}";
+            SubText.Text = ContentStore.S("artistDate.weekLabel", "week", _weekId.ToString());
 
             _current = await LocalDataStore.GetArtistDateAsync(_weekKey) ?? new ArtistDateEntry();
             UpdateSummary();
@@ -42,11 +50,11 @@ namespace ArtistWayUWP.Views
         private void UpdateSummary()
         {
             SummaryIdeaText.Text = string.IsNullOrWhiteSpace(_current.Idea)
-                ? "Nenhuma ideia registrada ainda pra essa semana."
+                ? ContentStore.S("artistDate.noIdeaYet")
                 : _current.Idea;
             MarkDoneButton.Content = _current.Done
-                ? "✓ Artist Date dessa semana feito"
-                : "Marcar como feito essa semana";
+                ? ContentStore.S("artistDate.doneButton")
+                : ContentStore.S("artistDate.markDoneButton");
         }
 
         private void Shuffle_Click(object sender, RoutedEventArgs e)
@@ -108,8 +116,8 @@ namespace ArtistWayUWP.Views
             if (TimeSpan.TryParse(profile?.ArtistDateTime ?? "16:00", out TimeSpan time))
             {
                 await AppointmentService.AddWeeklyAsync(
-                    "Artist Date",
-                    "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
+                    ContentStore.S("artistDate.calendarEventTitle"),
+                    ContentStore.S("artistDate.calendarEventDescription"),
                     weekday,
                     time,
                     90,

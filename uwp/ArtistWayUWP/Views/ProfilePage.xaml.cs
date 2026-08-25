@@ -19,6 +19,20 @@ namespace ArtistWayUWP.Views
         public ProfilePage()
         {
             this.InitializeComponent();
+            NameLabelText.Text = ContentStore.S("onboarding.nameDate.nameLabel");
+            StartDateLabelText.Text = ContentStore.S("onboarding.nameDate.startDateLabel");
+            MpTimeLabelText.Text = ContentStore.S("profile.mpTimeLabel");
+            AdDayLabelText.Text = ContentStore.S("profile.adDayLabel");
+            AdTimeLabelText.Text = ContentStore.S("profile.adTimeLabel");
+            CiDayLabelText.Text = ContentStore.S("profile.ciDayLabel");
+            CiTimeLabelText.Text = ContentStore.S("profile.ciTimeLabel");
+            SaveProfileButton.Content = ContentStore.S("settings.profile.saveButton");
+            CalendarSectionTitleText.Text = ContentStore.S("profile.windowsCalendarSectionTitle");
+            CalendarSectionDescriptionText.Text = ContentStore.S("profile.windowsCalendarSectionDescription");
+            AddMpCalendarButton.Content = ContentStore.S("profile.addMpCalendarButton");
+            AddAdCalendarButton.Content = ContentStore.S("profile.addAdCalendarButton");
+            AddCiCalendarButton.Content = ContentStore.S("profile.addCiCalendarButton");
+
             PopulateWeekdayCombo(ArtistDateDayCombo);
             PopulateWeekdayCombo(CheckinDayCombo);
         }
@@ -95,9 +109,9 @@ namespace ArtistWayUWP.Views
 
             ContentDialog dialog = new ContentDialog
             {
-                Title = "Tudo certo",
-                Content = "Ajustes salvos e lembretes atualizados.",
-                CloseButtonText = "OK",
+                Title = ContentStore.S("profile.savedDialogTitle"),
+                Content = ContentStore.S("profile.savedMessage"),
+                CloseButtonText = ContentStore.S("common.ok"),
             };
             _ = dialog.ShowAsync();
         }
@@ -107,8 +121,8 @@ namespace ArtistWayUWP.Views
             if (TimeSpan.TryParse(_profile.MorningPagesTime, out TimeSpan time))
             {
                 await AppointmentService.AddDailyAsync(
-                    "Morning Pages",
-                    "3 páginas à mão, sem reler. Companheiro The Artist's Way.",
+                    ContentStore.S("home.morningPages.title"),
+                    ContentStore.S("morningPages.calendarEventDescription"),
                     time,
                     30,
                     UiHelper.GetElementRect((FrameworkElement)sender));
@@ -121,8 +135,8 @@ namespace ArtistWayUWP.Views
             if (TimeSpan.TryParse(_profile.ArtistDateTime, out TimeSpan time))
             {
                 await AppointmentService.AddWeeklyAsync(
-                    "Artist Date",
-                    "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
+                    ContentStore.S("artistDate.calendarEventTitle"),
+                    ContentStore.S("artistDate.calendarEventDescription"),
                     day == 0 ? 7 : day,
                     time,
                     90,
@@ -136,8 +150,8 @@ namespace ArtistWayUWP.Views
             if (TimeSpan.TryParse(_profile.CheckinTime, out TimeSpan time))
             {
                 await AppointmentService.AddWeeklyAsync(
-                    "Check-in semanal",
-                    "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
+                    ContentStore.S("onboarding.rituals.checkinSection"),
+                    ContentStore.S("checkin.calendarEventDescription"),
                     day == 0 ? 7 : day,
                     time,
                     20,

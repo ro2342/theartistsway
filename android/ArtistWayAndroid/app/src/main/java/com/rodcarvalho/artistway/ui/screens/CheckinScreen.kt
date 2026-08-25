@@ -53,7 +53,7 @@ fun CheckinScreen(weekId: Int, onSaved: () -> Unit) {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Check-in — Semana $weekId", style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("checkin.header", "week" to weekId.toString()), style = MaterialTheme.typography.headlineSmall)
         if (loaded) {
             questions.forEachIndexed { i, question ->
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -75,7 +75,7 @@ fun CheckinScreen(weekId: Int, onSaved: () -> Unit) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Salvar check-in") }
+            ) { Text(ContentStore.s("checkin.saveButton")) }
         }
     }
 }

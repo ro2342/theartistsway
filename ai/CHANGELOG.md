@@ -776,3 +776,104 @@ texto) e começar a auditoria do resto do app.
    Jornada, Quiz, Perfil, notificações, calendário, mensagens de erro
    — pra saber o tamanho real do que falta pro objetivo de "absolutamente
    tudo".
+
+## 2026-08-25 (5)
+
+Continuação direta da entrega anterior (mesmo "sim" do usuário) —
+comecei a auditoria do resto do app pelas telas de maior tráfego:
+Artist Date, Check-in e Perfil (essa última puxada junto porque
+compartilha o array de dias da semana já tocado no balde 4 e tem
+texto de calendário idêntico ao de Artist Date/Check-in).
+
+1. **Levantamento**: leitura completa de `ArtistDatePage.xaml`/`.xaml.cs`
+   (UWP), `ArtistDateScreen.kt` (Android) e a rota `/artist-date` do
+   PWA; mesma coisa pra `CheckinPage`/`CheckinScreen`/rota `/checkin`;
+   e `ProfilePage`/`ProfileScreen`/rota `/profile`. Também
+   `www/js/calendar.js` (as 3 funções `morningPagesUrl`/`artistDateUrl`/
+   `checkinUrl` que montam o link do Google Calendar pro PWA) e os
+   handlers `AppointmentService.AddDailyAsync`/`AddWeeklyAsync` (UWP) /
+   `CalendarIntentHelper.addDaily`/`addWeekly` (Android) que abrem o
+   calendário nativo — o título/descrição desses eventos é texto que
+   vai parar literalmente no calendário do usuário, então também conta
+   como "texto do app".
+2. **Achado**: o texto do evento de calendário do Artist Date ("Artist
+   Date" / "Um encontro solo, só por prazer, para encher o poço
+   criativo. Companheiro The Artist's Way.") e do check-in ("Check-in
+   semanal" / "Revisar a semana: Morning Pages, Artist Date e
+   reflexões. Companheiro The Artist's Way.") estava **duplicado 2
+   vezes dentro do próprio UWP** (`ArtistDatePage.xaml.cs` E
+   `ProfilePage.xaml.cs` — a mesma ação de "adicionar ao calendário"
+   existe nas duas telas) e o mesmo padrão duplicado dentro do próprio
+   Android (`ArtistDateScreen.kt` E `ProfileScreen.kt`). Confirma o
+   mesmo padrão de duplicação interna já visto no balde 4 com
+   `WeekdayNames`.
+3. **~40 chaves novas em `UI_STRINGS`**: grupo `artistDate.*`
+   (weekLabel/description/summaryTitle/noIdeaYet/markDoneButton/
+   doneButton/editButton/ideaPlaceholder/shuffleButton/saveButton/
+   calendarEventTitle/calendarEventDescription/
+   addWindowsCalendarButton/addAndroidCalendarButton/
+   googleCalendarPrompt/addGoogleCalendarButton/toastSaved/toastDone/
+   toastUndone), grupo `checkin.*` (header/pwaTitle/pwaSubtitle/
+   saveButton/toastSaved/calendarEventDescription), grupo `profile.*`
+   (pageTitle/mpTimeLabel/adDayLabel/adTimeLabel/ciDayLabel/
+   ciTimeLabel/adSectionTitle/windowsCalendarSectionTitle/
+   windowsCalendarSectionDescription/googleCalendarSectionTitle/
+   googleCalendarSectionDescription/addMpCalendarButton/
+   addAdCalendarButton/addCiCalendarButton/savedDialogTitle/
+   savedMessage), e `morningPages.calendarEventDescription`. Reuso
+   deliberado de chaves já existentes onde o texto já era idêntico:
+   `onboarding.nameDate.nameLabel`/`startDateLabel` (campo "Nome"/
+   "Início da Semana 1" no Perfil, mesmo texto do onboarding),
+   `onboarding.rituals.timeLabel`/`weekdayLabel`/`checkinSection`,
+   `home.morningPages.title`, `settings.profile.saveButton` (já
+   existia do balde 1-3, é o mesmo botão), `common.cancel`.
+4. **Decisões de unificação** (mesmo critério dos rounds anteriores —
+   2 de 3 concordando vira canônico): botão "Editar date" (PWA/UWP) vs
+   "Editar ideia" (Android) → unificado pra "Editar date". "Sortear
+   outra ideia" (PWA/UWP) vs "Sortear ideia" (Android) → unificado.
+   "Salvar Date" (PWA/UWP) vs "Salvar" (Android) → unificado. Botão de
+   calendário do Android: era um `OutlinedButton` genérico com o mesmo
+   texto "Adicionar ao Calendário" repetido 3 vezes (Morning
+   Pages/Artist Date/Check-in) — trocado pra usar os 3 textos
+   distintos que PWA/UWP já usam (`+ Morning Pages diário`/`+ Artist
+   Date semanal`/`+ Check-in semanal`), em vez de manter o padrão
+   genérico só do Android.
+5. **Diferenças mantidas de propósito (não são divergência acidental,
+   são plataformas diferentes de verdade)**: o card de calendário do
+   PWA usa Google Calendar (`googleCalendarPrompt`/
+   `addGoogleCalendarButton`/`googleCalendarSectionTitle`/
+   `googleCalendarSectionDescription`) enquanto UWP/Android abrem o
+   app de calendário nativo do aparelho
+   (`addWindowsCalendarButton`/`addAndroidCalendarButton`/
+   `windowsCalendarSectionTitle`/`windowsCalendarSectionDescription`)
+   — são fluxos de fato diferentes (link web vs. Intent/Appointment
+   API nativa), cada um com sua chave própria em vez de forçar um texto
+   comum que não faria sentido numa das duas pontas.
+6. **Validação**: `node --check` em `app.js` e `calendar.js`; XML de
+   `ArtistDatePage.xaml`, `CheckinPage.xaml` e `ProfilePage.xaml`
+   validados; varredura de `--` literal e de texto PT-BR remanescente
+   (grep dedicado, incluindo checagem de `Content=`/`Text=`/
+   `PlaceholderText=` nos 3 arquivos XAML e `Text(`/`label = { Text(`
+   nos 3 arquivos Kotlin) — zero ocorrência real (só comentários e
+   format strings tipo `"yyyy-MM-dd"`/`"hh\:mm"`, que não são texto de
+   UI). `node scripts/generate-content-json.js --check` confirmado.
+   Teste E2E novo (`test-artistdate.js`, scratchpad): cria perfil
+   direto via `DB.setProfile`, navega Artist Date (confirma
+   semana/descrição/título do card/botão editar, entra no modo edição
+   e confirma placeholder/sortear/salvar), Check-in (confirma
+   título/subtítulo/botão salvar) e Perfil (confirma os 7 labels de
+   campo em ordem + botão salvar + título do card de calendário) — zero
+   erro de console. Reexecutados `test-onboarding.js`, `test-home.js` e
+   `test-uistrings.js` (rounds anteriores) pra confirmar que mexer de
+   novo em `app.js`/`calendar.js` não quebrou nada — todos continuam
+   passando.
+7. Versão bumpada nas 3 plataformas: UWP `42.2.0.29 → 42.2.0.30`;
+   Android `versionCode 37→38`, `versionName "42.2.0.29"→"42.2.0.30"`;
+   PWA `CACHE_NAME` `"...v16"→"...v17"`.
+8. **Ainda não auditado** (próxima rodada, sem decisão de quando):
+   Checklist/Jornada semanal (`WeekDetailPage`/`WeekDetailScreen`,
+   maior arquivo restante — ~24 candidatos a string no `.xaml.cs` na
+   contagem inicial), Quiz, Essay/NamedList (telas genéricas), texto
+   de conteúdo das notificações push em si (canais, título/corpo da
+   notificação — distinto do botão que as configura, já coberto), e
+   mensagens de erro/validação.

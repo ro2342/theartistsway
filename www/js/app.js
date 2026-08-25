@@ -1397,36 +1397,36 @@ route("/artist-date", async () => {
 
   function renderScreen() {
     appEl.innerHTML = `
-      <p class="muted">semana ${weekId}</p>
-      <p class="muted text-center">Um encontro solo, só por prazer — sem culpa, sem produtividade.</p>
+      <p class="muted">${UIS("artistDate.weekLabel", { week: weekId })}</p>
+      <p class="muted text-center">${UIS("artistDate.description")}</p>
       ${
         editing
           ? `
         <div class="idea-card">
-          <textarea id="ideaText" placeholder="Toque em 'sortear' ou escreva aqui o seu próprio plano...">${draftIdea}</textarea>
+          <textarea id="ideaText" placeholder="${UIS("artistDate.ideaPlaceholder")}">${draftIdea}</textarea>
         </div>
-        <button class="btn secondary block" id="shuffle"><span class="icon">${window.ArtistWayIcons.dice}</span> Sortear outra ideia</button>
+        <button class="btn secondary block" id="shuffle"><span class="icon">${window.ArtistWayIcons.dice}</span> ${UIS("artistDate.shuffleButton")}</button>
         <div class="spacer"></div>
-        <button class="btn brass block" id="saveDate">Salvar Date</button>
+        <button class="btn brass block" id="saveDate">${UIS("artistDate.saveButton")}</button>
         <div class="spacer-sm"></div>
-        <button class="btn secondary block" id="cancelEdit">Cancelar</button>
+        <button class="btn secondary block" id="cancelEdit">${UIS("common.cancel")}</button>
       `
           : `
         <div class="card">
-          <div class="card-title" style="font-size:1.05rem;">Sua ideia pra essa semana</div>
-          <p class="muted">${current.idea ? current.idea : "Nenhuma ideia registrada ainda pra essa semana."}</p>
+          <div class="card-title" style="font-size:1.05rem;">${UIS("artistDate.summaryTitle")}</div>
+          <p class="muted">${current.idea ? current.idea : UIS("artistDate.noIdeaYet")}</p>
           <button class="btn ${current.done ? "secondary" : "moss"} block" id="markDone">
-            ${current.done ? "✓ Artist Date dessa semana feito" : "Marcar como feito essa semana"}
+            ${current.done ? UIS("artistDate.doneButton") : UIS("artistDate.markDoneButton")}
           </button>
           <div class="spacer-sm"></div>
-          <button class="btn secondary block" id="editDate">Editar date</button>
+          <button class="btn secondary block" id="editDate">${UIS("artistDate.editButton")}</button>
         </div>
       `
       }
       <div class="spacer"></div>
       <div class="card dotted text-center">
-        <p class="muted">Quer que apareça no seu Google Calendar toda semana?</p>
-        <button class="btn brass block" id="addCal">Adicionar lembrete recorrente</button>
+        <p class="muted">${UIS("artistDate.googleCalendarPrompt")}</p>
+        <button class="btn brass block" id="addCal">${UIS("artistDate.addGoogleCalendarButton")}</button>
       </div>
     `;
 
@@ -1439,7 +1439,7 @@ route("/artist-date", async () => {
         current.idea = draftIdea;
         await DB.setArtistDate(weekKey, current);
         editing = false;
-        toast("Date salvo");
+        toast(UIS("artistDate.toastSaved"));
         renderScreen();
       });
       document.getElementById("cancelEdit").addEventListener("click", () => {
@@ -1450,7 +1450,7 @@ route("/artist-date", async () => {
       document.getElementById("markDone").addEventListener("click", async () => {
         current.done = !current.done;
         await DB.setArtistDate(weekKey, current);
-        toast(current.done ? "Aproveite seu Artist Date!" : "Desmarcado");
+        toast(current.done ? UIS("artistDate.toastDone") : UIS("artistDate.toastUndone"));
         renderScreen();
       });
       document.getElementById("editDate").addEventListener("click", () => {
@@ -1479,7 +1479,7 @@ route("/checkin", async (rest) => {
 
   appEl.innerHTML = `
     <div class="top-bar">
-      <div class="logo" style="text-align:right">Check-in<span class="sub">semana ${weekId}</span></div>
+      <div class="logo" style="text-align:right">${UIS("checkin.pwaTitle")}<span class="sub">${UIS("checkin.pwaSubtitle", { week: weekId })}</span></div>
     </div>
     <div class="card">
       ${questions
@@ -1490,7 +1490,7 @@ route("/checkin", async (rest) => {
         )
         .join("")}
     </div>
-    <button class="btn moss block" id="save">Salvar check-in</button>
+    <button class="btn moss block" id="save">${UIS("checkin.saveButton")}</button>
     <div class="spacer"></div>
   `;
   document.getElementById("save").addEventListener("click", async () => {
@@ -1499,7 +1499,7 @@ route("/checkin", async (rest) => {
       answers[ta.dataset.q] = ta.value;
     });
     await DB.saveCheckin(weekId, answers);
-    toast("Check-in salvo");
+    toast(UIS("checkin.toastSaved"));
     navigate("#/home");
   });
 });
@@ -1657,40 +1657,40 @@ route("/profile", async () => {
 
   appEl.innerHTML = `
     <div class="card">
-      <label>Nome</label>
+      <label>${UIS("onboarding.nameDate.nameLabel")}</label>
       <input type="text" id="fname" value="${settings.name || ""}" />
-      <label>Início da Semana 1</label>
+      <label>${UIS("onboarding.nameDate.startDateLabel")}</label>
       <input type="date" id="fstart" value="${settings.startDate || ""}" />
-      <label>Horário das Morning Pages</label>
+      <label>${UIS("profile.mpTimeLabel")}</label>
       <input type="time" id="fmp" value="${settings.morningPagesTime || "07:00"}" />
-      <label>Dia do Artist Date</label>
+      <label>${UIS("profile.adDayLabel")}</label>
       <select id="fadday">
         ${[1, 2, 3, 4, 5, 6, 7]
           .map((d) => `<option value="${d}" ${String(d) === String(settings.artistDateDay) ? "selected" : ""}>${weekdayNames()[d]}</option>`)
           .join("")}
       </select>
-      <label>Horário do Artist Date</label>
+      <label>${UIS("profile.adTimeLabel")}</label>
       <input type="time" id="fadtime" value="${settings.artistDateTime || "16:00"}" />
-      <label>Dia do check-in</label>
+      <label>${UIS("profile.ciDayLabel")}</label>
       <select id="fciday">
         ${[1, 2, 3, 4, 5, 6, 7]
           .map((d) => `<option value="${d}" ${String(d) === String(settings.checkinDay) ? "selected" : ""}>${weekdayNames()[d]}</option>`)
           .join("")}
       </select>
-      <label>Horário do check-in</label>
+      <label>${UIS("profile.ciTimeLabel")}</label>
       <input type="time" id="fcitime" value="${settings.checkinTime || "19:00"}" />
       <div class="spacer"></div>
-      <button class="btn brass block" id="save">Salvar e reativar lembretes</button>
+      <button class="btn brass block" id="save">${UIS("settings.profile.saveButton")}</button>
     </div>
 
     <div class="card">
-      <div class="card-title" style="font-size:1.05rem;">Google Calendar</div>
-      <p class="muted">Um toque adiciona o compromisso recorrente direto no seu calendário.</p>
-      <button class="btn secondary block" id="calMP">+ Morning Pages diário</button>
+      <div class="card-title" style="font-size:1.05rem;">${UIS("profile.googleCalendarSectionTitle")}</div>
+      <p class="muted">${UIS("profile.googleCalendarSectionDescription")}</p>
+      <button class="btn secondary block" id="calMP">${UIS("profile.addMpCalendarButton")}</button>
       <div class="spacer-sm"></div>
-      <button class="btn secondary block" id="calAD">+ Artist Date semanal</button>
+      <button class="btn secondary block" id="calAD">${UIS("profile.addAdCalendarButton")}</button>
       <div class="spacer-sm"></div>
-      <button class="btn secondary block" id="calCI">+ Check-in semanal</button>
+      <button class="btn secondary block" id="calCI">${UIS("profile.addCiCalendarButton")}</button>
     </div>
 
     <div class="spacer"></div>
@@ -1709,7 +1709,7 @@ route("/profile", async () => {
     });
     await DB.setProfile(updated);
     await NOTIF.applySettings(updated);
-    toast("Ajustes salvos e lembretes atualizados");
+    toast(UIS("profile.savedMessage"));
     render();
   });
 

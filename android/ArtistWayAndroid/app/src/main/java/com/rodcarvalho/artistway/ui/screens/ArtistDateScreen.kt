@@ -79,39 +79,41 @@ fun ArtistDateScreen() {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(ContentStore.s("nav.artistDate"), style = MaterialTheme.typography.headlineSmall)
-        weekId?.let { Text("semana $it", style = MaterialTheme.typography.bodyMedium) }
+        weekId?.let { Text(ContentStore.s("artistDate.weekLabel", "week" to it.toString()), style = MaterialTheme.typography.bodyMedium) }
+        Text(ContentStore.s("artistDate.description"), style = MaterialTheme.typography.bodyMedium)
 
         if (!editing) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(ContentStore.s("artistDate.summaryTitle"), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        current.idea.ifBlank { "Nenhuma ideia registrada ainda pra essa semana." },
+                        current.idea.ifBlank { ContentStore.s("artistDate.noIdeaYet") },
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Button(
                         onClick = { current = current.copy(done = !current.done); persist(scope, weekKey, current) { current = it } },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(if (current.done) "✓ Artist Date dessa semana feito" else "Marcar como feito essa semana")
+                        Text(if (current.done) ContentStore.s("artistDate.doneButton") else ContentStore.s("artistDate.markDoneButton"))
                     }
                     OutlinedButton(
                         onClick = { ideaDraft = current.idea; editing = true },
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("Editar ideia") }
+                    ) { Text(ContentStore.s("artistDate.editButton")) }
                     OutlinedButton(
                         onClick = {
                             val (hour, minute) = parseTimeOrDefault(artistDateTime, 16, 0)
                             CalendarIntentHelper.addWeekly(
                                 context,
-                                "Artist Date",
-                                "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
+                                ContentStore.s("artistDate.calendarEventTitle"),
+                                ContentStore.s("artistDate.calendarEventDescription"),
                                 artistDateDay,
                                 LocalTime.of(hour, minute),
                                 durationMinutes = 90,
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("Adicionar ao Calendário") }
+                    ) { Text(ContentStore.s("profile.addAdCalendarButton")) }
                 }
             }
         } else {
@@ -129,10 +131,11 @@ fun ArtistDateScreen() {
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Sortear ideia") }
+            ) { Text(ContentStore.s("artistDate.shuffleButton")) }
             OutlinedTextField(
                 value = ideaDraft,
                 onValueChange = { ideaDraft = it },
+                label = { Text(ContentStore.s("artistDate.ideaPlaceholder")) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
             )
@@ -143,8 +146,8 @@ fun ArtistDateScreen() {
                         persist(scope, weekKey, next) { current = it; editing = false }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text("Salvar") }
-                OutlinedButton(onClick = { editing = false }, modifier = Modifier.fillMaxWidth()) { Text("Cancelar") }
+                ) { Text(ContentStore.s("artistDate.saveButton")) }
+                OutlinedButton(onClick = { editing = false }, modifier = Modifier.fillMaxWidth()) { Text(ContentStore.s("common.cancel")) }
             }
         }
     }

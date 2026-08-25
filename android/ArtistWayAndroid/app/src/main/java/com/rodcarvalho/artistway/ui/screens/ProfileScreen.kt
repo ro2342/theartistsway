@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.rodcarvalho.artistway.calendar.CalendarIntentHelper
+import com.rodcarvalho.artistway.data.ContentStore
 import com.rodcarvalho.artistway.data.LocalDataStore
 import com.rodcarvalho.artistway.data.model.ProfileSettings
 import com.rodcarvalho.artistway.notifications.NotificationScheduler
@@ -86,61 +87,61 @@ fun ProfileScreen() {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Meu Perfil", style = MaterialTheme.typography.headlineSmall)
+        Text(ContentStore.s("profile.pageTitle"), style = MaterialTheme.typography.headlineSmall)
 
-        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nome") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(ContentStore.s("onboarding.nameDate.nameLabel")) }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(
             value = startDate,
             onValueChange = { startDate = it },
-            label = { Text("Data de início (aaaa-mm-dd)") },
+            label = { Text(ContentStore.s("onboarding.nameDate.startDateLabel")) },
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Text("Morning Pages", style = MaterialTheme.typography.titleSmall)
-        TimePickerField("Horário", morningPagesTime, { morningPagesTime = it }, modifier = Modifier.fillMaxWidth())
+        Text(ContentStore.s("home.morningPages.title"), style = MaterialTheme.typography.titleSmall)
+        TimePickerField(ContentStore.s("onboarding.rituals.timeLabel"), morningPagesTime, { morningPagesTime = it }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(
             onClick = {
                 val (h, m) = parseTimeOrDefault(morningPagesTime, 7, 0)
-                CalendarIntentHelper.addDaily(context, "Morning Pages", "3 páginas à mão, sem reler. Companheiro The Artist's Way.", LocalTime.of(h, m))
+                CalendarIntentHelper.addDaily(context, ContentStore.s("home.morningPages.title"), ContentStore.s("morningPages.calendarEventDescription"), LocalTime.of(h, m))
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Adicionar ao Calendário") }
+        ) { Text(ContentStore.s("profile.addMpCalendarButton")) }
 
-        Text("Artist Date", style = MaterialTheme.typography.titleSmall)
-        WeekdayDropdown("Dia da semana", artistDateDay, { artistDateDay = it }, modifier = Modifier.fillMaxWidth())
-        TimePickerField("Horário", artistDateTime, { artistDateTime = it }, modifier = Modifier.fillMaxWidth())
+        Text(ContentStore.s("profile.adSectionTitle"), style = MaterialTheme.typography.titleSmall)
+        WeekdayDropdown(ContentStore.s("onboarding.rituals.weekdayLabel"), artistDateDay, { artistDateDay = it }, modifier = Modifier.fillMaxWidth())
+        TimePickerField(ContentStore.s("onboarding.rituals.timeLabel"), artistDateTime, { artistDateTime = it }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(
             onClick = {
                 val (h, m) = parseTimeOrDefault(artistDateTime, 16, 0)
                 CalendarIntentHelper.addWeekly(
                     context,
-                    "Artist Date",
-                    "Um encontro solo, só por prazer, para encher o poço criativo. Companheiro The Artist's Way.",
+                    ContentStore.s("artistDate.calendarEventTitle"),
+                    ContentStore.s("artistDate.calendarEventDescription"),
                     artistDateDay,
                     LocalTime.of(h, m),
                     durationMinutes = 90,
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Adicionar ao Calendário") }
+        ) { Text(ContentStore.s("profile.addAdCalendarButton")) }
 
-        Text("Check-in semanal", style = MaterialTheme.typography.titleSmall)
-        WeekdayDropdown("Dia da semana", checkinDay, { checkinDay = it }, modifier = Modifier.fillMaxWidth())
-        TimePickerField("Horário", checkinTime, { checkinTime = it }, modifier = Modifier.fillMaxWidth())
+        Text(ContentStore.s("onboarding.rituals.checkinSection"), style = MaterialTheme.typography.titleSmall)
+        WeekdayDropdown(ContentStore.s("onboarding.rituals.weekdayLabel"), checkinDay, { checkinDay = it }, modifier = Modifier.fillMaxWidth())
+        TimePickerField(ContentStore.s("onboarding.rituals.timeLabel"), checkinTime, { checkinTime = it }, modifier = Modifier.fillMaxWidth())
         OutlinedButton(
             onClick = {
                 val (h, m) = parseTimeOrDefault(checkinTime, 19, 0)
                 CalendarIntentHelper.addWeekly(
                     context,
-                    "Check-in semanal",
-                    "Revisar a semana: Morning Pages, Artist Date e reflexões. Companheiro The Artist's Way.",
+                    ContentStore.s("onboarding.rituals.checkinSection"),
+                    ContentStore.s("checkin.calendarEventDescription"),
                     checkinDay,
                     LocalTime.of(h, m),
                     durationMinutes = 20,
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Adicionar ao Calendário") }
+        ) { Text(ContentStore.s("profile.addCiCalendarButton")) }
 
         Button(
             onClick = {
@@ -159,11 +160,11 @@ fun ProfileScreen() {
                     LocalDataStore.setProfile(next)
                     NotificationScheduler.applySettings(context, next)
                     profile = next
-                    savedMessage = "Ajustes salvos e lembretes atualizados."
+                    savedMessage = ContentStore.s("profile.savedMessage")
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Salvar") }
+        ) { Text(ContentStore.s("settings.profile.saveButton")) }
 
         savedMessage?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
     }

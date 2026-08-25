@@ -11,7 +11,7 @@
     <ScrollViewer Padding="16,16,16,24">
         <StackPanel>
             <TextBlock x:Name="SubText" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" Margin="0,0,0,16" />
-            <TextBlock Text="Um encontro solo, só por prazer — sem culpa, sem produtividade." Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Opacity="0.85" Margin="0,0,0,16" />
+            <TextBlock x:Name="DescriptionText" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Opacity="0.85" Margin="0,0,0,16" />
 
             <!--
               Só o botão "Salvar Date" grava/sincroniza a ideia — entrar
@@ -23,27 +23,26 @@
             -->
             <Border x:Name="SummaryCard" Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="Sua ideia pra essa semana" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="SummaryTitleText" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock x:Name="SummaryIdeaText" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Opacity="0.85" Margin="0,4,0,0" />
                     <Button x:Name="MarkDoneButton" Click="MarkDone_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0" />
-                    <Button Content="Editar date" Click="Edit_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                    <Button x:Name="EditButton" Click="Edit_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
             <StackPanel x:Name="EditPanel" Visibility="Collapsed">
-                <TextBox x:Name="IdeaBox" AcceptsReturn="True" TextWrapping="Wrap" Height="110"
-                         PlaceholderText="Toque em 'sortear' ou escreva aqui o seu próprio plano..." />
+                <TextBox x:Name="IdeaBox" AcceptsReturn="True" TextWrapping="Wrap" Height="110" />
                 <Button Click="Shuffle_Click" HorizontalAlignment="Stretch" Margin="0,12,0,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <SymbolIcon Symbol="Refresh" />
-                        <TextBlock Text="Sortear outra ideia" Margin="8,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ShuffleText" Margin="8,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <Button Content="Salvar Date" Click="SaveDate_Click" HorizontalAlignment="Stretch" Margin="0,20,0,0" />
-                <Button Content="Cancelar" Click="CancelEdit_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                <Button x:Name="SaveDateButton" Click="SaveDate_Click" HorizontalAlignment="Stretch" Margin="0,20,0,0" />
+                <Button x:Name="CancelEditButton" Click="CancelEdit_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
             </StackPanel>
 
-            <Button Content="+ Adicionar lembrete recorrente no Calendário do Windows" Click="AddNativeCalendar_Click" HorizontalAlignment="Stretch" Margin="0,20,0,0" />
+            <Button x:Name="AddCalendarButton" Click="AddNativeCalendar_Click" HorizontalAlignment="Stretch" Margin="0,20,0,0" />
         </StackPanel>
     </ScrollViewer>
 </Page>

@@ -17,6 +17,7 @@ namespace ArtistWayUWP.Views
         public CheckinPage()
         {
             this.InitializeComponent();
+            SaveButton.Content = ContentStore.S("checkin.saveButton");
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -29,7 +30,7 @@ namespace ArtistWayUWP.Views
         private async Task LoadAsync()
         {
             WeekContent week = ContentStore.Content.Weeks.FirstOrDefault(w => w.Id == _weekId);
-            HeaderText.Text = $"Check-in — Semana {_weekId}";
+            HeaderText.Text = ContentStore.S("checkin.header", "week", _weekId.ToString());
 
             List<string> questions = new List<string>(ContentStore.Content.CheckinCoreQuestions);
             if (week != null)
