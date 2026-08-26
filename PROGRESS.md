@@ -8,14 +8,6 @@
 
 ## Estado atual
 
-- **Pasta `tasks/` hospeda o app irmão RodTasks** (repo privado, sem
-  GitHub Pages próprio) — só arquivos estáticos
-  (`rodtasks.appxbundle`/`version.json`), atualizados por push direto
-  neste repo (sem build/CI cross-repo). Publicado em
-  `ro2342.github.io/theartistsway/tasks/` pelos dois workflows de
-  Pages (`02-build-appx.yml` e `04-build-apk.yml`, ambos copiam
-  `tasks/` condicionalmente se a pasta existir — corrigido nesta
-  sessão pra não divergir entre os dois).
 - **Versão compartilhada (UWP + Android): `42.2.0.33`** (`versionCode`
   Android = 41).
 - PWA: `CACHE_NAME = "artist-way-companion-v20"` no service worker.
@@ -135,12 +127,12 @@
   ("feito"/"atual"/cabeçalho) nunca auditado antes. Android também
   ganhou o cabeçalho explicativo que faltava (só PWA/UWP tinham).
   Versão `42.2.0.33` / `v20`.
-- **2026-08-26**: pasta `tasks/` (app irmão RodTasks) adicionada ao
-  repo pra hospedagem estática via GitHub Pages. Corrigido
-  `04-build-apk.yml`, que não copiava `tasks/` pro Pages (só
-  `02-build-appx.yml` copiava) — os dois publicam no mesmo Pages
-  independentemente, então o Android rodando por último apagaria
-  `/tasks` do site.
+- **2026-08-26**: pasta `tasks/` (app irmão RodTasks) adicionada pra
+  hospedagem estática via GitHub Pages deste repo, com fix de paridade
+  entre `02-build-appx.yml`/`04-build-apk.yml` — depois revertido no
+  mesmo dia: usuário decidiu usar um repositório próprio pro RodTasks
+  em vez deste. `tasks/` e as menções a ela nos dois workflows foram
+  removidas.
 
 ## Identidade visual (referência rápida)
 

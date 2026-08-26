@@ -1,21 +1,17 @@
 name: 04 - Build do APK (Android)
 
-# Roda automaticamente a cada push que mexer na pasta android/, www/ ou
-# tasks/, e também pode ser disparado manualmente pela aba Actions.
-# Compila e testa sempre (feedback rápido); assina o APK de release,
-# publica em app/android/ e (re)implanta o GitHub Pages sempre que o
-# keystore de sideload existir (gerado uma vez por
-# 03-generate-android-keystore.yml) — mesmo espírito do
-# 02-build-appx.yml pro UWP. tasks/ hospeda o app irmão RodTasks (repo
-# privado, sem GitHub Pages próprio) — ver comentário completo em
-# 02-build-appx.yml.
+# Roda automaticamente a cada push que mexer na pasta android/ ou www/, e
+# também pode ser disparado manualmente pela aba Actions. Compila e testa
+# sempre (feedback rápido); assina o APK de release, publica em
+# app/android/ e (re)implanta o GitHub Pages sempre que o keystore de
+# sideload existir (gerado uma vez por 03-generate-android-keystore.yml) —
+# mesmo espírito do 02-build-appx.yml pro UWP.
 on:
   push:
     branches: [main]
     paths:
       - "android/**"
       - "www/**"
-      - "tasks/**"
       - ".github/workflows/04-build-apk.yml"
   workflow_dispatch:
 
@@ -146,15 +142,6 @@ jobs:
           mkdir -p pages-dist
           cp -r www/* pages-dist/
           cp -r app pages-dist/app
-
-          # RodTasks (app irmão, repo privado sem Pages próprio) — só
-          # arquivos estáticos, atualizados manualmente por push direto
-          # nesse repo, sem token/CI cross-repo. Mesma cópia condicional
-          # do 02-build-appx.yml — sem isso, este workflow sobrescreve o
-          # Pages sem a pasta tasks/ sempre que roda por último.
-          if [ -d "tasks" ]; then
-            cp -r tasks pages-dist/tasks
-          fi
 
           # Substituição literal (não regex, tudo numa linha só pra não
           # depender de indentação dentro do -c) — evita quebrar se o

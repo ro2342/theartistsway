@@ -1152,6 +1152,12 @@ perguntou se um `git push` normal aqui já levaria essa pasta junto.
    inteiramente em outro projeto/sessão, este repo só hospeda).
 5. **Validação**: YAML de `04-build-apk.yml` validado
    (`yaml.safe_load` via Python). Nenhum teste E2E aplicável (mudança
-   é só infraestrutura de CI/Pages, sem código de app tocado). CI não
-   observado até o fim nesta entrada — confirmar na próxima sessão que
-   `/tasks` está acessível em `ro2342.github.io/theartistsway/tasks/`.
+   é só infraestrutura de CI/Pages, sem código de app tocado). Os dois
+   builds passaram e `/tasks/version.json` foi confirmado acessível em
+   `ro2342.github.io/theartistsway/tasks/` (`curl` retornou o JSON
+   certo).
+6. **Revertido no mesmo dia**: usuário avisou que ia usar um
+   repositório próprio pro RodTasks em vez de hospedar aqui. Removida
+   a pasta `tasks/`, o gatilho `"tasks/**"` e o passo de cópia
+   condicional dos dois workflows — `02-build-appx.yml` e
+   `04-build-apk.yml` voltaram ao estado de antes desta entrada.

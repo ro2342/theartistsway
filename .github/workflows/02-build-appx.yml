@@ -1,18 +1,14 @@
 name: 02 - Build do appxbundle (Windows 10 Mobile)
 
-# Roda automaticamente a cada push que mexer na pasta uwp/, www/ ou tasks/, e
-# também pode ser disparado manualmente pela aba Actions. Gera o .appxbundle
-# pronto pra sideload no Lumia — disponível como artefato do workflow ao
-# final. tasks/ hospeda o app irmão RodTasks (repo privado, sem GitHub Pages
-# próprio) — só arquivos estáticos (.appxbundle/version.json) empurrados
-# manualmente de lá pra cá, sem nenhuma automação cross-repo/token novo.
+# Roda automaticamente a cada push que mexer na pasta uwp/ ou www/, e também
+# pode ser disparado manualmente pela aba Actions. Gera o .appxbundle pronto
+# pra sideload no Lumia — disponível como artefato do workflow ao final.
 on:
   push:
     branches: [main]
     paths:
       - "uwp/**"
       - "www/**"
-      - "tasks/**"
       - ".github/workflows/02-build-appx.yml"
   workflow_dispatch:
 
@@ -166,13 +162,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path pages-dist | Out-Null
           Copy-Item -Path "www/*" -Destination "pages-dist" -Recurse -Force
           Copy-Item -Path "app" -Destination "pages-dist/app" -Recurse -Force
-
-          # RodTasks (app irmão, repo privado sem Pages próprio) — só
-          # arquivos estáticos, atualizados manualmente por push direto
-          # nesse repo, sem token/CI cross-repo.
-          if (Test-Path "tasks") {
-            Copy-Item -Path "tasks" -Destination "pages-dist/tasks" -Recurse -Force
-          }
 
           # O segredo só entra no artefato publicado no Pages, nunca no
           # arquivo commitado no git — mesmo esquema do client secret do
