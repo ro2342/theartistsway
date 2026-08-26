@@ -1,6 +1,6 @@
 # The Artist's Way — Companheiro — PROGRESS.md
 
-> Atualizado em 2026-08-25. Este arquivo existe pra retomar a sessão de
+> Atualizado em 2026-08-26. Este arquivo existe pra retomar a sessão de
 > onde parou — de outro computador, sessão remota, ou depois do
 > terminal fechar. Ver `CLAUDE.md` (raiz) pro documento padrão de
 > arquitetura/convenções do projeto; este arquivo é só o estado
@@ -8,6 +8,14 @@
 
 ## Estado atual
 
+- **Pasta `tasks/` hospeda o app irmão RodTasks** (repo privado, sem
+  GitHub Pages próprio) — só arquivos estáticos
+  (`rodtasks.appxbundle`/`version.json`), atualizados por push direto
+  neste repo (sem build/CI cross-repo). Publicado em
+  `ro2342.github.io/theartistsway/tasks/` pelos dois workflows de
+  Pages (`02-build-appx.yml` e `04-build-apk.yml`, ambos copiam
+  `tasks/` condicionalmente se a pasta existir — corrigido nesta
+  sessão pra não divergir entre os dois).
 - **Versão compartilhada (UWP + Android): `42.2.0.33`** (`versionCode`
   Android = 41).
 - PWA: `CACHE_NAME = "artist-way-companion-v20"` no service worker.
@@ -127,6 +135,12 @@
   ("feito"/"atual"/cabeçalho) nunca auditado antes. Android também
   ganhou o cabeçalho explicativo que faltava (só PWA/UWP tinham).
   Versão `42.2.0.33` / `v20`.
+- **2026-08-26**: pasta `tasks/` (app irmão RodTasks) adicionada ao
+  repo pra hospedagem estática via GitHub Pages. Corrigido
+  `04-build-apk.yml`, que não copiava `tasks/` pro Pages (só
+  `02-build-appx.yml` copiava) — os dois publicam no mesmo Pages
+  independentemente, então o Android rodando por último apagaria
+  `/tasks` do site.
 
 ## Identidade visual (referência rápida)
 

@@ -1115,3 +1115,43 @@ semana específica e já tinha sido migrada).
    for encontrada fora de `UI_STRINGS` em qualquer lugar do app, migrar
    ao ser tocada (regra permanente do `CLAUDE.md`), mas não há mais
    nenhuma área grande conhecida ainda não auditada.
+
+## 2026-08-26 — pasta `tasks/` (app irmão RodTasks)
+
+Usuário avisou que ia criar uma pasta `tasks/` na raiz do repo pra
+hospedar o app irmão RodTasks (projeto separado, `rodtasks`, repo
+privado sem GitHub Pages próprio) via o GitHub Pages deste repo, e
+perguntou se um `git push` normal aqui já levaria essa pasta junto.
+
+1. **Investigação**: `git status` mostrou `tasks/` como untracked
+   (`??`) — não ia junto num push normal sem `git add` explícito. Mas
+   `git diff` em `.github/workflows/02-build-appx.yml` revelou uma
+   mudança **local não commitada** de sessão anterior: o workflow já
+   tinha sido editado pra copiar `tasks/` condicionalmente
+   (`Test-Path "tasks"`) pro `pages-dist` antes de publicar no Pages,
+   com comentário explicando o propósito ("RodTasks, repo privado sem
+   Pages próprio, só arquivos estáticos empurrados manualmente, sem
+   automação cross-repo"). Ou seja, a infraestrutura já tinha sido
+   preparada antes, só nunca chegou a ser commitada/pushada.
+2. **Achado real (bug, não só resposta à pergunta)**: `02-build-appx.yml`
+   (UWP) tinha a cópia condicional de `tasks/`, mas
+   `04-build-apk.yml` (Android) não tinha — e os dois workflows
+   publicam no **mesmo** GitHub Pages de forma independente (dois
+   `actions/deploy-pages` distintos, ambos disparam em qualquer push
+   que mexa em `www/**`). Se o build do Android rodasse por último,
+   ele sobrescreveria o Pages com um `pages-dist` sem a pasta `tasks/`
+   — a pasta sumiria do site ao vivo até o UWP rodar de novo.
+3. **Correção**: espelhada a mesma lógica condicional
+   (`if [ -d "tasks" ]; then cp -r tasks pages-dist/tasks; fi`) em
+   `04-build-apk.yml`, e adicionado `"tasks/**"` no trigger `paths` de
+   ambos os workflows (só o `02` tinha).
+4. **Commitado tudo junto**: a mudança pré-existente (não commitada)
+   do `02-build-appx.yml`, a correção nova do `04-build-apk.yml`, e a
+   pasta `tasks/` em si (`rodtasks.appxbundle` + `version.json` —
+   arquivos binário/estático prontos, o build do app RodTasks acontece
+   inteiramente em outro projeto/sessão, este repo só hospeda).
+5. **Validação**: YAML de `04-build-apk.yml` validado
+   (`yaml.safe_load` via Python). Nenhum teste E2E aplicável (mudança
+   é só infraestrutura de CI/Pages, sem código de app tocado). CI não
+   observado até o fim nesta entrada — confirmar na próxima sessão que
+   `/tasks` está acessível em `ro2342.github.io/theartistsway/tasks/`.
