@@ -1,5 +1,16 @@
 # The Artist's Way — Companheiro — PROGRESS.md
 
+> **Nota (2026-10-06): este app está sendo absorvido pelo projeto
+> `../mare`**, como parte de um super-app pessoal (Maré + Artist's Way +
+> lembretes de ritual, unificados). Decisão completa (por quê evoluir o
+> Maré em vez de manter este projeto separado, o que acontece com os
+> dados do IndexedDB/Firestore daqui) está documentada em
+> `../mare/CLAUDE.md` → "Rumo ao super-app pessoal". **Ainda não
+> implementado** — este projeto (PWA/UWP/Android) continua sendo a
+> versão real até a migração acontecer de verdade. Se alguém abrir uma
+> sessão aqui pra trabalhar no Artist's Way isoladamente, ler essa seção
+> no `mare/CLAUDE.md` primeiro pra saber se a mudança ainda faz sentido.
+
 > Atualizado em 2026-08-26. Este arquivo existe pra retomar a sessão de
 > onde parou — de outro computador, sessão remota, ou depois do
 > terminal fechar. Ver `CLAUDE.md` (raiz) pro documento padrão de
